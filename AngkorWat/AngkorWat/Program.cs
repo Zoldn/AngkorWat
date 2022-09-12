@@ -20,6 +20,11 @@ internal class Program
         Serialize(outputContainer);
 
         outputContainer = Deserialize("output.json");
+
+        foreach (var punkt in outputContainer.Punkte)
+        {
+            Console.WriteLine($"Der punkt: {punkt.X}, {punkt.Y}, {punkt.Z}");
+        }
     }
 
     public static void Serialize(OutputContainer outputContainer)
