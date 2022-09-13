@@ -1,5 +1,7 @@
 ﻿using AngkorWat.IO;
+using AngkorWat.Tower;
 using Newtonsoft.Json;
+using System.Net;
 
 internal class Program
 {
@@ -7,24 +9,42 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
 
-        var outputContainer = new OutputContainer()
+        var dict = ReadDictionary();
+
+        var tower = new Tower();
+
+        //var outputContainer = new OutputContainer()
+        //{
+        //    Punkte = new List<DerPunkt>()
+        //    {
+        //        new DerPunkt() { X = 1, Y = 2, Z = 3, },
+        //        new DerPunkt() { X = 4, Y = 1, Z = 2, },
+        //        new DerPunkt() { X = 2, Y = 0, Z = 1, },
+        //    }
+        //};
+
+        //Serialize(outputContainer);
+
+        //outputContainer = Deserialize("output.json");
+
+        //foreach (var punkt in outputContainer.Punkte)
+        //{
+        //    Console.WriteLine($"Der punkt: {punkt.X}, {punkt.Y}, {punkt.Z}");
+        //}
+    }
+
+    private static List<string> ReadDictionary()
+    {
+        string json = File.ReadAllText("../../../data.json");
+
+        var container = JsonConvert.DeserializeObject<InputContainer>(json);
+
+        if (container is null)
         {
-            Punkte = new List<DerPunkt>()
-            {
-                new DerPunkt() { X = 1, Y = 2, Z = 3, },
-                new DerPunkt() { X = 4, Y = 1, Z = 2, },
-                new DerPunkt() { X = 2, Y = 0, Z = 1, },
-            }
-        };
-
-        Serialize(outputContainer);
-
-        outputContainer = Deserialize("output.json");
-
-        foreach (var punkt in outputContainer.Punkte)
-        {
-            Console.WriteLine($"Der punkt: {punkt.X}, {punkt.Y}, {punkt.Z}");
+            throw new FileNotFoundException();
         }
+
+        return container.Input.Keys.ToList();
     }
 
     public static void Serialize(OutputContainer outputContainer)
