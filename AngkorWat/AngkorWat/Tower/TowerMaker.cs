@@ -76,6 +76,9 @@ namespace AngkorWat.Tower
 
             AddWordUp(tower, "ПРИТОНОСОДЕРЖАТЕЛЬНИЦА", 31, 0, 56);
 
+            AddWordRight(tower, "ПОЛ".ToUpper(), 31, 0, 78);
+            AddWordUp(tower, "ОЧКОВТИРАТЕЛЬСТВО".ToUpper(), 32, 0, 78);
+
             PrintTower(tower);
 
             tower.UpdatePoints();
