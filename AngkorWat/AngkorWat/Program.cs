@@ -15,6 +15,9 @@ internal class Program
 
         var tower = towerMaker.MakeTower();
 
+        Console.WriteLine(tower.ValidationInfo());
+        tower.Serialize();
+
         var lengths = dict
             .GroupBy(g => g.Length)
             .OrderBy(g => g.Key)
