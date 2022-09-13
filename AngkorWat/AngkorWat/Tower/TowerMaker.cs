@@ -26,7 +26,7 @@ namespace AngkorWat.Tower
         {
             var tower = new Tower();
 
-            AddWordRight(tower, "СЫРЬЕ".ToUpper(), 29, 0, 22);
+            //AddWordRight(tower, "СЫРЬЕ".ToUpper(), 29, 0, 22);
 
             AddWordUp(tower, "интернационализирование".ToUpper(), 30, 0, 0);
             AddWordUp(tower, "переосвидетельствование".ToUpper(), 32, 0, 0);
