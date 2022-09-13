@@ -11,7 +11,19 @@ internal class Program
 
         var dict = ReadDictionary();
 
-        var tower = new Tower();
+        var towerMaker = new TowerMaker(dict);
+
+        var tower = towerMaker.MakeTower();
+
+        var lengths = dict
+            .GroupBy(g => g.Length)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        var words23 = dict
+            .Where(e => e.Length >= 23)
+            .ToDictionary(e => e, e => e.Length);
+
 
         //var outputContainer = new OutputContainer()
         //{
