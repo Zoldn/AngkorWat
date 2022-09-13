@@ -50,7 +50,7 @@ namespace AngkorWat.Tower
             //    .ToList();
 
             var t = Words
-                .Where(e => e.Key[e.Key.Length - 1] == 'А')
+                .Where(e => e.Key[e.Key.Length - 1] == 'О')
                 .Select(e => e.Key)
                 .OrderByDescending(e => e.Length)
                 .ToList();
@@ -63,7 +63,7 @@ namespace AngkorWat.Tower
 
             AddWordRight(tower, "Истод".ToUpper(), 27, 0, 36);
 
-            AddWordUp(tower, "ЧЕЛОВЕКОНЕНАВИСТНИЧЕСТВО", 30, 0, 36);
+            AddWordUp(tower, "ПРИСТАНОДЕРЖАТЕЛЬСТВО", 30, 0, 36);
 
             //AddWordUp(tower, "ЛЮБОСТЯЖАТЕЛЬНИЦА", 30, 0, 41);
             //AddWordUp(tower, "ЦЕНТРИФУГИРОВАНИЕ", 32, 0, 41);
@@ -72,9 +72,9 @@ namespace AngkorWat.Tower
 
             //AddWordUp(tower, "ВОЗДУХОНЕПРОНИЦАЕМОСТЬ", 31, 0, 58);
 
-            AddWordRight(tower, "ЧАЙ".ToUpper(), 30, 0, 59);
+            AddWordRight(tower, "ПАЙ".ToUpper(), 30, 0, 56);
 
-            AddWordUp(tower, "ПРИТОНОСОДЕРЖАТЕЛЬНИЦА", 31, 0, 59);
+            AddWordUp(tower, "ПРИТОНОСОДЕРЖАТЕЛЬНИЦА", 31, 0, 56);
 
             PrintTower(tower);
 
