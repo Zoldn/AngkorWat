@@ -137,7 +137,22 @@ namespace AngkorWat.Tower
                     CubesOnLevel[point.Z]++;
                 } else
                 {
-                    CubesOnLevel[point.Z] = 0;
+                    CubesOnLevel[point.Z] = 1;
+                }
+            }
+
+            var t = Points
+                .GroupBy(e => e.Z)
+                .ToDictionary(
+                    g => g.Key, 
+                    g => g.Count()
+                    );
+
+            foreach (var (z, layerCubes) in t)
+            {
+                if ()
+                {
+
                 }
             }
 
