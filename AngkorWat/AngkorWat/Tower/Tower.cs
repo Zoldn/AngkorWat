@@ -90,94 +90,133 @@ namespace AngkorWat.Tower
         // Serializer end
 
         // Validation start
-        public String ValidationInfo()
+        //public string ValidationInfo()
+        //{
+        //    return $"Falling: {isNotFalling()} " +
+        //        $"Crumbling: {isNotCrumbling()} " +
+        //        $"InArea: {InArea()} " +
+        //        $"Connected: {isConnected()}";
+        //}
+
+        public void Print()
         {
-            return $"Falling: {isNotFalling()} " +
-                $"Crumbling: {isNotCrumbling()} " +
-                $"InArea: {InArea()} " +
-                $"Connected: {isConnected()}";
-        }
+            var minx = NewPoints.Min(kv => kv.Key.Item1);
+            var maxx = NewPoints.Max(kv => kv.Key.Item1);
 
-        public Boolean isNotFalling()
-        {
-            Point MassCenter = new();
-            Point EdgeOuter = new();
-            Point EdgeInner = new();
-            EdgeInner.X = 53565;
-            EdgeInner.Y = 53565;
+            var minz = NewPoints.Min(kv => kv.Key.Item3);
+            var maxz = NewPoints.Max(kv => kv.Key.Item3);
 
-
-            foreach (var point in Points)
+            for (int z = maxz; z >= minz; z--)
             {
-                MassCenter.X += point.X;
-                MassCenter.Y += point.Y;
-                MassCenter.Z += point.Z;
-                if (point.Z == 0 && point.X > EdgeOuter.X) EdgeOuter.X = point.X;
-                if (point.Z == 0 && point.Y > EdgeOuter.Y) EdgeOuter.Y = point.Y;
-                if (point.Z == 0 && point.X < EdgeInner.X) EdgeInner.X = point.X;
-                if (point.Z == 0 && point.Y < EdgeInner.Y) EdgeInner.Y = point.Y;
-            }
-
-            MassCenter.X /= Points.Count;
-            MassCenter.Y /= Points.Count;
-            MassCenter.Z /= Points.Count;
-
-            return MassCenter.X <= EdgeOuter.X && MassCenter.Y <= EdgeOuter.Y &&
-                 MassCenter.X >= EdgeInner.X && MassCenter.Y >= EdgeInner.Y;
-        }
-
-        public int isNotCrumbling()
-        {
-            Dictionary<int, int> CubesOnLevel = new();
-
-            foreach (var point in Points)
-            {
-                if (CubesOnLevel.ContainsKey(point.Z))
+                for (int x = minx; x <= maxx; x++)
                 {
-                    CubesOnLevel[point.Z]++;
-                } else
-                {
-                    CubesOnLevel[point.Z] = 1;
+                    if (NewPoints.TryGetValue((x, 0, z), out var c))
+                    {
+                        Console.Write(c);
+                    }
+                    else
+                    {
+                        Console.Write(' ');
+                    }
                 }
-            }
 
-            var t = Points
-                .GroupBy(e => e.Z)
+                Console.WriteLine();
+            }
+        }
+
+        public bool IsNotFalling()
+        {
+            int mass = NewPoints.Count;
+
+            double mx = NewPoints
+                .Sum(kv => kv.Key.Item1) / (double)mass;
+
+            var legs = NewPoints
+                .Where(kv => kv.Key.Item3 == 0)
+                .Select(kv => kv.Key.Item1)
+                .ToList();
+
+            var minX = legs.Min(e => e);
+            var maxX = legs.Max(e => e);
+
+            return minX <= mx && mx <= maxX;
+
+
+            //Point MassCenter = new();
+            //Point EdgeOuter = new();
+            //Point EdgeInner = new();
+            //EdgeInner.X = 53565;
+            //EdgeInner.Y = 53565;
+
+
+            //foreach (var point in Points)
+            //{
+            //    MassCenter.X += point.X;
+            //    MassCenter.Y += point.Y;
+            //    MassCenter.Z += point.Z;
+            //    if (point.Z == 0 && point.X > EdgeOuter.X) EdgeOuter.X = point.X;
+            //    if (point.Z == 0 && point.Y > EdgeOuter.Y) EdgeOuter.Y = point.Y;
+            //    if (point.Z == 0 && point.X < EdgeInner.X) EdgeInner.X = point.X;
+            //    if (point.Z == 0 && point.Y < EdgeInner.Y) EdgeInner.Y = point.Y;
+            //}
+
+            //MassCenter.X /= Points.Count;
+            //MassCenter.Y /= Points.Count;
+            //MassCenter.Z /= Points.Count;
+
+            //return MassCenter.X <= EdgeOuter.X && MassCenter.Y <= EdgeOuter.Y &&
+            //     MassCenter.X >= EdgeInner.X && MassCenter.Y >= EdgeInner.Y;
+        }
+
+        public int IsNotCrumbling()
+        {
+            var cubesOnLevel = NewPoints
+                .GroupBy(e => e.Key.Item3)
                 .ToDictionary(
                     g => g.Key, 
                     g => g.Count()
                     );
 
-            foreach (var (z, layerCubes) in t)
-            {
-                if ()
-                {
+            var maxZ = NewPoints.Max(kv => kv.Key.Item3);
 
+            for (int z = 0; z <= maxZ; z++)
+            {
+                int cubesOnCurrentLevel = cubesOnLevel[z];
+
+                int cubesAboveCurrentLevel = cubesOnLevel
+                    .Where(kv => kv.Key > z)
+                    .Sum(kv => kv.Value);
+
+                if (cubesAboveCurrentLevel > 50 * cubesOnCurrentLevel)
+                {
+                    return z;
                 }
             }
 
-            int i = 55355;
-            int Sum = 0;
-            while (i >= 0)
-            {
-                if (!CubesOnLevel.ContainsKey(i) && Sum > 0)
-                {
-                    return i;
-                }
-                if (CubesOnLevel.ContainsKey(i))
-                {
-                    if (CubesOnLevel[i] * 50 < Sum)
-                    {
-                        return i;
-                    }
-                    Sum += CubesOnLevel[i];
-                }
-                --i;
-            }
-            return i;
+            return -1;
+
+            //int i = 55355;
+            //int Sum = 0;
+            //while (i >= 0)
+            //{
+            //    if (!CubesOnLevel.ContainsKey(i) && Sum > 0)
+            //    {
+            //        return i;
+            //    }
+            //    if (CubesOnLevel.ContainsKey(i))
+            //    {
+            //        if (CubesOnLevel[i] * 50 < Sum)
+            //        {
+            //            return i;
+            //        }
+            //        Sum += CubesOnLevel[i];
+            //    }
+            //    --i;
+            //}
+            //return i;
         }
 
-        public Boolean InArea()
+        public bool InArea()
         {
             var NotGood = new List<Point>();
             foreach (var point in Points)
@@ -190,7 +229,7 @@ namespace AngkorWat.Tower
             return NotGood.Count == 0;
         }
 
-        public Boolean isConnected()
+        public bool isConnected()
         {
             return true;
         }
