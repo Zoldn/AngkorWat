@@ -7,72 +7,48 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    internal class HorizontalWord
+    internal enum WordDirection
     {
-        public Plank Plank { get; set; }
-        public int Shift { get; set; }
-        public string Word { get; set; }
-        public HorizontalWord(Plank plank, int shift, string word)
-        {
-            Plank = plank;
-            Shift = shift;
-            Word = word;
-        }
-        public override string ToString()
-        {
-            return $"Plank {Plank.PlankId}, shift {Shift}: {Word}";
-        }
+        X,
+        Y,
+        Z,
     }
 
-    internal class VerticalWord
+    internal class TowerWord
     {
-        public Plank Plank { get; set; }
-        public int Shift { get; set; }
         public string Word { get; set; }
-        public VerticalWord(Plank plank, int shift, string word)
-        {
-            Plank = plank;
-            Shift = shift;
-            Word = word;
-        }
-        public override string ToString()
-        {
-            return $"Plank {Plank.PlankId}, shift {Shift}: {Word}";
-        }
-    }
-
-    internal class TowerFloor
-    {
-        public bool IsFirst { get; set; }
+        public int X0 { get; set; } 
+        public int Y0 { get; set; }
+        public int Z0 { get; set; }
+        public WordDirection Direction { get; set; }
         /// <summary>
-        /// Сдвиг слова относительно первой точки Планки
+        /// Пересечения с другими словами
         /// </summary>
-        public Dictionary<Plank, HorizontalWord> PlankWords { get; set; }
-        /// <summary>
-        /// Положение вертикального слова на планке относительно стартовой точки
-        /// </summary>
-        public Dictionary<Plank, VerticalWord> ColumnWords { get; set; }
-        public TowerFloor()
+        public List<TowerWord> Overlaps { get; set; }
+        public int MinZ 
         {
-            IsFirst = true;
-            PlankWords = new();
-            ColumnWords = new();
-        }
-
-        public override string ToString()
-        {
-            return $"PlankWords: {string.Join(',', PlankWords.Select(e => e.Value.Word))}\n" +
-                $"ColumnWords: {string.Join(',', ColumnWords.Select(e => e.Value.Word))}";
-        }
-
-        internal int GetPlankMass()
-        {
-            if (PlankWords.Count == 0)
+            get
             {
-                return 0;
+                return Direction == WordDirection.Z ? Z0 - (Word.Length - 1) : Z0;
             }
+        }
 
-            return PlankWords.Sum(kv => kv.Value.Word.Length) - (PlankWords.Count - 1);
+        public TowerWord(string word, WordDirection direction, int x = 0, int y = 0, int z = 0)
+        {
+            Word = word;
+            X0 = x;
+            Y0 = y;
+            Z0 = z;
+            Direction = direction;
+
+            Overlaps = new ();
+        }
+
+        public override string ToString()
+        {
+            return $"{Word} in ({X0}, {Y0}, {Z0}) for {Direction})";
         }
     }
+
+
 }

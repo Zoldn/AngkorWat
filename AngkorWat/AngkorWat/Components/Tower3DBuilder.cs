@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,11 +24,15 @@ namespace AngkorWat.Components
                 .Select(e => e.ToUpper())
                 .ToHashSet();
 
+            var t = Words.GroupBy(w => w.Length)
+                .ToDictionary(g => g.Key, g => g.Count())
+                .OrderBy(kv => kv.Key);
+
             CommonChars = Utils.CalculateCommonChars(Words);
 
-            Random = new Random(42);
+            Random = new Random(42424242);
         }
-        public void BuildTower()
+        public Tower BuildTower()
         {
             var currentTowerProject = new TowerProject();
 
@@ -37,7 +42,7 @@ namespace AngkorWat.Components
 
             int restartCount = 0;
 
-            while (restartCount < 1000)
+            while (restartCount < 100)
             {
                 bool isFloorAdded = TryMakeNextFloor(currentTowerProject);
 
@@ -52,11 +57,15 @@ namespace AngkorWat.Components
 
                     restartCount++;
 
-                    //break;
+                    RemoveLastFloor(currentTowerProject);
+
+                    //currentTowerProject.CheckMass();
+
+                    //currentTowerProject.CheckDublicateWords();
                 }
                 else
                 {
-                    Console.WriteLine($"Current floors {currentTowerProject.Floors.Count}");
+                    Console.WriteLine($"Current height {currentTowerProject.Height}");
                 }
             }
 
@@ -68,24 +77,42 @@ namespace AngkorWat.Components
             //    );
             //}
             Console.WriteLine("");
+
+            var tower = currentTowerProject.ToTower();
+
+            int y = currentTowerProject.CheckOverlaps();
+
+            int c = tower.IsNotCrumbling();
+
+            return tower;
+        }
+
+        private void RemoveLastFloor(TowerProject currentTowerProject)
+        {
+            int lastZ = currentTowerProject.TowerWords.Min(t => t.Z0);
+
+            currentTowerProject.TowerWords = currentTowerProject.TowerWords
+                .Where(t => t.Z0 > lastZ)
+                .ToList();
+
+            foreach (var towerWord in currentTowerProject.TowerWords)
+            {
+                towerWord.Overlaps = towerWord.Overlaps
+                    .Where(ov => ov.Z0 > lastZ)
+                    .ToList();
+            }
         }
 
         private bool TryMakeNextFloor(TowerProject towerProject)
         {
             /// Если первый этаж, то просто ищем слово по-длиннее и ставим его как первый этаж
-            if (towerProject.Floors.Count == 0)
+            if (towerProject.TowerWords.Count == 0)
             {
                 var longestWord = FindRandomNotUsedLongWord(towerProject);
 
-                var firstFloor = new TowerFloor()
-                {
-                    IsFirst = true,
-                };
+                var firstFloor = new TowerWord(longestWord, WordDirection.Z);
 
-                firstFloor.ColumnWords.Add(Planks[0], new VerticalWord(Planks[0], 1, longestWord));
-
-                towerProject.Floors.Add(firstFloor);
-                towerProject.UsedWords.Add(longestWord);
+                towerProject.TowerWords.Add(firstFloor);
 
                 return true;
             }
@@ -95,6 +122,328 @@ namespace AngkorWat.Components
             }
         }
 
+        private string FindRandomNotUsedLongWord(TowerProject towerProject)
+        {
+            var usedWords = towerProject.UsedWords;
+
+            var candidates = Words
+                .Where(w => w.Length >= 24
+                    && !usedWords.Contains(w)
+                )
+                .ToList();
+
+            int index = Random.Next(candidates.Count);
+
+            return candidates[index];
+        }
+
+        private bool TryMakeNotFirstFloor(TowerProject towerProject)
+        {
+            var prevUsedWords = towerProject.UsedWords;
+
+            int currentZ = towerProject.MinZ;
+
+            var prevFloorColumnsWords = towerProject
+                .TowerWords
+                .Where(t => t.MinZ == currentZ)
+                .ToList();
+
+            if (!TryAddHorizontalForColumnsFromPrevFloor(towerProject, prevFloorColumnsWords, 
+                prevUsedWords, currentZ))
+            {
+                return false;
+            }
+
+            //towerProject.CheckDublicateWords();
+            //towerProject.CheckMass();
+
+            int height = GetMaxHeightOfColumnsForCurrentMass(towerProject, currentZ);
+
+            while (height <= 10)
+            {
+                /// TODO: Add extension in Y
+                if (!TryAddOneOutWord(towerProject, currentZ))
+                {
+                    return false;
+                }
+
+                height = GetMaxHeightOfColumnsForCurrentMass(towerProject, currentZ);
+
+                //towerProject.CheckDublicateWords();
+                //towerProject.CheckMass();
+            }
+
+            if (!TryAddVerticalWords(towerProject, currentZ, height))
+            {
+                return false;
+            }
+
+            //towerProject.CheckDublicateWords();
+            //towerProject.CheckMass();
+
+            return true;
+        }
+
+        private bool TryAddOneOutWord(TowerProject towerProject, int currentZ)
+        {
+            var prevUsedWords = towerProject.UsedWords;
+
+            var lastPlank = towerProject.TowerWords
+                .Where(t => t.Direction == WordDirection.X
+                    && t.Z0 == currentZ
+                )
+                .OrderByDescending(t => t.Y0)
+                .First();
+
+            var currUsedWords = new HashSet<string>();
+
+            TowerWord outWord = null;
+
+            //towerProject.CheckMass();
+
+            for (int length = 3; length < 15; length++)
+            {
+                for (int xShift = 0; xShift < lastPlank.Word.Length; xShift++)
+                {
+                    if (lastPlank.Overlaps.Any(ov => ov.X0 - lastPlank.X0 == xShift))
+                    {
+                        continue;
+                    }
+
+                    var candidates = Words
+                        .Where(w => w.Length == length
+                            && w[0] == lastPlank.Word[xShift]
+                            && CommonChars.Contains(w[^1])
+                            && !prevUsedWords.Contains(w)
+                            && !currUsedWords.Contains(w)
+                        )
+                        .ToList();
+
+                    if (candidates.Count > 0)
+                    {
+                        var word = SelectRandom(candidates);
+
+                        outWord = new TowerWord(word, WordDirection.Y, lastPlank.X0 + xShift,
+                            lastPlank.Y0, currentZ);
+
+                        outWord.Overlaps.Add(lastPlank);
+                        lastPlank.Overlaps.Add(outWord);
+
+                        towerProject.TowerWords.Add(outWord);
+
+                        currUsedWords.Add(word);
+
+                        //towerProject.CheckMass();
+
+                        break;
+                    }
+                }
+
+                if (outWord != null)
+                {
+                    break;
+                }
+            }
+
+            if (outWord == null)
+            {
+                return false;
+            }
+
+            for (int length = 3; length < 15; length++)
+            {
+                for (int xShift = 0; xShift < length; xShift++)
+                {
+                    var candidates = Words
+                        .Where(w => w.Length == length
+                            && w[xShift] == outWord.Word[^1]
+                            //&& CommonChars.Contains(w[^1])
+                            && !prevUsedWords.Contains(w)
+                            && !currUsedWords.Contains(w)
+                        )
+                        .ToList();
+
+                    if (candidates.Count > 0)
+                    {
+                        var word = SelectRandom(candidates);
+                        xShift = -xShift;
+
+                        var newPlank = new TowerWord(word, WordDirection.X, outWord.X0 + xShift,
+                            outWord.Y0 + outWord.Word.Length - 1, currentZ);
+
+                        outWord.Overlaps.Add(newPlank);
+                        newPlank.Overlaps.Add(outWord);
+
+                        towerProject.TowerWords.Add(newPlank);
+
+                        //towerProject.CheckMass();
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryAddVerticalWords(TowerProject towerProject, int currentZ, int maxHeight)
+        {
+            var currFloorPlankWords = towerProject
+                .TowerWords
+                .Where(t => t.Z0 == currentZ
+                    && t.Direction == WordDirection.X
+                )
+                .ToList();
+
+            var prevUsedWords = towerProject.UsedWords;
+
+            for (int height = maxHeight; height >= 3; height--)
+            {
+                var currUsedWords = new HashSet<string>();
+
+                Dictionary<TowerWord, (string, int)> selections = new();
+
+                foreach (var plankWord in currFloorPlankWords)
+                {
+                    for (int xShift = 0; xShift < plankWord.Word.Length; xShift++)
+                    {
+                        if (plankWord.Overlaps.Any(ov => ov.X0 - plankWord.X0 == xShift))
+                        {
+                            continue;
+                        }
+
+                        var candidates = Words
+                            .Where(w => w.Length == height
+                                && w[0] == plankWord.Word[xShift]
+                                && CommonChars.Contains(w[^1])
+                                && !prevUsedWords.Contains(w)
+                                && !currUsedWords.Contains(w)
+                            )
+                            .ToList();
+
+                        if (candidates.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var selectedWord = SelectRandom(candidates);
+
+                        selections.Add(plankWord, (selectedWord, xShift));
+
+                        currUsedWords.Add(selectedWord);
+
+                        break;
+                    }
+                }
+
+                /// Если нашли не для всех, то ищем слова покороче
+                if (selections.Count < currFloorPlankWords.Count)
+                {
+                    continue;
+                }
+
+                foreach (var (plank, (word, xShift)) in selections)
+                {
+                    var newTowerWord = new TowerWord(word, WordDirection.Z, plank.X0 + xShift, plank.Y0, plank.Z0);
+
+                    newTowerWord.Overlaps.Add(plank);
+                    plank.Overlaps.Add(newTowerWord);
+
+                    towerProject.TowerWords.Add(newTowerWord);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private int GetMaxHeightOfColumnsForCurrentMass(TowerProject towerProject, int currentZ)
+        {
+            var currentXWords = towerProject
+                .TowerWords
+                .Where(w => w.Direction == WordDirection.X
+                    && w.Z0 == currentZ
+                )
+                .ToList();
+
+            return (int)Math.Floor(52 - (double)towerProject.Mass / currentXWords.Count);
+        }
+
+        public bool TryAddHorizontalForColumnsFromPrevFloor(TowerProject towerProject,
+            List<TowerWord> prevFloorColumnsWords,
+            HashSet<string> prevUsedWords, int currentZ)
+        {
+            HashSet<string> currUsedWords = new HashSet<string>();
+
+            foreach (var columnWord in prevFloorColumnsWords)
+            {
+                if (!TryFindShortXWord(towerProject, columnWord, out string word, out int xShift,
+                    prevUsedWords, currUsedWords))
+                {
+                    return false;
+                }
+
+                var newWord = new TowerWord(word, WordDirection.X, columnWord.X0 + xShift,
+                    columnWord.Y0, currentZ);
+
+                columnWord.Overlaps.Add(newWord);
+                newWord.Overlaps.Add(columnWord);
+
+                towerProject.TowerWords.Add(newWord);
+            }
+
+            return true;
+        }
+
+        private bool TryFindShortXWord(TowerProject towerProject, TowerWord columnWord, out string word, out int xShift, 
+            HashSet<string> prevUsedWords, HashSet<string> currUsedWords)
+        {
+            int startLength = 3;
+
+            //if (towerProject.Height > 130)
+            //{
+            //    startLength++;
+            //}
+
+            //if (towerProject.Height > 160)
+            //{
+            //    startLength++;
+            //}
+
+            for (int length = startLength; length < 15; length++)
+            {
+                for (int shift = 0; shift < length; shift++)
+                {
+                    var candidates = Words
+                        .Where(w => w.Length == length
+                            && w[shift] == columnWord.Word[^1]
+                            && !prevUsedWords.Contains(w)
+                            && !currUsedWords.Contains(w)
+                        )
+                        .ToList();
+
+                    if (candidates.Count > 0)
+                    {
+                        word = SelectRandom(candidates);
+                        currUsedWords.Add(word);
+                        xShift = -shift;
+                        return true;
+                    }
+                }
+            }
+
+            word = "";
+            xShift = 0;
+            return false;
+        }
+
+        private string SelectRandom(List<string> strings)
+        {
+            return strings[Random.Next(strings.Count)];
+        }
+
+        /*
         private bool TryMakeNotFirstFloor(TowerProject towerProject)
         {
             int plankCount = CalculatePlankForMass(towerProject);
@@ -337,17 +686,8 @@ namespace AngkorWat.Components
             return (int)Math.Ceiling(massOfTower / (42.0d - PREFERRABLE_HEIGHT));
         }
 
-        private string FindRandomNotUsedLongWord(TowerProject towerProject)
-        {
-            var candidates = Words
-                .Where(w => w.Length >= 24
-                    && !towerProject.UsedWords.Contains(w)
-                )
-                .ToList();
+        
 
-            int index = Random.Next(candidates.Count);
-
-            return candidates[index];
-        }
+        */
     }
 }

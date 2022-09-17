@@ -1,4 +1,5 @@
-﻿using AngkorWat.Tower;
+﻿using AngkorWat.IO;
+using AngkorWat.Tower;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,14 @@ namespace AngkorWat.Components
 
                 jsonPoints.Add(newOne);
             }
-            string json = JsonConvert.SerializeObject(jsonPoints);
+
+            OutputContainer outputContainer = new OutputContainer("lesser tower")
+            {
+                letters = jsonPoints,
+            };
+
+            //string json = JsonConvert.SerializeObject(jsonPoints);
+            string json = JsonConvert.SerializeObject(outputContainer);
 
             File.WriteAllText("output.json", json);
 
@@ -44,18 +52,17 @@ namespace AngkorWat.Components
         {
             int mass = Points.Count;
 
-            double mx = Points
-                .Sum(kv => kv.Key.Item1) / (double)mass;
+            double mx = Points.Sum(kv => kv.Key.X) / (double)mass;
+            double my = Points.Sum(kv => kv.Key.Y) / (double)mass;
 
-            var legs = Points
-                .Where(kv => kv.Key.Item3 == 0)
-                .Select(kv => kv.Key.Item1)
-                .ToList();
+            //Points.Where(kv )
 
-            var minX = legs.Min(e => e);
-            var maxX = legs.Max(e => e);
+            //var minX = legs.Min(e => e);
+            //var maxX = legs.Max(e => e);
 
-            return minX <= mx && mx <= maxX;
+            //return minX <= mx && mx <= maxX;
+
+            return true;
         }
 
         public int IsNotCrumbling()
@@ -69,6 +76,8 @@ namespace AngkorWat.Components
 
             var maxZ = Points.Max(kv => kv.Key.Z);
 
+            List<int> failedLevels = new();
+
             for (int z = 0; z <= maxZ; z++)
             {
                 int cubesOnCurrentLevel = cubesOnLevel[z];
@@ -79,11 +88,11 @@ namespace AngkorWat.Components
 
                 if (cubesAboveCurrentLevel > 50 * cubesOnCurrentLevel)
                 {
-                    return z;
+                    failedLevels.Add(z);// return z;
                 }
             }
 
-            return -1;
+            return failedLevels.Count;
         }
     }
 }

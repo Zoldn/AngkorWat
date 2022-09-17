@@ -15,7 +15,13 @@ internal class Program
 
         var tower3dbuilder = new Tower3DBuilder(dict);
 
-        tower3dbuilder.BuildTower();
+        var tower = tower3dbuilder.BuildTower();
+
+        tower.IsNotCrumbling();
+
+        tower.IsNotFalling();
+
+        tower.Serialize();
 
         //var towerMaker = new TowerMaker(dict);
 
