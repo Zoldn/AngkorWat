@@ -1,4 +1,5 @@
-﻿using AngkorWat.IO;
+﻿using AngkorWat.Components;
+using AngkorWat.IO;
 using AngkorWat.Tower;
 using AngkorWat.TowerBuilder;
 using Newtonsoft.Json;
@@ -12,15 +13,19 @@ internal class Program
 
         var dict = ReadDictionary();
 
+        var tower3dbuilder = new Tower3DBuilder(dict);
+
+        tower3dbuilder.BuildTower();
+
         //var towerMaker = new TowerMaker(dict);
 
         //var tower = towerMaker.MakeTower();
 
-        var towerBuilder = new TowerBuilder(dict);
+        //var towerBuilder = new TowerBuilder(dict);
 
-        var tower = towerBuilder.SearchTower();
+        //var tower = towerBuilder.SearchTower();
 
-        tower.Serialize();
+        //tower.Serialize();
     }
 
     private static List<string> ReadDictionary()
