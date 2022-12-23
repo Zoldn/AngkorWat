@@ -31,7 +31,8 @@ namespace AngkorWat.Algorithms.RouteSolver
 
             InitializeChildren();
 
-            CalculateDistancesToSanta();
+            //CalculateDistancesToSanta();
+            CalculateDistancesToSantaEuclid();
 
             foreach (var packing in allData.PackingSolution.Packings)
             {
@@ -168,7 +169,8 @@ namespace AngkorWat.Algorithms.RouteSolver
                 .Select(e => e.Key)
                 .ToDictionary(
                     c => c,
-                    c => allData.Routes.Routes[(c, furthestChild)].TravelTime
+                    //c => allData.Routes.Routes[(c, furthestChild)].TravelTime
+                    c => DistanceSolver.GetDistance(c, furthestChild)
                 );
 
             return distancesToSelected
@@ -184,6 +186,15 @@ namespace AngkorWat.Algorithms.RouteSolver
                 .ToDictionary(
                     c => c,
                     c => allData.Routes.Routes[(c, allData.Santa)].TravelTime
+                );
+        }
+
+        private void CalculateDistancesToSantaEuclid()
+        {
+            DistancesToSanta = allData.Children
+                .ToDictionary(
+                    c => c,
+                    c => DistanceSolver.GetDistance(c, allData.Santa) //allData.Routes.Routes[(c, allData.Santa)].TravelTime
                 );
         }
 
