@@ -1,4 +1,5 @@
-﻿using AngkorWat.Algorithms.PackSolver;
+﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.Algorithms.PackSolver;
 using AngkorWat.Components;
 using AngkorWat.IO;
 using Newtonsoft.Json;
@@ -10,9 +11,15 @@ internal class Program
     {
         var allData = GetAllData();
 
-        var packingSolver = new PackingSolver(allData);
+        //var packingSolver = new PackingSolver(allData);
 
-        allData.Packings = packingSolver.Solve();
+        //allData.Packings = packingSolver.Solve();
+
+        //DistanceSolver.TestOverlap();
+
+        var distanceSolver = new DistanceSolver(allData);
+
+        allData.Routes = distanceSolver.Solve();
     }
 
     private static AllData GetAllData()
@@ -22,7 +29,7 @@ internal class Program
         var ret = new AllData();
 
         ret.Children = inputContainer.children
-            .Select(e => new Child(e))
+            .Select((e, index) => new Child(e, index + 1))
             .ToList();
 
         ret.SnowAreas = inputContainer.snowAreas

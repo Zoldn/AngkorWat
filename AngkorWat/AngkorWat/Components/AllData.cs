@@ -1,4 +1,5 @@
-﻿using AngkorWat.Algorithms.PackSolver;
+﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.Algorithms.PackSolver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace AngkorWat.Components
         public List<SnowArea> SnowAreas { get; set; }
         public List<Gift> Gifts { get; set; }
         public PackingSolution Packings { get; internal set; }
+        public DistanceSolution Routes { get; internal set; }
 
         public AllData()
         {
@@ -20,8 +22,8 @@ namespace AngkorWat.Components
             SnowAreas = new();
             Gifts = new();
 
-
             Packings = new();
+            Routes = new();
         }
     }
 }

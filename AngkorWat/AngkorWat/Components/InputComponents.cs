@@ -1,4 +1,5 @@
-﻿using AngkorWat.IO;
+﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,15 +42,24 @@ namespace AngkorWat.Components
         }
     }
 
-    internal class Child
+    internal class Child : ILocation
     {
-        public int X { get; }
-        public int Y { get; }
-        public Child(RawChild rawChild)
+        public double X { get; }
+        public double Y { get; }
+        public bool IsSanta => false;
+        public int LocationId { get; set; }
+        public Child(RawChild rawChild, int id)
         {
             X = rawChild.x;
             Y = rawChild.y;
+            LocationId = id;
         }
+
+        public DerPunkt AsPunkt()
+        {
+            return new DerPunkt { X = X, Y = Y };
+        }
+
         public override string ToString()
         {
             return $"Child in ({X}, {Y})";

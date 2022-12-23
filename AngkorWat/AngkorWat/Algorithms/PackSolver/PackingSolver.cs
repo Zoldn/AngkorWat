@@ -11,16 +11,17 @@ namespace AngkorWat.Algorithms.PackSolver
 {
     internal class PackingSolver
     {
-        private static long MAX_WEIGHT = 200;
-        private static long MAX_VOLUME = 100;
+        private static readonly long MAX_WEIGHT = 200;
+        private static readonly long MAX_VOLUME = 100;
 
-        private AllData allData;
+        private readonly AllData allData;
 
         public Dictionary<Gift, bool> AvailableGifts { get; private set; }
 
         public PackingSolver(AllData allData)
         {
             this.allData = allData;
+            AvailableGifts = new();
         }
 
         public PackingSolution Solve()
