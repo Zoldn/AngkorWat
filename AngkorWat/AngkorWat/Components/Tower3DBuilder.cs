@@ -151,6 +151,7 @@ namespace AngkorWat.Components
             if (!TryAddHorizontalForColumnsFromPrevFloor(towerProject, prevFloorColumnsWords, 
                 prevUsedWords, currentZ))
             {
+                Console.WriteLine($"\tFailed on adding planks");
                 return false;
             }
 
@@ -164,6 +165,7 @@ namespace AngkorWat.Components
                 /// TODO: Add extension in Y
                 if (!TryAddOneOutWord(towerProject, currentZ))
                 {
+                    Console.WriteLine($"\tFailed on adding outwards");
                     return false;
                 }
 
@@ -175,6 +177,7 @@ namespace AngkorWat.Components
 
             if (!TryAddVerticalWords(towerProject, currentZ, height))
             {
+                Console.WriteLine($"\tFailed on adding columns");
                 return false;
             }
 
