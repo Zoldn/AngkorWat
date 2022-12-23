@@ -1,4 +1,5 @@
-﻿using AngkorWat.Components;
+﻿using AngkorWat.Algorithms.PackSolver;
+using AngkorWat.Components;
 using AngkorWat.IO;
 using Newtonsoft.Json;
 using System.Net;
@@ -8,6 +9,10 @@ internal class Program
     private static void Main(string[] _)
     {
         var allData = GetAllData();
+
+        var packingSolver = new PackingSolver(allData);
+
+        allData.Packings = packingSolver.Solve();
     }
 
     private static AllData GetAllData()
