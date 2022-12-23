@@ -11,9 +11,9 @@ internal class Program
     {
         var allData = GetAllData();
 
-        //var packingSolver = new PackingSolver(allData);
+        var packingSolver = new PackingSolver(allData);
 
-        //allData.Packings = packingSolver.Solve();
+        allData.Packings = packingSolver.Solve();
 
         //DistanceSolver.TestOverlap();
 
@@ -45,7 +45,7 @@ internal class Program
 
     private static InputContainer ReadInputData()
     {
-        string json = File.ReadAllText("../../../santa.json");
+        string json = File.ReadAllText("../../../../santa.json");
 
         var container = JsonConvert.DeserializeObject<InputContainer>(json);
 
