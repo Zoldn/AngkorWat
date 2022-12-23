@@ -8,10 +8,14 @@ namespace AngkorWat.IO
 {
     internal class InputContainer
     {
-        public Dictionary<string, Dictionary<string, string>> Input { get; set; }
+        public List<RawGift> gifts { get; set; }
+        public List<RawSnowArea> snowAreas { get; set; }
+        public List<RawChild> children { get; set; }
         public InputContainer()
         {
-            Input = new();
+            gifts = new();
+            snowAreas = new();
+            children = new();
         }
     }
 }
