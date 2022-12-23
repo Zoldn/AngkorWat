@@ -1,7 +1,4 @@
-﻿using AngkorWat.Components;
-using AngkorWat.IO;
-using AngkorWat.Tower;
-using AngkorWat.TowerBuilder;
+﻿using AngkorWat.IO;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -9,42 +6,20 @@ internal class Program
 {
     private static void Main(string[] _)
     {
-        //Console.WriteLine("Hello, World!");
 
-        var dict = ReadDictionary();
-
-        var tower3dbuilder = new Tower3DBuilder(dict);
-
-        var tower = tower3dbuilder.BuildTower();
-
-        tower.IsNotCrumbling();
-
-        tower.IsNotFalling();
-
-        tower.Serialize();
-
-        //var towerMaker = new TowerMaker(dict);
-
-        //var tower = towerMaker.MakeTower();
-
-        //var towerBuilder = new TowerBuilder(dict);
-
-        //var tower = towerBuilder.SearchTower();
-
-        //tower.Serialize();
     }
 
-    private static List<string> ReadDictionary()
-    {
-        string json = File.ReadAllText("../../../data.json");
+    //private static List<string> ReadDictionary()
+    //{
+    //    string json = File.ReadAllText("../../../data.json");
 
-        var container = JsonConvert.DeserializeObject<InputContainer>(json);
+    //    var container = JsonConvert.DeserializeObject<InputContainer>(json);
 
-        if (container is null)
-        {
-            throw new FileNotFoundException();
-        }
+    //    if (container is null)
+    //    {
+    //        throw new FileNotFoundException();
+    //    }
 
-        return container.Input.Keys.ToList();
-    }
+    //    return container.Input.Keys.ToList();
+    //}
 }
