@@ -1,5 +1,6 @@
 ﻿using AngkorWat.Algorithms.DistSolver;
 using AngkorWat.Algorithms.PackSolver;
+using AngkorWat.Algorithms.RouteSolver;
 using AngkorWat.Components;
 using AngkorWat.IO;
 using Newtonsoft.Json;
@@ -13,13 +14,28 @@ internal class Program
 
         var packingSolver = new PackingSolver(allData);
 
-        allData.Packings = packingSolver.Solve();
+        allData.PackingSolution = packingSolver.Solve();
 
         //DistanceSolver.TestOverlap();
 
         var distanceSolver = new DistanceSolver(allData);
 
         allData.Routes = distanceSolver.Solve();
+
+        var tspSolver = new TSPSolver(allData);
+
+        allData.Sequences = tspSolver.Solve();
+
+        var output = new OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08", allData);
+
+        SerializeResult(output);
+    }
+
+    private static void SerializeResult(OutputContainer output)
+    {
+        var json = JsonConvert.SerializeObject(output);
+
+        File.WriteAllText("../../../../result.json", json);
     }
 
     private static AllData GetAllData()

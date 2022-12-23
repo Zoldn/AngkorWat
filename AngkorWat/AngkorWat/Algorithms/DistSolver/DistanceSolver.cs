@@ -23,11 +23,9 @@ namespace AngkorWat.Algorithms.DistSolver
         {
             var solution = new DistanceSolution();
 
-            var santa = new Santa();
-
             var locations = allData.Children
                 .Select(c => c as ILocation)
-                .Append(santa);
+                .Append(allData.Santa);
 
             foreach (var from in locations)
             {
