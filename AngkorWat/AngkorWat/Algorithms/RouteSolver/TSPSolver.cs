@@ -2,6 +2,7 @@
 using AngkorWat.Components;
 using Google.OrTools.ConstraintSolver;
 using Google.Protobuf.WellKnownTypes;
+using OperationsResearch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +57,67 @@ namespace AngkorWat.Algorithms.RouteSolver
                 solution.Sequences.Add(packing, new LocationSequence(packing, curRoute));
             }
 
+            OrderPackings(solution);
+
+            ConcatFullRoute(solution);
+
             return solution;
+        }
+
+        private void OrderPackings(TSPSolution solution)
+        {
+            var packings = allData.PackingSolution
+                .Packings
+                //.Select(e => e.Gifts.Select(g => g.Id).ToList())
+                .ToList();
+
+            solution.OrderedPackings = packings;
+        }
+
+        private void ConcatFullRoute(TSPSolution solution)
+        {
+            var fullRoute = new List<IPunkt>();
+
+            var totalTime = 0.0d;
+            var totalLength = 0.0d;
+
+            var rev = solution.OrderedPackings
+                .ToList();
+
+            rev.Reverse();
+
+            var lastPacking = rev.Last();
+
+            foreach (var packing in rev)
+            {
+                var subSequence = solution.Sequences[packing];
+
+                for (int i = 0; i < subSequence.Locations.Count - 1; i++)
+                {
+                    var from = subSequence.Locations[i];
+                    var to = subSequence.Locations[i + 1];
+
+                    /// Если мы уже развезли все мешки, и это последний, то
+                    /// возвращаться домой не надо
+                    if (to == allData.Santa
+                        && packing == lastPacking
+                        )
+                    {
+                        continue;
+                    }
+
+                    var subRoute = allData.Routes.Routes[(from, to)];
+
+                    totalTime += subRoute.TravelTime;
+                    totalLength += subRoute.Distance;
+
+                    fullRoute.AddRange(subRoute.Punkts.Skip(1));
+                }
+            }
+
+            solution.FullRoute = fullRoute;
+            solution.TravelTime = totalTime;
+            solution.Distance = totalLength;
         }
 
         private List<ILocation> SolveSequence(List<Child> targetChilds)
@@ -144,7 +205,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                 routeDistance += routing.GetArcCostForVehicle(previousIndex, index, 0);
             }
 
-            //ret.Add(0);
+            ret.Add(0);
 
             Console.WriteLine($"{manager.IndexToNode((int)index)}");
             Console.WriteLine($"Route distance: {routeDistance} miles");

@@ -9,8 +9,8 @@ namespace AngkorWat.Algorithms.DistSolver
 {
     internal interface IPunkt
     {
-        public double X { get; }
-        public double Y { get; }
+        public int X { get; }
+        public int Y { get; }
     }
     internal interface ILocation : IPunkt
     {
@@ -20,8 +20,8 @@ namespace AngkorWat.Algorithms.DistSolver
     }
     internal class Santa : ILocation
     {
-        public double X => 0;
-        public double Y => 0;
+        public int X => 0;
+        public int Y => 0;
         public bool IsSanta => true;
         public int LocationId => 0;
         public Santa()
@@ -32,12 +32,16 @@ namespace AngkorWat.Algorithms.DistSolver
         {
             return new DerPunkt { X = X, Y = Y };
         }
+        public override string ToString()
+        {
+            return $"Santa home at {X}, {Y}";
+        }
     }
 
     internal class DerPunkt : IPunkt
     {
-        public double X { get; init; }
-        public double Y { get; init; }
+        public int X { get; init; }
+        public int Y { get; init; }
     }
 
     internal class Route
@@ -52,6 +56,11 @@ namespace AngkorWat.Algorithms.DistSolver
         /// Маршрут движения из From в To
         /// </summary>
         public List<DerPunkt> Punkts { get; set; }
+        /// <summary>
+        /// Длина маршрута в км
+        /// </summary>
+        public double Distance { get; set; }
+
         public Route(ILocation from, ILocation to)
         {
             From = from;
@@ -66,6 +75,7 @@ namespace AngkorWat.Algorithms.DistSolver
             };
 
             TravelTime = 0.0d;
+            Distance = 0.0d;
         }
 
         internal Route AsReverse()

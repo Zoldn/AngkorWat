@@ -22,9 +22,17 @@ namespace AngkorWat.Algorithms.RouteSolver
     internal class TSPSolution
     {
         public Dictionary<Packing, LocationSequence> Sequences { get; set; }
+        public List<IPunkt> FullRoute { get; internal set; }
+        public double TravelTime { get; internal set; }
+        public double Distance { get; internal set; }
+        public List<Packing> OrderedPackings { get; internal set; }
+
         public TSPSolution()
         {
+            OrderedPackings = new();
+
             Sequences = new();
+            FullRoute = new();
         }
     }
 }

@@ -44,8 +44,8 @@ namespace AngkorWat.Components
 
     internal class Child : ILocation
     {
-        public double X { get; }
-        public double Y { get; }
+        public int X { get; }
+        public int Y { get; }
         public bool IsSanta => false;
         public int LocationId { get; set; }
         public Child(RawChild rawChild, int id)

@@ -64,6 +64,7 @@ namespace AngkorWat.Algorithms.DistSolver
             var cleanLength = totalLenght - snowLength;
 
             route.TravelTime = cleanLength / AIR_SPEED + snowLength / SNOW_SPEED;
+            route.Distance = totalLenght;
         }
 
         public static double GetDistance(IPunkt from, IPunkt to)
@@ -76,8 +77,8 @@ namespace AngkorWat.Algorithms.DistSolver
             var alpha = to.X - from.X;
             var beta = to.Y - from.Y;
 
-            var a = (alpha * alpha + beta * beta);
-            var b = 2 * alpha * (from.X - snowArea.X) + 2 * beta * (from.Y - snowArea.Y);
+            var a = alpha * alpha + beta * beta;
+            var b = 2.0d * alpha * (from.X - snowArea.X) + 2.0d * beta * (from.Y - snowArea.Y);
             var c = Math.Pow(from.X - snowArea.X, 2) + Math.Pow(from.Y - snowArea.Y, 2) -
                 snowArea.R * snowArea.R;
 
@@ -88,8 +89,8 @@ namespace AngkorWat.Algorithms.DistSolver
                 return 0.0d;
             }
 
-            double t1 = (-b - Math.Sqrt(D)) / 2 / a;
-            double t2 = (-b + Math.Sqrt(D)) / 2 / a;
+            double t1 = (-b - Math.Sqrt(D)) / 2.0d / a;
+            double t2 = (-b + Math.Sqrt(D)) / 2.0d / a;
 
             var clampedT1 = Math.Clamp(t1, 0.0d, 1.0d);
             var clampedT2 = Math.Clamp(t2, 0.0d, 1.0d);
