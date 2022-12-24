@@ -144,6 +144,8 @@ namespace AngkorWat.Algorithms.RouteSolver
             solution.FullRoute = fullRoute;
             solution.TravelTime = totalTime;
             solution.Distance = totalLength;
+
+            Console.WriteLine($"FINAL RESULT: Travel time = {solution.TravelTime}, distance = {solution.Distance}");
         }
 
         private List<ILocation> SolveSequence(List<Child> targetChilds)
@@ -276,7 +278,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                 );
 
             return distancesToSelected
-                .OrderByDescending(kv => kv.Value)
+                .OrderBy(kv => kv.Value)
                 .Take(count)
                 .Select(kv => kv.Key)
                 .ToList();
@@ -304,7 +306,7 @@ namespace AngkorWat.Algorithms.RouteSolver
         {
             return DistancesToSanta
                 .Where(kv => AvailableChildren[kv.Key])
-                .OrderBy(kv => kv.Value)
+                .OrderByDescending(kv => kv.Value)
                 .Select(kv => kv.Key)
                 .First();
         }

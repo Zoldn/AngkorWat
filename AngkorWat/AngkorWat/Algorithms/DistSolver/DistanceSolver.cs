@@ -22,21 +22,27 @@ namespace AngkorWat.Algorithms.DistSolver
     internal class DistanceSolver
     {
         private readonly AllData allData;
+        public HashSet<(int, int)> ChildrenPositions { get; private set; }
 
         public DistanceSolver(AllData allData)
         {
             this.allData = allData;
+
+            ChildrenPositions = new HashSet<(int, int)>();
         }
 
         public DistanceSolution Solve()
         {
             var solution = new DistanceSolution();
 
+            SetupChildrenPositions();
+
             var locations = allData.Children
                 .Select(c => c as ILocation)
                 .Append(allData.Santa);
 
-            IPathFindingStrategy pathFindingStrategy = new StraightPathFinding(allData);
+            //IPathFindingStrategy pathFindingStrategy = new StraightPathFinding(allData);
+            IPathFindingStrategy pathFindingStrategy = new GreedPathFinding(allData);
 
             foreach (var from in locations)
             {
@@ -51,6 +57,9 @@ namespace AngkorWat.Algorithms.DistSolver
 
 
                     pathFindingStrategy.Calculate(route);
+
+                    CheckAdditionalPointNotChildren(route);
+
                     solution.Routes.Add((from, to), route);
 
                     solution.Routes.Add((to, from), route.AsReverse());
@@ -58,6 +67,48 @@ namespace AngkorWat.Algorithms.DistSolver
             }
 
             return solution;
+        }
+
+        private void SetupChildrenPositions()
+        {
+            ChildrenPositions = allData
+                .Children
+                .Select(e => (e.X, e.Y))
+                .ToHashSet();
+        }
+
+        private void CheckAdditionalPointNotChildren(Route route)
+        {
+            for (int i = 0; i < route.Punkts.Count; i++)
+            {
+                var punkt = route.Punkts[i];
+
+                if (punkt.PunktType == PunktType.CHILD 
+                    || punkt.PunktType == PunktType.SANTA
+                    )
+                {
+                    continue;
+                }
+
+                if (!ChildrenPositions.Contains((punkt.X, punkt.Y)))
+                {
+                    continue;
+                }
+
+                int x = punkt.X;
+
+                while (ChildrenPositions.Contains((x, punkt.Y)))
+                {
+                    x += 1;
+                }
+
+                route.Punkts[i] = new DerPunkt()
+                {
+                    X = x,
+                    Y = punkt.Y,
+                    PunktType = punkt.PunktType
+                };
+            }
         }
     }
 }

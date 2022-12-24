@@ -7,10 +7,18 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.DistSolver
 {
+    internal enum PunktType
+    {
+        SANTA = 0,
+        CHILD,
+        FREE,
+        SNOWAREA,
+    }
     internal interface IPunkt
     {
         public int X { get; }
         public int Y { get; }
+        public PunktType PunktType { get; }
     }
     internal interface ILocation : IPunkt
     {
@@ -23,6 +31,7 @@ namespace AngkorWat.Algorithms.DistSolver
         public int X => 0;
         public int Y => 0;
         public bool IsSanta => true;
+        public PunktType PunktType => PunktType.SANTA;
         public int LocationId => 0;
         public Santa()
         {
@@ -30,7 +39,7 @@ namespace AngkorWat.Algorithms.DistSolver
         }
         public DerPunkt AsPunkt()
         {
-            return new DerPunkt { X = X, Y = Y };
+            return new DerPunkt { X = X, Y = Y, PunktType = PunktType };
         }
         public override string ToString()
         {
@@ -40,8 +49,10 @@ namespace AngkorWat.Algorithms.DistSolver
 
     internal class DerPunkt : IPunkt
     {
+        public PunktType PunktType { get; init; }
         public int X { get; init; }
         public int Y { get; init; }
+        public DerPunkt() { }
     }
 
     internal class Route
@@ -55,7 +66,7 @@ namespace AngkorWat.Algorithms.DistSolver
         /// <summary>
         /// Маршрут движения из From в To
         /// </summary>
-        public List<DerPunkt> Punkts { get; set; }
+        public List<IPunkt> Punkts { get; set; }
         /// <summary>
         /// Длина маршрута в км
         /// </summary>
@@ -68,7 +79,7 @@ namespace AngkorWat.Algorithms.DistSolver
 
             Debug.Assert(from != to);
 
-            Punkts = new List<DerPunkt>()
+            Punkts = new List<IPunkt>()
             {
                 from.AsPunkt(),
                 to.AsPunkt(),

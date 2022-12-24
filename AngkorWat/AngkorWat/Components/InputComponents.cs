@@ -25,11 +25,12 @@ namespace AngkorWat.Components
         }
     }
 
-    internal class SnowArea
+    internal class SnowArea : IPunkt
     {
         public int X { get; }
         public int Y { get; }
         public int R { get; }
+        public PunktType PunktType => PunktType.SNOWAREA;
         public SnowArea(RawSnowArea rawSnowArea)
         {
             X = rawSnowArea.x;
@@ -47,6 +48,7 @@ namespace AngkorWat.Components
         public int X { get; }
         public int Y { get; }
         public bool IsSanta => false;
+        public PunktType PunktType => PunktType.CHILD;
         public int LocationId { get; set; }
         public Child(RawChild rawChild, int id)
         {
@@ -57,7 +59,7 @@ namespace AngkorWat.Components
 
         public DerPunkt AsPunkt()
         {
-            return new DerPunkt { X = X, Y = Y };
+            return new DerPunkt { X = X, Y = Y, PunktType = PunktType };
         }
 
         public override string ToString()
