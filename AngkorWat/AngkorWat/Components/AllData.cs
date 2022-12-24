@@ -23,6 +23,10 @@ namespace AngkorWat.Components
         /// Локация базы Санты
         /// </summary>
         public Santa Santa { get; }
+        /// <summary>
+        /// Размер квадрата с нижней левой вершиной в (0, 0), который нельзя покидать
+        /// </summary>
+        public int SquareSide => 10000;
         public List<Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
         public List<Gift> Gifts { get; set; }
