@@ -11,12 +11,25 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.RouteSolver
 {
+    internal enum Metric
+    {
+        /// <summary>
+        /// Метрика времени движения между точками с учетом снега
+        /// </summary>
+        SNOW = 0,
+        /// <summary>
+        /// Метрика расстояния между точками с игнорированием снега
+        /// </summary>
+        EUCLID, 
+    }
     internal class TSPSolver
     {
         private readonly AllData allData;
 
         public Dictionary<Child, bool> AvailableChildren { get; set; }
         public Dictionary<Child, double> DistancesToSanta { get; set; }
+        public Metric SelectFurthestChildStrategy { get; set; }
+        public Metric SelectClosestChildStrategy { get; set; }
 
         public TSPSolver(AllData allData)
         {
@@ -24,6 +37,9 @@ namespace AngkorWat.Algorithms.RouteSolver
 
             AvailableChildren = new();
             DistancesToSanta = new();
+
+            SelectFurthestChildStrategy = Metric.EUCLID;
+            SelectClosestChildStrategy = Metric.EUCLID;
         }
 
         public TSPSolution Solve()
@@ -32,8 +48,18 @@ namespace AngkorWat.Algorithms.RouteSolver
 
             InitializeChildren();
 
-            //CalculateDistancesToSanta();
-            CalculateDistancesToSantaEuclid();
+            switch (SelectFurthestChildStrategy)
+            {
+                case Metric.SNOW:
+                    CalculateTravelTimeToSanta();
+                    break;
+                case Metric.EUCLID:
+                    CalculateDistancesToSantaEuclid();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
 
             foreach (var packing in allData.PackingSolution.Packings)
             {
@@ -225,13 +251,28 @@ namespace AngkorWat.Algorithms.RouteSolver
 
         private List<Child> GetClosestChildsToSelected(Child furthestChild, int count)
         {
+            Func<Child, double> distanceCalculator;
+
+            switch (SelectClosestChildStrategy)
+            {
+                case Metric.SNOW:
+                    distanceCalculator = c => allData.Routes.Routes[(c, furthestChild)].TravelTime;
+                    break;
+                case Metric.EUCLID:
+                    distanceCalculator = c => GeometryUtils.GetDistance(c, furthestChild);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             var distancesToSelected = AvailableChildren
                 .Where(kv => kv.Value && kv.Key != furthestChild)
                 .Select(e => e.Key)
                 .ToDictionary(
                     c => c,
                     //c => allData.Routes.Routes[(c, furthestChild)].TravelTime
-                    c => DistanceSolver.GetDistance(c, furthestChild)
+                    //c => GeometryUtils.GetDistance(c, furthestChild)
+                    c => distanceCalculator(c)
                 );
 
             return distancesToSelected
@@ -241,7 +282,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                 .ToList();
         }
 
-        private void CalculateDistancesToSanta()
+        private void CalculateTravelTimeToSanta()
         {
             DistancesToSanta = allData.Children
                 .ToDictionary(
@@ -255,7 +296,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             DistancesToSanta = allData.Children
                 .ToDictionary(
                     c => c,
-                    c => DistanceSolver.GetDistance(c, allData.Santa) //allData.Routes.Routes[(c, allData.Santa)].TravelTime
+                    c => GeometryUtils.GetDistance(c, allData.Santa) //allData.Routes.Routes[(c, allData.Santa)].TravelTime
                 );
         }
 

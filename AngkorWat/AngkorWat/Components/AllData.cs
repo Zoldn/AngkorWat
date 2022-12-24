@@ -11,6 +11,17 @@ namespace AngkorWat.Components
 {
     internal class AllData
     {
+        /// <summary>
+        /// Скорость в воздухе [км/с]
+        /// </summary>
+        public int AirSpeed => 70;
+        /// <summary>
+        /// Скорость в снегу [км/с]
+        /// </summary>
+        public int SnowSpeed => 10;
+        /// <summary>
+        /// Локация базы Санты
+        /// </summary>
         public Santa Santa { get; }
         public List<Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
