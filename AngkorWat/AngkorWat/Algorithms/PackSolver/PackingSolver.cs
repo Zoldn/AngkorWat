@@ -50,10 +50,12 @@ namespace AngkorWat.Algorithms.PackSolver
 
             CpModel model = new CpModel();
 
+
             #region setup variables
 
             var giftSelectionDVars = AvailableGifts
                 .Where(kv => kv.Value)
+                .OrderBy(kv => kv.Key.Id)
                 .ToDictionary(
                     g => g.Key,
                     g => model.NewBoolVar($"DVAR {g} is taken")
@@ -87,6 +89,16 @@ namespace AngkorWat.Algorithms.PackSolver
             #region solve
 
             CpSolver solver = new CpSolver();
+
+            /*
+            solver.StringParameters = ""
+                + "random_seed: 10, "
+                + "use_absl_random: false, "
+                + "permute_variable_randomly: false, "
+                + "permute_presolve_constraint_order: false, "
+                ;
+                //"log_search_progress: true";
+                */
 
             var status = solver.Solve(model);
 

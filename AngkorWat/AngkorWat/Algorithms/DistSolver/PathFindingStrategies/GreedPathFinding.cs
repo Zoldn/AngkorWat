@@ -30,6 +30,14 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             && ToSnowArea == null
             && CrossSnowAreas.Any();
 
+        public bool IsInSingleSnowArea => !CrossSnowAreas.Any()
+            && FromSnowArea != null
+            && FromSnowArea == ToSnowArea;
+
+        public bool IsEnterToSnowArea => !CrossSnowAreas.Any()
+            && (((FromSnowArea == null) && (ToSnowArea != null)) ||
+                ((FromSnowArea != null) && (ToSnowArea == null)));
+
         public Leg(IPunkt from, IPunkt to)
         {
             From = from;
@@ -47,8 +55,12 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             -1,
         };
 
-        private static readonly double ARC_SIZE = Math.PI / 20;
-        private static readonly double RADIUS_EXPAND = 1.1d;
+        private static readonly double ARC_SIZE = Math.PI / 40;
+        private static readonly double RADIUS_EXPAND = 1.05d;
+        private static readonly List<double> ANGLE_GRID = Enumerable
+            .Range(0, (int)Math.Round(2 * Math.PI / ARC_SIZE))
+            .Select(d => d * ARC_SIZE - Math.PI)
+            .ToList();
 
         protected AllData allData;
         public GreedPathFinding(AllData allData)
@@ -73,20 +85,7 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
                     throw new StackOverflowException();
                 }
 
-                if (true)
-                {
-                    var tunkts = legs
-                        .Select(e => e.From)
-                        .Append(route.To)
-                        .Select(e => new move() 
-                        {
-                            x = e.X,
-                            y = e.Y
-                        })
-                        .ToList();
-
-                    var json = JsonConvert.SerializeObject(tunkts);
-                }
+                // var json = LegsToJSON(legs, route);
 
                 CheckCrossesWithSnowAreas(legs);
 
@@ -103,6 +102,66 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
                 break;
             }
 
+            if (legs.Count == 1 && legs.Any(leg => leg.IsInSingleSnowArea))
+            {
+                legs = TryFindBetterRoundRoute(legs.Single());
+
+                //var json = LegsToJSON(legs, route);
+            }
+
+            if (legs.Any(leg => leg.IsEnterToSnowArea))
+            {
+                var json = LegsToJSON(legs, route);
+
+                if (legs.First().IsEnterToSnowArea)
+                {
+                    legs = FindBestRouteInSnowarea(legs, legs.First());
+                }
+
+                CheckCrossesWithSnowAreas(legs);
+
+                json = LegsToJSON(legs, route);
+
+                if (legs.Last().IsEnterToSnowArea)
+                {
+                    legs = FindBestRouteInSnowarea(legs, legs.Last());
+                }
+
+                CheckCrossesWithSnowAreas(legs);
+
+                json = LegsToJSON(legs, route);
+
+                iteration = 0;
+
+                while (true)
+                {
+                    iteration++;
+
+                    if (iteration > 50)
+                    {
+                        throw new StackOverflowException();
+                    }
+
+                    // var json = LegsToJSON(legs, route);
+
+                    CheckCrossesWithSnowAreas(legs);
+
+                    var targetCrossedLeg = legs
+                        .FirstOrDefault(leg => leg.IsCrossingLeg);
+
+                    if (targetCrossedLeg != null)
+                    {
+                        legs = SplitCrossingLeg(legs, targetCrossedLeg);
+
+                        continue;
+                    }
+
+                    break;
+                }
+
+                json = LegsToJSON(legs, route);
+            }
+
             route.Punkts = legs
                 .Select(e => e.From)
                 .Append(route.To)
@@ -111,6 +170,210 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             CheckDuplicates(route);
 
             CalculateDistance(route);
+        }
+
+        private List<Leg> FindBestRouteInSnowarea(List<Leg> legs, Leg targetLeg)
+        {
+            var snowArea = targetLeg.FromSnowArea ?? targetLeg.ToSnowArea;
+
+            if (snowArea == null)
+            {
+                throw new Exception();
+            }
+
+            var outPoint = targetLeg.FromSnowArea != null ? targetLeg.To : targetLeg.From;
+            var inPoint  = targetLeg.FromSnowArea != null ? targetLeg.From : targetLeg.To;
+
+            var tangentAngle = Math.Acos(snowArea.R / GeometryUtils.GetDistance(snowArea, outPoint));
+            var outAngle = GeometryUtils.GetPolarAngle(snowArea, outPoint);
+
+            /// Ключ - угол, значение - время движения
+            var timesToMove = ANGLE_GRID
+                .ToDictionary(
+                    g => g,
+                    g => 0.0d
+                );
+
+            foreach (var angle in ANGLE_GRID)
+            {
+                var tPunke = new DerPunkt() 
+                {
+                    X = snowArea.X + (int)Math.Round(snowArea.R * RADIUS_EXPAND * Math.Cos(angle)),
+                    Y = snowArea.Y + (int)Math.Round(snowArea.R * RADIUS_EXPAND * Math.Sin(angle)),
+                    PunktType = PunktType.FREE,
+                };
+
+                if (!GeometryUtils.IsPointInArea(tPunke, allData))
+                {
+                    timesToMove[angle] = 1e9;
+                    continue;
+                }
+
+                var innerDistance = GeometryUtils.GetDistance(inPoint, tPunke);
+                /// Не нужно стоить дугу
+                if (GeometryUtils.AngleDistance(outAngle, angle) <= tangentAngle)
+                {
+                    var outerDistance = GeometryUtils.GetDistance(outPoint, tPunke);
+
+                    timesToMove[angle] = innerDistance / allData.SnowSpeed + outerDistance / allData.AirSpeed;
+                }
+                else
+                {
+                    var tangentAngle1 = GeometryUtils.SumPolarAngles(outAngle, +tangentAngle);
+                    var tangentAngle2 = GeometryUtils.SumPolarAngles(outAngle, -tangentAngle);
+
+                    var angleDistance1 = GeometryUtils.AngleDistance(tangentAngle1, angle);
+                    var angleDistance2 = GeometryUtils.AngleDistance(tangentAngle2, angle);
+
+                    var minAngleDistance = Math.Min(angleDistance1, angleDistance2);
+
+                    var outerDistance = Math.Tan(tangentAngle) * snowArea.R * RADIUS_EXPAND +
+                        snowArea.R * RADIUS_EXPAND * minAngleDistance;
+
+                    timesToMove[angle] = innerDistance / allData.SnowSpeed + outerDistance / allData.AirSpeed;
+                }
+            }
+
+            var minTravelTime = timesToMove.Min(kv => kv.Value);
+
+            var entryAngle = timesToMove
+                .Where(kv => kv.Value == minTravelTime)
+                .First()
+                .Key;
+
+            var entryPunkt = new DerPunkt()
+            {
+                X = snowArea.X + (int)Math.Round(snowArea.R * RADIUS_EXPAND * Math.Cos(entryAngle)),
+                Y = snowArea.Y + (int)Math.Round(snowArea.R * RADIUS_EXPAND * Math.Sin(entryAngle)),
+                PunktType = PunktType.FREE,
+            };
+
+            var punkts = new List<IPunkt>()
+            {
+                outPoint,
+            };
+
+            /// Не нужно стоить дугу, тупо соединяем через внутреннюю точку на окружности
+            if (GeometryUtils.AngleDistance(outAngle, entryAngle) <= tangentAngle)
+            {
+                punkts.Add(entryPunkt);
+            }
+            else
+            {
+                var tangentAngle1 = GeometryUtils.SumPolarAngles(outAngle, +tangentAngle);
+                var tangentAngle2 = GeometryUtils.SumPolarAngles(outAngle, -tangentAngle);
+
+                var angleDistance1 = GeometryUtils.AngleDistance(tangentAngle1, entryAngle);
+                var angleDistance2 = GeometryUtils.AngleDistance(tangentAngle2, entryAngle);
+
+                var arcPunkts = new List<DerPunkt>();
+
+                if (angleDistance1 < angleDistance2)
+                {
+                    arcPunkts = MakeArcAroundSnowArea(snowArea, tangentAngle1, entryAngle);
+                }
+                else
+                {
+                    arcPunkts = MakeArcAroundSnowArea(snowArea, tangentAngle2, entryAngle);
+                }
+
+                punkts.AddRange(arcPunkts);
+            }
+
+            punkts.Add(inPoint);
+
+            /// Если что-то вылезло за край, то ничего не делаем
+            if (punkts.Any(e => !GeometryUtils.IsPointInArea(e, allData)))
+            {
+                return legs;
+            }
+
+            /// Если старт в снежной области, то обращаем пункты, так как строим от внешнего
+            if (targetLeg.FromSnowArea != null)
+            {
+                punkts.Reverse();
+            }
+
+            var newLegs = new List<Leg>();
+
+            for (int i = 0; i < punkts.Count - 1; i++)
+            {
+                newLegs.Add(new Leg(punkts[i], punkts[i + 1]));
+            }
+
+            return ReplaceLeg(legs, targetLeg, punkts);
+        }
+
+        private static string LegsToJSON(List<Leg> legs, Route route)
+        {
+            var tunkts = legs
+                .Select(e => e.From)
+                .Append(route.To)
+                .Select(e => new move()
+                {
+                    x = e.X,
+                    y = e.Y
+                })
+                .ToList();
+
+            return JsonConvert.SerializeObject(tunkts);
+        }
+
+        private List<Leg> TryFindBetterRoundRoute(Leg leg)
+        {
+            var snowArea = leg.FromSnowArea;
+
+            if (snowArea == null)
+            {
+                throw new Exception();
+            }
+
+            var directThroughSnowDistance = GeometryUtils.GetDistance(leg.From, leg.To);
+            var directThroughSnowTime = directThroughSnowDistance / allData.SnowSpeed;
+
+            var phiFrom = GeometryUtils.GetPolarAngle(snowArea, leg.From);
+            var phiTo = GeometryUtils.GetPolarAngle(snowArea, leg.To);
+
+            var dphi = GeometryUtils.AngleDistance(phiFrom, phiTo);
+
+            var distanceFrom2CircleBoundary = snowArea.R - GeometryUtils.GetDistance(snowArea, leg.From);
+            var distanceTo2CircleBoundary = snowArea.R - GeometryUtils.GetDistance(snowArea, leg.To);
+
+            var outDistance = (RADIUS_EXPAND - 1.0d) * snowArea.R * 2;
+            var arcDistance = RADIUS_EXPAND * snowArea.R * dphi;
+
+            var aroundSnowTime = (distanceFrom2CircleBoundary + distanceTo2CircleBoundary) / allData.SnowSpeed
+                + (outDistance + arcDistance) / allData.AirSpeed;
+
+            /// Если в обход длиннее, то ничего не меняем
+            if (aroundSnowTime >= directThroughSnowTime)
+            {
+                return new List<Leg>() { leg };
+            }
+
+            List<DerPunkt> arcPunkts = MakeArcAroundSnowArea(snowArea, phiFrom, phiTo);
+
+            var newPunkts = new List<IPunkt>() { leg.From }
+                .Concat(arcPunkts)
+                .Append(leg.To)
+                .ToList();
+
+            if (newPunkts.Any(p => 
+                    p.X < 0 || p.X > allData.SquareSide
+                ||  p.Y < 0 || p.Y > allData.SquareSide
+            ))
+            {
+                return new List<Leg>() { leg };
+            }
+
+            var newLegs = new List<Leg>();
+
+            for (int i = 0; i < newPunkts.Count - 1; i++)
+            {
+                newLegs.Add(new Leg(newPunkts[i], newPunkts[i + 1]));
+            }
+
+            return newLegs;
         }
 
         private void CheckDuplicates(Route route)
@@ -174,55 +437,10 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
 
             foreach (var sign in SIGNS)
             {
-                List<double> arcNodes = new();
-
                 var fromAngle = GeometryUtils.SumPolarAngles(angleFrom, sign * tangentAngleFrom);
                 var toAngle = GeometryUtils.SumPolarAngles(angleTo, -sign * tangentAngleTo);
 
-                double startAngle;
-                double step;
-                int arcs;
-                bool isFromStarting = true;
-
-                if (Math.Abs(fromAngle - toAngle) <= Math.PI)
-                {
-                    arcs = (int)Math.Ceiling(Math.Abs(fromAngle - toAngle) / ARC_SIZE);
-
-                    startAngle = Math.Min(fromAngle, toAngle);
-
-                    isFromStarting = startAngle == fromAngle;
-
-                    step = Math.Abs(fromAngle - toAngle) / arcs;
-                }
-                else
-                {
-                    arcs = (int)Math.Ceiling((2 * Math.PI - Math.Abs(fromAngle - toAngle)) / ARC_SIZE);
-
-                    startAngle = Math.Max(fromAngle, toAngle);
-
-                    isFromStarting = startAngle == fromAngle;
-
-                    step = (2 * Math.PI - Math.Abs(fromAngle - toAngle)) / arcs;
-                }
-
-                for (int i = 0; i <= arcs; i++)
-                {
-                    arcNodes.Add(GeometryUtils.SumPolarAngles(startAngle, step * i));
-                }
-
-                var arcPunkts = arcNodes
-                    .Select(n => new DerPunkt()
-                    {
-                        PunktType = PunktType.FREE,
-                        X = (int)Math.Round(snowArea.X + snowArea.R * RADIUS_EXPAND * Math.Cos(n)),
-                        Y = (int)Math.Round(snowArea.Y + snowArea.R * RADIUS_EXPAND * Math.Sin(n)),
-                    })
-                    .ToList();
-
-                if (!isFromStarting)
-                {
-                    arcPunkts.Reverse();
-                }
+                List<DerPunkt> arcPunkts = MakeArcAroundSnowArea(snowArea, fromAngle, toAngle);
 
                 var newPunkts = new List<IPunkt>() { targetCrossedLeg.From }
                     .Concat(arcPunkts)
@@ -249,6 +467,58 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             var newLegs = ReplaceLeg(legs, targetCrossedLeg, selectedPath);
 
             return newLegs;
+        }
+
+        private static List<DerPunkt> MakeArcAroundSnowArea(SnowArea snowArea, double fromAngle, double toAngle)
+        {
+            List<double> arcNodes = new();
+
+            double startAngle;
+            double step;
+            int arcs;
+            bool isFromStarting = true;
+
+            if (Math.Abs(fromAngle - toAngle) <= Math.PI)
+            {
+                arcs = (int)Math.Ceiling(Math.Abs(fromAngle - toAngle) / ARC_SIZE);
+
+                startAngle = Math.Min(fromAngle, toAngle);
+
+                isFromStarting = startAngle == fromAngle;
+
+                step = Math.Abs(fromAngle - toAngle) / arcs;
+            }
+            else
+            {
+                arcs = (int)Math.Ceiling((2 * Math.PI - Math.Abs(fromAngle - toAngle)) / ARC_SIZE);
+
+                startAngle = Math.Max(fromAngle, toAngle);
+
+                isFromStarting = startAngle == fromAngle;
+
+                step = (2 * Math.PI - Math.Abs(fromAngle - toAngle)) / arcs;
+            }
+
+            for (int i = 0; i <= arcs; i++)
+            {
+                arcNodes.Add(GeometryUtils.SumPolarAngles(startAngle, step * i));
+            }
+
+            var arcPunkts = arcNodes
+                .Select(n => new DerPunkt()
+                {
+                    PunktType = PunktType.FREE,
+                    X = (int)Math.Round(snowArea.X + snowArea.R * RADIUS_EXPAND * Math.Cos(n)),
+                    Y = (int)Math.Round(snowArea.Y + snowArea.R * RADIUS_EXPAND * Math.Sin(n)),
+                })
+                .ToList();
+
+            if (!isFromStarting)
+            {
+                arcPunkts.Reverse();
+            }
+
+            return arcPunkts;
         }
 
         private List<Leg> ReplaceLeg(List<Leg> legs, Leg targetCrossedLeg, List<IPunkt> selectedPath)

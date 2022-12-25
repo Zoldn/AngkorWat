@@ -149,5 +149,23 @@ namespace AngkorWat.Algorithms
 
             return sum;
         }
+
+        internal static double AngleDistance(double phiFrom, double phiTo)
+        {
+            var dphi = Math.Abs(phiTo - phiFrom);
+
+            if (dphi > Math.PI)
+            {
+                dphi = 2 * Math.PI - dphi;
+            }
+
+            return dphi;
+        }
+
+        internal static bool IsPointInArea(IPunkt tPunke, AllData allData)
+        {
+            return tPunke.X >= 0 && tPunke.X <= allData.SquareSide
+                && tPunke.Y >= 0 && tPunke.Y <= allData.SquareSide;
+        }
     }
 }
