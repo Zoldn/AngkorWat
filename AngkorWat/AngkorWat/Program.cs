@@ -56,7 +56,9 @@ internal class Program
     {
         var json = JsonConvert.SerializeObject(output);
 
-        File.WriteAllText("../../../../result.json", json);
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "result.json");
+
+        File.WriteAllText(path, json);
     }
 
     private static AllData GetAllData()
@@ -82,7 +84,9 @@ internal class Program
 
     private static InputContainer ReadInputData()
     {
-        string json = File.ReadAllText("../../../../santa.json");
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "santa.json");
+
+        string json = File.ReadAllText(path);
 
         var container = JsonConvert.DeserializeObject<InputContainer>(json);
 
