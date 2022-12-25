@@ -1,5 +1,7 @@
 ﻿using AngkorWat.Components;
+using AngkorWat.IO;
 using Google.OrTools.Sat;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -41,7 +43,18 @@ namespace AngkorWat.Algorithms.PackSolver
                 ret.Packings.Add(packing);
             }
 
+            SerializeResult(ret);
+
             return ret;
+        }
+
+        private static void SerializeResult(PackingSolution output)
+        {
+            var json = JsonConvert.SerializeObject(output);
+
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "cache", "packing.json");
+
+            File.WriteAllText(path, json);
         }
 
         private Packing SelectNextGiftPack()
