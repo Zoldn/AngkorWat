@@ -10,9 +10,13 @@ namespace AngkorWat.Components
 {
     internal class Gift
     {
-        public int Id { get; }
-        public int Weight { get; }
-        public int Volume { get; }
+        public int Id { get; set;  }
+        public int Weight { get; set; }
+        public int Volume { get; set; }
+
+        public Gift()
+        {
+        }
         public Gift(RawGift rawGift)
         {
             Id = rawGift.id;
