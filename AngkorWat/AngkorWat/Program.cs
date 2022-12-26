@@ -5,6 +5,7 @@ using AngkorWat.Components;
 using AngkorWat.IO;
 using Newtonsoft.Json;
 using System.Net;
+using AngkorWat.Constants;
 
 internal class Program
 {
@@ -56,7 +57,9 @@ internal class Program
     {
         var json = JsonConvert.SerializeObject(output);
 
-        File.WriteAllText("../../../../result.json", json);
+        string path = Path.Combine(AngkorConstants.FilesRoute, "result.json");
+
+        File.WriteAllText(path, json);
     }
 
     private static AllData GetAllData()
@@ -82,7 +85,9 @@ internal class Program
 
     private static InputContainer ReadInputData()
     {
-        string json = File.ReadAllText("../../../../santa.json");
+        string path = Path.Combine(AngkorConstants.FilesRoute, "santa.json");
+
+        string json = File.ReadAllText(path);
 
         var container = JsonConvert.DeserializeObject<InputContainer>(json);
 

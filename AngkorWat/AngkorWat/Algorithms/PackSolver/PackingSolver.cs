@@ -1,5 +1,8 @@
 ﻿using AngkorWat.Components;
+using AngkorWat.Constants;
+using AngkorWat.IO;
 using Google.OrTools.Sat;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +16,10 @@ namespace AngkorWat.Algorithms.PackSolver
     {
         private static readonly long MAX_WEIGHT = 200;
         private static readonly long MAX_VOLUME = 100;
+        private static string CachePath => Path.Combine(
+                AngkorConstants.FilesRoute,
+                "cache",
+                "packing.json");
 
         private readonly AllData allData;
 
@@ -26,6 +33,23 @@ namespace AngkorWat.Algorithms.PackSolver
 
         public PackingSolution Solve()
         {
+            Console.WriteLine($"starting");
+
+            if (File.Exists(CachePath))
+            {
+                string json = File.ReadAllText(CachePath);
+
+                var container = JsonConvert.DeserializeObject<PackingSolution>(json);
+
+                if (container == null)
+                {
+                    throw new FileLoadException();
+                }
+
+                Console.WriteLine($"PACKING SOLVER: Using solving from cache");
+                return container;
+            }
+
             var ret = new PackingSolution();
 
             AvailableGifts = allData.Gifts
@@ -41,7 +65,16 @@ namespace AngkorWat.Algorithms.PackSolver
                 ret.Packings.Add(packing);
             }
 
+            SerializeResult(ret);
+
             return ret;
+        }
+
+        private static void SerializeResult(PackingSolution output)
+        {
+            var json = JsonConvert.SerializeObject(output, Formatting.Indented);
+
+            File.WriteAllText(CachePath, json);
         }
 
         private Packing SelectNextGiftPack()
