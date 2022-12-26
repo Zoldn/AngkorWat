@@ -25,15 +25,17 @@ namespace AngkorWat.Algorithms.RouteSolver
     internal class TSPSolver
     {
         private readonly AllData allData;
+        private readonly FullSolution fullSolution;
 
         public Dictionary<Child, bool> AvailableChildren { get; set; }
         public Dictionary<Child, double> DistancesToSanta { get; set; }
         public Metric SelectFurthestChildStrategy { get; set; }
         public Metric SelectClosestChildStrategy { get; set; }
 
-        public TSPSolver(AllData allData)
+        public TSPSolver(AllData allData, FullSolution fullSolution)
         {
             this.allData = allData;
+            this.fullSolution = fullSolution;
 
             AvailableChildren = new();
             DistancesToSanta = new();
@@ -61,7 +63,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             }
             
 
-            foreach (var packing in allData.PackingSolution.Packings)
+            foreach (var packing in fullSolution.PackingSolution.Packings)
             {
                 Console.WriteLine($"TSP SOLVER: solving {packing}");
 
@@ -92,7 +94,7 @@ namespace AngkorWat.Algorithms.RouteSolver
 
         private void OrderPackings(TSPSolution solution)
         {
-            var packings = allData.PackingSolution
+            var packings = fullSolution.PackingSolution
                 .Packings
                 //.Select(e => e.Gifts.Select(g => g.Id).ToList())
                 .ToList();
@@ -132,7 +134,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                         continue;
                     }
 
-                    var subRoute = allData.Routes.Routes[(from, to)];
+                    var subRoute = fullSolution.Routes.Routes[(from, to)];
 
                     totalTime += subRoute.TravelTime;
                     totalLength += subRoute.Distance;
@@ -175,7 +177,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                     }
                     else
                     {
-                        transitionMatrix[i, j] = (long)Math.Round(allData.Routes.Routes[(
+                        transitionMatrix[i, j] = (long)Math.Round(fullSolution.Routes.Routes[(
                             childrenIndex[i], childrenIndex[j]
                             )].TravelTime);
                     }
@@ -258,7 +260,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             switch (SelectClosestChildStrategy)
             {
                 case Metric.SNOW:
-                    distanceCalculator = c => allData.Routes.Routes[(c, furthestChild)].TravelTime;
+                    distanceCalculator = c => fullSolution.Routes.Routes[(c, furthestChild)].TravelTime;
                     break;
                 case Metric.EUCLID:
                     distanceCalculator = c => GeometryUtils.GetDistance(c, furthestChild);
@@ -289,7 +291,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             DistancesToSanta = allData.Children
                 .ToDictionary(
                     c => c,
-                    c => allData.Routes.Routes[(c, allData.Santa)].TravelTime
+                    c => fullSolution.Routes.Routes[(c, allData.Santa)].TravelTime
                 );
         }
 

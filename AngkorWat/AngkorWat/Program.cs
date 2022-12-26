@@ -12,23 +12,44 @@ internal class Program
     {
         var allData = GetAllData();
 
-        var packingSolver = new PackingSolver(allData);
-
-        allData.PackingSolution = packingSolver.Solve();
-
-        //DistanceSolver.TestOverlap();
+        var deterministicSolution = new FullSolution();
 
         var distanceSolver = new DistanceSolver(allData);
 
-        allData.Routes = distanceSolver.Solve();
+        deterministicSolution.Routes = distanceSolver.Solve();
 
-        var tspSolver = new TSPSolver(allData);
+        var solutionVariants = new List<FullSolution>();
 
-        allData.Sequences = tspSolver.Solve();
+        for (int i = 0; i < 10; i++)
+        {
+            var curSolution = new FullSolution(deterministicSolution);
 
-        var output = new OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08", allData);
+            solutionVariants.Add(curSolution);
 
-        SerializeResult(output);
+            var packingSolver = new PackingSolver(allData);
+
+            curSolution.PackingSolution = packingSolver.Solve();
+
+            var tspSolver = new TSPSolver(allData, curSolution);
+
+            curSolution.Sequences = tspSolver.Solve();
+        }
+
+        solutionVariants = solutionVariants
+            .OrderBy(v => v.Sequences.TravelTime)
+            .ToList();
+
+        var times = solutionVariants
+            .Select(v => v.Sequences.TravelTime)
+            .ToList();
+
+        foreach (var solutionVariant in solutionVariants)
+        {
+            var output = new OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08",
+                allData, solutionVariant);
+
+            SerializeResult(output);
+        }
     }
 
     private static void SerializeResult(OutputContainer output)

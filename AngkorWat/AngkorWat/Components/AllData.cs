@@ -30,9 +30,7 @@ namespace AngkorWat.Components
         public List<Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
         public List<Gift> Gifts { get; set; }
-        public PackingSolution PackingSolution { get; internal set; }
-        public DistanceSolution Routes { get; internal set; }
-        public TSPSolution Sequences { get; internal set; }
+        
 
         public AllData()
         {
@@ -42,9 +40,7 @@ namespace AngkorWat.Components
             SnowAreas = new();
             Gifts = new();
 
-            PackingSolution = new();
-            Routes = new();
-            Sequences = new();
+            
         }
     }
 }

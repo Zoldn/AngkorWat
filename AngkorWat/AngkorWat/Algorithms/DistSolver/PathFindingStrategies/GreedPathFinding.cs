@@ -38,6 +38,10 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             && (((FromSnowArea == null) && (ToSnowArea != null)) ||
                 ((FromSnowArea != null) && (ToSnowArea == null)));
 
+        public bool IsClean => FromSnowArea == null
+            && ToSnowArea == null
+            && !CrossSnowAreas.Any();
+
         public Leg(IPunkt from, IPunkt to)
         {
             From = from;
@@ -55,8 +59,8 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             -1,
         };
 
-        private static readonly double ARC_SIZE = Math.PI / 40;
-        private static readonly double RADIUS_EXPAND = 1.05d;
+        private static readonly double ARC_SIZE = Math.PI / 64;
+        private static readonly double RADIUS_EXPAND = 1.002d;
         private static readonly List<double> ANGLE_GRID = Enumerable
             .Range(0, (int)Math.Round(2 * Math.PI / ARC_SIZE))
             .Select(d => d * ARC_SIZE - Math.PI)
@@ -162,6 +166,10 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
                 json = LegsToJSON(legs, route);
             }
 
+            CheckCrossesWithSnowAreas(legs);
+
+            legs = TryCompactifyLegs(legs, route);
+
             route.Punkts = legs
                 .Select(e => e.From)
                 .Append(route.To)
@@ -170,6 +178,69 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             CheckDuplicates(route);
 
             CalculateDistance(route);
+        }
+
+        private List<Leg> TryCompactifyLegs(List<Leg> legs, Route route)
+        {
+            /// Для одного перехода сокращение невозможно
+            if (legs.Count <= 1)
+            {
+                return legs;
+            }
+
+            int iteration = 0;
+
+            while (true)
+            {
+                iteration++;
+
+                if (iteration > 200)
+                {
+                    throw new StackOverflowException();
+                }
+
+                bool doRestart = false;
+
+                for (int i = 0; i < legs.Count - 1; i++)
+                {
+                    var directLeg = new Leg(legs[i].From, legs[i + 1].To);
+
+                    CheckCrossesWithSnowAreas(directLeg);
+
+                    if (directLeg.IsClean && legs[i].IsClean && legs[i + 1].IsClean)
+                    {
+                        doRestart = true;
+
+                        var newLegs = new List<Leg>();
+
+                        for (int j = 0; j < i; j++)
+                        {
+                            newLegs.Add(legs[j]);
+                        }
+
+                        newLegs.Add(directLeg);
+
+                        for (int j = i + 2; j < legs.Count; j++)
+                        {
+                            newLegs.Add(legs[j]);
+                        }
+
+                        legs = newLegs;
+                    }
+
+                    if (doRestart)
+                    {
+                        break;
+                    }
+                }
+
+                if (!doRestart)
+                {
+                    break;
+                }
+            }
+
+            return legs;
         }
 
         private List<Leg> FindBestRouteInSnowarea(List<Leg> legs, Leg targetLeg)
@@ -549,44 +620,49 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             return newLegs;
         }
 
+        private void CheckCrossesWithSnowAreas(Leg leg)
+        {
+            var crossedArea = new Dictionary<SnowArea, double>();
+
+            foreach (var snowArea in allData.SnowAreas)
+            {
+                var overlapLength = GeometryUtils.GetOverlapWithSnowArea(snowArea, leg.From, leg.To,
+                    out var t1, out var t2);
+
+                if (overlapLength < 1e-8)
+                {
+                    continue;
+                }
+
+                if (GeometryUtils.IsPunktInSnowArea(snowArea, leg.From))
+                {
+                    leg.FromSnowArea = snowArea;
+                }
+
+                if (GeometryUtils.IsPunktInSnowArea(snowArea, leg.To))
+                {
+                    leg.ToSnowArea = snowArea;
+                }
+
+                if (!GeometryUtils.IsPunktInSnowArea(snowArea, leg.From)
+                    && !GeometryUtils.IsPunktInSnowArea(snowArea, leg.To)
+                    )
+                {
+                    crossedArea.Add(snowArea, t1);
+                }
+            }
+
+            leg.CrossSnowAreas = crossedArea
+                .OrderBy(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .ToList();
+        }
+
         private void CheckCrossesWithSnowAreas(List<Leg> legs)
         {
             foreach (var leg in legs)
             {
-                var crossedArea = new Dictionary<SnowArea, double>();
-
-                foreach (var snowArea in allData.SnowAreas)
-                {
-                    var overlapLength = GeometryUtils.GetOverlapWithSnowArea(snowArea, leg.From, leg.To,
-                        out var t1, out var t2);
-
-                    if (overlapLength < 1e-8)
-                    {
-                        continue;
-                    }
-
-                    if (GeometryUtils.IsPunktInSnowArea(snowArea, leg.From))
-                    {
-                        leg.FromSnowArea = snowArea;
-                    }
-
-                    if (GeometryUtils.IsPunktInSnowArea(snowArea, leg.To))
-                    {
-                        leg.ToSnowArea = snowArea;
-                    }
-
-                    if (!GeometryUtils.IsPunktInSnowArea(snowArea, leg.From)
-                        && !GeometryUtils.IsPunktInSnowArea(snowArea, leg.To)
-                        )
-                    {
-                        crossedArea.Add(snowArea, t1);
-                    }
-                }
-
-                leg.CrossSnowAreas = crossedArea
-                    .OrderBy(kv => kv.Value)
-                    .Select(kv => kv.Key)
-                    .ToList();
+                CheckCrossesWithSnowAreas(leg);
             }
         }
     }

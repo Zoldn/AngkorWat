@@ -21,11 +21,11 @@ namespace AngkorWat.IO
             stackOfBags = new();
         }
 
-        public OutputContainer(string mapId, AllData allData)
+        public OutputContainer(string mapId, AllData allData, FullSolution fullSolution)
         {
             mapID = mapId;
 
-            moves = allData
+            moves = fullSolution
                 .Sequences
                 .FullRoute
                 .Select(e => new move() 
@@ -48,7 +48,8 @@ namespace AngkorWat.IO
                 .ToList();
             */
 
-            stackOfBags = allData.Sequences
+            stackOfBags = fullSolution
+                .Sequences
                 .OrderedPackings
                 .Select(e => e.Gifts.Select(g => g.Id).ToList())
                 .ToList();

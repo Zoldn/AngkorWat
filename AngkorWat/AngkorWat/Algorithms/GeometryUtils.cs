@@ -162,10 +162,10 @@ namespace AngkorWat.Algorithms
             return dphi;
         }
 
-        internal static bool IsPointInArea(IPunkt tPunke, AllData allData)
+        internal static bool IsPointInArea(IPunkt punkt, AllData allData)
         {
-            return tPunke.X >= 0 && tPunke.X <= allData.SquareSide
-                && tPunke.Y >= 0 && tPunke.Y <= allData.SquareSide;
+            return punkt.X >= 0 && punkt.X <= allData.SquareSide
+                && punkt.Y >= 0 && punkt.Y <= allData.SquareSide;
         }
     }
 }
