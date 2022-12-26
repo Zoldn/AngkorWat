@@ -1,4 +1,5 @@
 ﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.Algorithms.Phase2DDOS;
 using AngkorWat.Components;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,35 @@ namespace AngkorWat.IO
 
             stackOfBags.Reverse();
             */
+        }
+    }
+
+    //presentingGift
+
+    internal class Phase2OutputContainer
+    {
+        public string mapID { get; set; }
+        public List<presentingGift> presentingGifts { get; set; }
+        public Phase2OutputContainer(string mapId)
+        {
+            mapID = mapId;
+
+            presentingGifts = new();
+        }
+
+        
+        public Phase2OutputContainer(string mapId, ChildToGiftSolution solution)
+        {
+            mapID = mapId;
+
+            presentingGifts = solution
+                .ChildToGifts
+                .Select(g => new presentingGift()
+                {
+                    childID = g.Child.Id,
+                    giftID = g.Gift.Id,
+                })
+                .ToList();
         }
     }
 }

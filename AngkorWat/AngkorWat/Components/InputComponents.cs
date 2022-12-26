@@ -2,6 +2,7 @@
 using AngkorWat.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,6 +70,46 @@ namespace AngkorWat.Components
         public override string ToString()
         {
             return $"Child in ({X}, {Y})";
+        }
+    }
+
+
+
+    internal class Phase2Gift
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+        public int Price { get; set; }
+
+        public Phase2Gift(RawPhase2Gift rawGift)
+        {
+            Id = rawGift.id;
+            Type = rawGift.type;
+            Price = rawGift.price;
+        }
+
+        public override string ToString()
+        {
+            return $"Gift {Id}, {Type}/{Price}";
+        }
+    }
+
+    internal class Phase2Child
+    {
+        public int Id { get; set; }
+        public string Gender { get; set; }
+        public int Age { get; set; }
+
+        public Phase2Child(RawPhase2Child rawChild)
+        {
+            Id = rawChild.id;
+            Gender = rawChild.gender;
+            Age = rawChild.age;
+        }
+
+        public override string ToString()
+        {
+            return $"Child {Id}, {Gender}/{Age}";
         }
     }
 }

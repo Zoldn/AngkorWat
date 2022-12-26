@@ -18,4 +18,15 @@ namespace AngkorWat.IO
             children = new();
         }
     }
+
+    internal class Phase2InputContainer
+    {
+        public List<RawPhase2Gift> gifts { get; set; }
+        public List<RawPhase2Child> children { get; set; }
+        public Phase2InputContainer()
+        {
+            gifts = new();
+            children = new();
+        }
+    }
 }

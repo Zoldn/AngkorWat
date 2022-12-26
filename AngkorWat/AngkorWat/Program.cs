@@ -6,10 +6,20 @@ using AngkorWat.IO;
 using Newtonsoft.Json;
 using System.Net;
 using AngkorWat.Constants;
+using AngkorWat.Phases;
 
 internal class Program
 {
     private static void Main(string[] _)
+    {
+        //Phase1();
+
+        Phase2.Solve();
+
+        //Phase2();
+    }
+
+    private static void Phase1()
     {
         var allData = GetAllData();
 

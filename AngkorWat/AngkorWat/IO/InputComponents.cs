@@ -37,4 +37,18 @@ namespace AngkorWat.IO
             return $"Child in ({x}, {y})";
         }
     }
+
+    internal class RawPhase2Gift
+    {
+        public int id { get; set; }
+        public string type { get; set; }
+        public int price { get; set; }
+    }
+
+    internal class RawPhase2Child
+    {
+        public int id { get; set; }
+        public string gender { get; set; }
+        public int age { get; set; }
+    }
 }
