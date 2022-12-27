@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.IO
 {
-    internal class OutputContainer
+    internal class Phase1OutputContainer
     {
         public string mapID { get; set; }
         public List<move> moves { get; set; }
         public List<List<int>> stackOfBags { get; set; }
-        public OutputContainer(string mapId)
+        public Phase1OutputContainer(string mapId)
         {
             mapID = mapId;
 
@@ -22,7 +22,7 @@ namespace AngkorWat.IO
             stackOfBags = new();
         }
 
-        public OutputContainer(string mapId, AllData allData, FullSolution fullSolution)
+        public Phase1OutputContainer(string mapId, Phase1Data allData, Phase1Solution fullSolution)
         {
             mapID = mapId;
 
@@ -36,37 +36,14 @@ namespace AngkorWat.IO
                 })
                 .ToList();
 
-            /*
-            moves = allData.Sequences
-                .Sequences
-                .Values
-                .SelectMany(e => e.Locations.Select(e => new move() 
-                { 
-                    x = e.X,
-                    y = e.Y,
-                }))
-                .Skip(1)
-                .ToList();
-            */
-
             stackOfBags = fullSolution
                 .Sequences
                 .OrderedPackings
                 .Select(e => e.Gifts.Select(g => g.Id).ToList())
                 .ToList();
-
-            /*
-            stackOfBags = allData.PackingSolution
-                .Packings
-                .Select(e => e.Gifts.Select(g => g.Id).ToList())
-                .ToList();
-
-            stackOfBags.Reverse();
-            */
         }
     }
 
-    //presentingGift
 
     internal class Phase2OutputContainer
     {

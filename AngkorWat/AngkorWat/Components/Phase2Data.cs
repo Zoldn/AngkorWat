@@ -8,7 +8,7 @@ namespace AngkorWat.Components
 {
     internal class Phase2Data
     {
-        public static readonly int MAX_COST = 100000;
+        public int MaxCOST => 100000;
         public List<Phase2Child> Children { get; set; }
         public List<Phase2Gift> Gifts { get; set; }
 

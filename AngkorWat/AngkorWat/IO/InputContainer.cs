@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.IO
 {
-    internal class InputContainer
+    internal class Phase1InputContainer
     {
-        public List<RawGift> gifts { get; set; }
+        public List<RawPhase1Gift> gifts { get; set; }
         public List<RawSnowArea> snowAreas { get; set; }
-        public List<RawChild> children { get; set; }
-        public InputContainer()
+        public List<RawPhase1Child> children { get; set; }
+        public Phase1InputContainer()
         {
             gifts = new();
             snowAreas = new();
@@ -27,6 +27,19 @@ namespace AngkorWat.IO
         {
             gifts = new();
             children = new();
+        }
+    }
+
+    internal class Phase3InputContainer
+    {
+        public List<RawSnowArea> snowAreas { get; set; }
+        public List<RawPhase3Gift> gifts { get; set; }
+        public List<RawPhase3Child> children { get; set; }
+        public Phase3InputContainer()
+        {
+            gifts = new();
+            children = new();
+            snowAreas = new();
         }
     }
 }

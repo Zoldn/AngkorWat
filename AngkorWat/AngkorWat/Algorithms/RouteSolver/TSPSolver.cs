@@ -24,15 +24,15 @@ namespace AngkorWat.Algorithms.RouteSolver
     }
     internal class TSPSolver
     {
-        private readonly AllData allData;
-        private readonly FullSolution fullSolution;
+        private readonly Phase1Data allData;
+        private readonly Phase1Solution fullSolution;
 
-        public Dictionary<Child, bool> AvailableChildren { get; set; }
-        public Dictionary<Child, double> DistancesToSanta { get; set; }
+        public Dictionary<IPhase1Child, bool> AvailableChildren { get; set; }
+        public Dictionary<IPhase1Child, double> DistancesToSanta { get; set; }
         public Metric SelectFurthestChildStrategy { get; set; }
         public Metric SelectClosestChildStrategy { get; set; }
 
-        public TSPSolver(AllData allData, FullSolution fullSolution)
+        public TSPSolver(Phase1Data allData, Phase1Solution fullSolution)
         {
             this.allData = allData;
             this.fullSolution = fullSolution;
@@ -150,7 +150,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             Console.WriteLine($"FINAL RESULT: Travel time = {solution.TravelTime}, distance = {solution.Distance}");
         }
 
-        private List<ILocation> SolveSequence(List<Child> targetChilds)
+        private List<ILocation> SolveSequence(List<IPhase1Child> targetChilds)
         {
             var manager = new RoutingIndexManager(targetChilds.Count + 1, 1, 0);
 
@@ -253,9 +253,9 @@ namespace AngkorWat.Algorithms.RouteSolver
                 );
         }
 
-        private List<Child> GetClosestChildsToSelected(Child furthestChild, int count)
+        private List<IPhase1Child> GetClosestChildsToSelected(IPhase1Child furthestChild, int count)
         {
-            Func<Child, double> distanceCalculator;
+            Func<IPhase1Child, double> distanceCalculator;
 
             switch (SelectClosestChildStrategy)
             {
@@ -304,7 +304,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                 );
         }
 
-        private Child GetFurthestChild()
+        private IPhase1Child GetFurthestChild()
         {
             return DistancesToSanta
                 .Where(kv => AvailableChildren[kv.Key])

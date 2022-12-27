@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    internal class FullSolution
+    internal class Phase1Solution
     {
         public PackingSolution PackingSolution { get; internal set; }
         public DistanceSolution Routes { get; internal set; }
         public TSPSolution Sequences { get; internal set; }
-        public FullSolution()
+        public Phase1Solution()
         {
             PackingSolution = new();
             Routes = new();
             Sequences = new();
         }
 
-        public FullSolution(FullSolution deterministicSolution)
+        public Phase1Solution(Phase1Solution deterministicSolution)
         {
             Routes = deterministicSolution.Routes;
 

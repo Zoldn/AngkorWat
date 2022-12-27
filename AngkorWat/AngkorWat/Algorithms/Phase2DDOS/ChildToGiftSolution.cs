@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.Phase2DDOS
 {
-    internal class ChildToGift
+    internal class Phase2ChildToGift
     {
         public Phase2Child Child { get; }
         public Phase2Gift Gift { get; }
-        public ChildToGift(Phase2Child child, Phase2Gift gift)
+        public Phase2ChildToGift(Phase2Child child, Phase2Gift gift)
         {
             Child = child;
             Gift = gift;
@@ -20,10 +20,10 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
     internal class ChildToGiftSolution
     {
-        public List<ChildToGift> ChildToGifts { get; set; }
+        public List<Phase2ChildToGift> ChildToGifts { get; set; }
         public ChildToGiftSolution()
         {
-            ChildToGifts = new List<ChildToGift>();
+            ChildToGifts = new List<Phase2ChildToGift>();
         }
     }
 }

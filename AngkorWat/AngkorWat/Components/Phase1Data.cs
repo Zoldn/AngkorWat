@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    internal class AllData
+    internal class Phase1Data
     {
         /// <summary>
         /// Скорость в воздухе [км/с]
@@ -27,20 +27,16 @@ namespace AngkorWat.Components
         /// Размер квадрата с нижней левой вершиной в (0, 0), который нельзя покидать
         /// </summary>
         public int SquareSide => 10000;
-        public List<Child> Children { get; set; }
+        public List<IPhase1Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
-        public List<Gift> Gifts { get; set; }
-        
-
-        public AllData()
+        public List<Phase1Gift> Gifts { get; set; }
+        public Phase1Data()
         {
             Santa = new();
 
             Children = new();
             SnowAreas = new();
             Gifts = new();
-
-            
         }
     }
 }

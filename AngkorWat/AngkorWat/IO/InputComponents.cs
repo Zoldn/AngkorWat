@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.IO
 {
-    internal class RawGift
+    internal class RawPhase1Gift
     {
         public int id { get; set; }
         public int weight { get; set; }
@@ -28,7 +28,7 @@ namespace AngkorWat.IO
         }
     }
 
-    internal class RawChild
+    internal class RawPhase1Child
     {
         public int x { get; set; }
         public int y { get; set; }
@@ -50,5 +50,32 @@ namespace AngkorWat.IO
         public int id { get; set; }
         public string gender { get; set; }
         public int age { get; set; }
+    }
+
+
+    internal class RawPhase3Gift
+    {
+        public int id { get; set; }
+        public int weight { get; set; }
+        public int volume { get; set; }
+        public string type { get; set; }
+        public int price { get; set; }
+        public override string ToString()
+        {
+            return $"Gift {id}, {weight}/{volume}/{type}/{price}";
+        }
+    }
+
+    internal class RawPhase3Child
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+        public int id { get; set; }
+        public string gender { get; set; }
+        public int age { get; set; }
+        public override string ToString()
+        {
+            return $"Child {id} in ({x}, {y})/{gender}/{age}";
+        }
     }
 }

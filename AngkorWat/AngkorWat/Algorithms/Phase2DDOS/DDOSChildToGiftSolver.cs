@@ -113,17 +113,17 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                 .OrderBy(e => e.Id)
                 .First();
 
-            var testPairs = new List<ChildToGift>()
+            var testPairs = new List<Phase2ChildToGift>()
             {
-                new ChildToGift(lowestAgeVictim, lowestGift),
-                new ChildToGift(lowestAgeVictim, averageGift),
-                new ChildToGift(lowestAgeVictim, highestGift),
-                new ChildToGift(averageAgeVictim, lowestGift),
-                new ChildToGift(averageAgeVictim, averageGift),
-                new ChildToGift(averageAgeVictim, highestGift),
-                new ChildToGift(highestAgeVictim, lowestGift),
-                new ChildToGift(highestAgeVictim, averageGift),
-                new ChildToGift(highestAgeVictim, highestGift),
+                new Phase2ChildToGift(lowestAgeVictim, lowestGift),
+                new Phase2ChildToGift(lowestAgeVictim, averageGift),
+                new Phase2ChildToGift(lowestAgeVictim, highestGift),
+                new Phase2ChildToGift(averageAgeVictim, lowestGift),
+                new Phase2ChildToGift(averageAgeVictim, averageGift),
+                new Phase2ChildToGift(averageAgeVictim, highestGift),
+                new Phase2ChildToGift(highestAgeVictim, lowestGift),
+                new Phase2ChildToGift(highestAgeVictim, averageGift),
+                new Phase2ChildToGift(highestAgeVictim, highestGift),
             };
 
             var testSolution = new ChildToGiftSolution();
@@ -211,7 +211,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
             var selectedChildren = new HashSet<Phase2Child>() { maleVictim, femaleVictim };
 
             var testPairs = selectedChildren
-                .SelectMany(c => totalSelectedGifts, (c, g) => new ChildToGift(c, g))
+                .SelectMany(c => totalSelectedGifts, (c, g) => new Phase2ChildToGift(c, g))
                 .ToList();
 
             var testSolution = new ChildToGiftSolution()
@@ -224,7 +224,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
             return (baseSolution, testSolution);
         }
 
-        private ChildToGiftSolution MakeBaseLevel(List<ChildToGift> excludes)
+        private ChildToGiftSolution MakeBaseLevel(List<Phase2ChildToGift> excludes)
         {
             var solution = new ChildToGiftSolution();
 
@@ -245,7 +245,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             for (int i = 0; i < data.Children.Count; i++)
             {
-                solution.ChildToGifts.Add(new ChildToGift(
+                solution.ChildToGifts.Add(new Phase2ChildToGift(
                     data.Children[i], selectedGifts[i]
                     ));
             }
@@ -270,7 +270,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
         //    var solution = new ChildToGiftSolution();
         //}
 
-        private ChildToGiftSolution MakeBaseLevel(List<ChildToGift> excludes, string giftType)
+        private ChildToGiftSolution MakeBaseLevel(List<Phase2ChildToGift> excludes, string giftType)
         {
             var solution = new ChildToGiftSolution();
 
@@ -309,7 +309,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             for (int i = 0; i < 3; i++)
             {
-                solution.ChildToGifts.Add(new ChildToGift(targetChildren[i], similarGifts[i]));
+                solution.ChildToGifts.Add(new Phase2ChildToGift(targetChildren[i], similarGifts[i]));
             }
 
             int giftCounter = 0;
@@ -321,7 +321,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                     continue;
                 }
 
-                solution.ChildToGifts.Add(new ChildToGift(
+                solution.ChildToGifts.Add(new Phase2ChildToGift(
                     child, selectedGifts[giftCounter++]
                     ));
             }
@@ -352,7 +352,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             for (int i = 0; i < data.Children.Count; i++)
             {
-                solution.ChildToGifts.Add(new ChildToGift(
+                solution.ChildToGifts.Add(new Phase2ChildToGift(
                     data.Children[i], selectedGifts[i]
                     ));
             }

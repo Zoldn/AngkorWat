@@ -66,8 +66,8 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
             .Select(d => d * ARC_SIZE - Math.PI)
             .ToList();
 
-        protected AllData allData;
-        public GreedPathFinding(AllData allData)
+        protected Phase1Data allData;
+        public GreedPathFinding(Phase1Data allData)
         {
             this.allData = allData;
         }

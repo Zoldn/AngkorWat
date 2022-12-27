@@ -230,10 +230,10 @@ namespace AngkorWat.Algorithms.Phase2MIP
             return solution;
         }
 
-        private List<ChildToGift> ExtractSolution(CpSolver solver, 
+        private List<Phase2ChildToGift> ExtractSolution(CpSolver solver, 
             List<ChildGroupToGiftGroupDVar> childGroupToGiftGroupDVars)
         {
-            var ret = new List<ChildToGift>();
+            var ret = new List<Phase2ChildToGift>();
 
             foreach (var dvar in childGroupToGiftGroupDVars)
             {
@@ -263,7 +263,7 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
                 for (int i = 0; i < dvar.Value; i++)
                 {
-                    ret.Add(new ChildToGift(childs[i], gifts[i]));
+                    ret.Add(new Phase2ChildToGift(childs[i], gifts[i]));
                 }
 
                 foreach (var child in childs)
@@ -307,7 +307,7 @@ namespace AngkorWat.Algorithms.Phase2MIP
                 LinearExpr.WeightedSum(
                     childGroupToGiftGroupDVars.Select(e => e.DVar),
                     childGroupToGiftGroupDVars.Select(e => e.GiftGroup.Price)
-                ) <= Phase2Data.MAX_COST
+                ) <= data.MaxCOST
                 );
         }
 
