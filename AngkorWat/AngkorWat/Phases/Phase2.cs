@@ -1,4 +1,5 @@
 ﻿using AngkorWat.Algorithms.Phase2DDOS;
+using AngkorWat.Algorithms.Phase2MIP;
 using AngkorWat.Components;
 using AngkorWat.Constants;
 using AngkorWat.IO;
@@ -13,6 +14,19 @@ namespace AngkorWat.Phases
 {
     internal static class Phase2
     {
+        public static void SolveMIP()
+        {
+            var allData = GetPhase2Data();
+
+            var mipSolver = new MIPSolver(allData);
+
+            var solution = mipSolver.Solve();
+
+            var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution);
+
+            SerializeResult(baseOutput, "out");
+        }
+
         public static void Solve()
         {
             var allData = GetPhase2Data();
@@ -27,9 +41,16 @@ namespace AngkorWat.Phases
             //    .Select(kv => kv.Key)
             //    .ToList();
 
+            var d = allData
+                .Gifts
+                .Select(e => new { e.Price, e.Type })
+                .Distinct()
+                .Count();
+
             var ddosSolver = new DDOSChildToGiftSolver(allData);
 
-            var solution = ddosSolver.SolveVictim();
+            //var solution = ddosSolver.SolveVictim();
+            var solution = ddosSolver.SolveVictim2();
 
             var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution.Base);
             var testOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution.Test);

@@ -14,9 +14,9 @@ internal class Program
     {
         //Phase1();
 
-        Phase2.Solve();
+        //Phase2.Solve();
 
-        //Phase2();
+        Phase2.SolveMIP();
     }
 
     private static void Phase1()
