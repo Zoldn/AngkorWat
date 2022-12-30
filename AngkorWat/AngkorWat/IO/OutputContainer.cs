@@ -1,5 +1,6 @@
 ﻿using AngkorWat.Algorithms.DistSolver;
 using AngkorWat.Algorithms.Phase2DDOS;
+using AngkorWat.Algorithms.RouteSolver;
 using AngkorWat.Components;
 using System;
 using System.Collections.Generic;
@@ -14,20 +15,11 @@ namespace AngkorWat.IO
         public string mapID { get; set; }
         public List<move> moves { get; set; }
         public List<List<int>> stackOfBags { get; set; }
-        public Phase1OutputContainer(string mapId)
+        public Phase1OutputContainer(Data data, TSPSolution tspSolution)
         {
-            mapID = mapId;
+            mapID = data.MapId;
 
-            moves = new();
-            stackOfBags = new();
-        }
-
-        public Phase1OutputContainer(string mapId, Phase1Data allData, Phase1Solution fullSolution)
-        {
-            mapID = mapId;
-
-            moves = fullSolution
-                .Sequences
+            moves = tspSolution
                 .FullRoute
                 .Select(e => new move() 
                 {
@@ -36,8 +28,9 @@ namespace AngkorWat.IO
                 })
                 .ToList();
 
-            stackOfBags = fullSolution
-                .Sequences
+            tspSolution.OrderedPackings.Reverse();
+
+            stackOfBags = tspSolution
                 .OrderedPackings
                 .Select(e => e.Gifts.Select(g => g.Id).ToList())
                 .ToList();

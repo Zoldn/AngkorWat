@@ -9,8 +9,8 @@ namespace AngkorWat.Algorithms.PackSolver
 {
     internal class Packing
     {
-        public List<Phase1Gift> Gifts { get; set; }
-        public Packing(IEnumerable<Phase1Gift> gifts)
+        public List<Gift> Gifts { get; set; }
+        public Packing(IEnumerable<Gift> gifts)
         {
             Gifts = gifts.ToList();
         }

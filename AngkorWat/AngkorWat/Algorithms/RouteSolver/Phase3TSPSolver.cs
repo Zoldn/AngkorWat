@@ -1,8 +1,9 @@
 ﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.Algorithms.PackSolver;
+using AngkorWat.Algorithms.Phase2DDOS;
 using AngkorWat.Components;
 using Google.OrTools.ConstraintSolver;
 using Google.Protobuf.WellKnownTypes;
-using OperationsResearch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,65 +12,38 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.RouteSolver
 {
-    internal enum Metric
+    internal class Phase3TSPSolver
     {
-        /// <summary>
-        /// Метрика времени движения между точками с учетом снега
-        /// </summary>
-        SNOW = 0,
-        /// <summary>
-        /// Метрика расстояния между точками с игнорированием снега
-        /// </summary>
-        EUCLID, 
-    }
-    internal class TSPSolver
-    {
-        private readonly Data allData;
-        private readonly Phase1Solution fullSolution;
-
+        private Data data;
+        private Phase1Solution phase1Solution;
+        private ChildToGiftSolution childToGiftSolution;
         public Dictionary<Phase1Child, bool> AvailableChildren { get; set; }
         public Dictionary<Phase1Child, double> DistancesToSanta { get; set; }
-        public Metric SelectFurthestChildStrategy { get; set; }
-        public Metric SelectClosestChildStrategy { get; set; }
 
-        public TSPSolver(Data allData, Phase1Solution fullSolution)
+        public Phase3TSPSolver(Data data, Phase1Solution phase1Solution, 
+            ChildToGiftSolution childToGiftSolution)
         {
-            this.allData = allData;
-            this.fullSolution = fullSolution;
+            this.data = data;
+            this.phase1Solution = phase1Solution;
+            this.childToGiftSolution = childToGiftSolution;
 
             AvailableChildren = new();
             DistancesToSanta = new();
-
-            SelectFurthestChildStrategy = Metric.EUCLID;
-            SelectClosestChildStrategy = Metric.EUCLID;
         }
 
-        public TSPSolution Solve()
+        internal TSPSolution Solve()
         {
             var solution = new TSPSolution();
 
             InitializeChildren();
 
-            switch (SelectFurthestChildStrategy)
-            {
-                case Metric.SNOW:
-                    CalculateTravelTimeToSanta();
-                    break;
-                case Metric.EUCLID:
-                    CalculateDistancesToSantaEuclid();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
+            CalculateDistancesToSantaEuclid();
 
-            foreach (var packing in fullSolution.PackingSolution.Packings)
+            while (AvailableChildren.Any(kv => kv.Value))
             {
-                Console.WriteLine($"TSP SOLVER: solving {packing}");
-
                 var furthestChild = GetFurthestChild();
 
-                var closestChilds = GetClosestChildsToSelected(furthestChild, packing.Gifts.Count - 1);
+                var closestChilds = GetClosestChildsToSelected(furthestChild);
 
                 var targetChilds = closestChilds
                     .Append(furthestChild)
@@ -82,25 +56,27 @@ namespace AngkorWat.Algorithms.RouteSolver
                     AvailableChildren[child] = false;
                 }
 
-                solution.Sequences.Add(packing, new LocationSequence(packing, curRoute));
+                solution.Sequences2.Add(new LocationSequence(null, curRoute));
             }
 
-            OrderPackings(solution);
+            //OrderPackings(solution);
 
             ConcatFullRoute(solution);
 
             return solution;
         }
 
-        private void OrderPackings(TSPSolution solution)
-        {
-            var packings = fullSolution.PackingSolution
-                .Packings
-                //.Select(e => e.Gifts.Select(g => g.Id).ToList())
-                .ToList();
+        //private void OrderPackings(TSPSolution solution)
+        //{
+        //    solution.Sequences2
 
-            solution.OrderedPackings = packings;
-        }
+        //    var packings = phase1Solution.PackingSolution
+        //        .Packings
+        //        //.Select(e => e.Gifts.Select(g => g.Id).ToList())
+        //        .ToList();
+
+        //    solution.OrderedPackings = packings;
+        //}
 
         private void ConcatFullRoute(TSPSolution solution)
         {
@@ -109,32 +85,55 @@ namespace AngkorWat.Algorithms.RouteSolver
             var totalTime = 0.0d;
             var totalLength = 0.0d;
 
-            var rev = solution.OrderedPackings
+            var rev = solution.Sequences2
                 .ToList();
 
             rev.Reverse();
 
             var lastPacking = rev.Last();
 
-            foreach (var packing in rev)
-            {
-                var subSequence = solution.Sequences[packing];
+            var childToGifts = childToGiftSolution
+                .ChildToGifts
+                .ToDictionary(kv => kv.Child.Id, kv => kv.Gift.Id);
 
-                for (int i = 0; i < subSequence.Locations.Count - 1; i++)
+            var giftIds = data.Gifts
+                .ToDictionary(g => g.Id);
+
+            foreach (var rout in rev)
+            {
+                //var subSequence = solution.Sequences[packing];
+
+                var tt = rout.Locations
+                    .Where(e => e.PunktType == PunktType.CHILD)
+                    .Select(e => giftIds[childToGifts[e.Id]])
+                    .ToList();
+
+                if (tt.Sum(e => e.Volume) > 100 || tt.Sum(e => e.Weight) > 200)
                 {
-                    var from = subSequence.Locations[i];
-                    var to = subSequence.Locations[i + 1];
+                    int y = 1;
+                }
+
+                tt.Reverse();
+
+                var packing = new Packing(tt);
+
+                solution.OrderedPackings.Add(packing);
+
+                for (int i = 0; i < rout.Locations.Count - 1; i++)
+                {
+                    var from = rout.Locations[i];
+                    var to = rout.Locations[i + 1];
 
                     /// Если мы уже развезли все мешки, и это последний, то
                     /// возвращаться домой не надо
-                    if (to == allData.Santa
-                        && packing == lastPacking
+                    if (to == data.Santa
+                        && rout == lastPacking
                         )
                     {
                         continue;
                     }
 
-                    var subRoute = fullSolution.Routes.Routes[(from, to)];
+                    var subRoute = phase1Solution.Routes.Routes[(from, to)];
 
                     totalTime += subRoute.TravelTime;
                     totalLength += subRoute.Distance;
@@ -147,7 +146,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             solution.TravelTime = totalTime;
             solution.Distance = totalLength;
 
-            Console.WriteLine($"FINAL RESULT: Travel time = {solution.TravelTime}, distance = {solution.Distance}");
+            //Console.WriteLine($"FINAL RESULT: Travel time = {solution.TravelTime}, distance = {solution.Distance}");
         }
 
         private List<ILocation> SolveSequence(List<Phase1Child> targetChilds)
@@ -163,9 +162,9 @@ namespace AngkorWat.Algorithms.RouteSolver
                     p => p.c as ILocation
                 );
 
-            childrenIndex.Add(0, allData.Santa);
+            childrenIndex.Add(0, data.Santa);
 
-            long[, ] transitionMatrix = new long[childrenIndex.Count, childrenIndex.Count];
+            long[,] transitionMatrix = new long[childrenIndex.Count, childrenIndex.Count];
 
             for (int i = 0; i < childrenIndex.Count; i++)
             {
@@ -177,7 +176,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                     }
                     else
                     {
-                        transitionMatrix[i, j] = (long)Math.Round(fullSolution.Routes.Routes[(
+                        transitionMatrix[i, j] = (long)Math.Round(phase1Solution.Routes.Routes[(
                             childrenIndex[i], childrenIndex[j]
                             )].TravelTime);
                     }
@@ -200,7 +199,7 @@ namespace AngkorWat.Algorithms.RouteSolver
 
             searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
             searchParameters.LocalSearchMetaheuristic = LocalSearchMetaheuristic.Types.Value.GuidedLocalSearch;
-            searchParameters.TimeLimit = new Duration { Seconds = 5 };
+            searchParameters.TimeLimit = new Duration { Seconds = 2 };
 
             Assignment solution = routing.SolveWithParameters(searchParameters);
 
@@ -243,31 +242,11 @@ namespace AngkorWat.Algorithms.RouteSolver
             return ret;
         }
 
-        private void InitializeChildren()
+        private List<Phase1Child> GetClosestChildsToSelected(Phase1Child furthestChild)
         {
-            AvailableChildren = allData
-                .Children
-                .ToDictionary(
-                    c => c,
-                    c => true
-                );
-        }
+            Func<Phase1Child, double> distanceCalculator = c => GeometryUtils.GetDistance(c, furthestChild);
 
-        private List<Phase1Child> GetClosestChildsToSelected(Phase1Child furthestChild, int count)
-        {
-            Func<Phase1Child, double> distanceCalculator;
-
-            switch (SelectClosestChildStrategy)
-            {
-                case Metric.SNOW:
-                    distanceCalculator = c => fullSolution.Routes.Routes[(c, furthestChild)].TravelTime;
-                    break;
-                case Metric.EUCLID:
-                    distanceCalculator = c => GeometryUtils.GetDistance(c, furthestChild);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            List<Phase1Child> ret = new();
 
             var distancesToSelected = AvailableChildren
                 .Where(kv => kv.Value && kv.Key != furthestChild)
@@ -279,29 +258,51 @@ namespace AngkorWat.Algorithms.RouteSolver
                     c => distanceCalculator(c)
                 );
 
-            return distancesToSelected
+            var orderedChildren = distancesToSelected
                 .OrderBy(kv => kv.Value)
-                .Take(count)
-                .Select(kv => kv.Key)
+                .Select(e => e.Key)
                 .ToList();
-        }
 
-        private void CalculateTravelTimeToSanta()
-        {
-            DistancesToSanta = allData.Children
-                .ToDictionary(
-                    c => c,
-                    c => fullSolution.Routes.Routes[(c, allData.Santa)].TravelTime
-                );
-        }
+            var childToGifts = childToGiftSolution
+                .ChildToGifts
+                .ToDictionary(kv => kv.Child.Id, kv => kv.Gift.Id);
 
-        private void CalculateDistancesToSantaEuclid()
-        {
-            DistancesToSanta = allData.Children
-                .ToDictionary(
-                    c => c,
-                    c => GeometryUtils.GetDistance(c, allData.Santa) //allData.Routes.Routes[(c, allData.Santa)].TravelTime
-                );
+            var weights = data.Gifts.ToDictionary(g => g.Id, g => g.Weight);
+            var volumes = data.Gifts.ToDictionary(g => g.Id, g => g.Volume);
+
+            var giftId = childToGifts[furthestChild.Id];
+
+            int totalWeight = weights[giftId];
+            int totalVolume = volumes[giftId];
+
+            for (int i = 0; i < orderedChildren.Count; i++)
+            {
+                giftId = childToGifts[orderedChildren[i].Id];
+
+                int currentWeight = weights[giftId];
+                int currentVolume = volumes[giftId];
+
+                if (currentVolume + totalVolume > 100
+                    || currentWeight + totalWeight > 200
+                    )
+                {
+                    continue;
+                }
+                else
+                {
+                    totalVolume += currentVolume;
+                    totalWeight += currentWeight;
+
+                    ret.Add(orderedChildren[i]);
+                }
+            }
+
+            if (totalVolume > 100 || totalWeight > 200)
+            {
+                int y = 1;
+            }
+
+            return ret;
         }
 
         private Phase1Child GetFurthestChild()
@@ -311,6 +312,25 @@ namespace AngkorWat.Algorithms.RouteSolver
                 .OrderByDescending(kv => kv.Value)
                 .Select(kv => kv.Key)
                 .First();
+        }
+
+        private void InitializeChildren()
+        {
+            AvailableChildren = data
+                .Children
+                .ToDictionary(
+                    c => c,
+                    c => true
+                );
+        }
+
+        private void CalculateDistancesToSantaEuclid()
+        {
+            DistancesToSanta = data.Children
+                .ToDictionary(
+                    c => c,
+                    c => GeometryUtils.GetDistance(c, data.Santa) //allData.Routes.Routes[(c, allData.Santa)].TravelTime
+                );
         }
     }
 }

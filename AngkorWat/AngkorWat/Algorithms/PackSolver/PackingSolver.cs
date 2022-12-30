@@ -21,11 +21,11 @@ namespace AngkorWat.Algorithms.PackSolver
                 "cache",
                 "packing.json");
 
-        private readonly Phase1Data allData;
+        private readonly Data allData;
 
-        public Dictionary<Phase1Gift, bool> AvailableGifts { get; private set; }
+        public Dictionary<Gift, bool> AvailableGifts { get; private set; }
 
-        public PackingSolver(Phase1Data allData)
+        public PackingSolver(Data allData)
         {
             this.allData = allData;
             AvailableGifts = new();

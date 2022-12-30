@@ -18,13 +18,13 @@ namespace AngkorWat.Phases
         {
             var allData = GetPhase2Data();
 
-            var mipSolver = new MIPSolver(allData);
+            //var mipSolver = new MIPSolver(allData);
 
-            var solution = mipSolver.Solve();
+            //var solution = mipSolver.Solve();
 
-            var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution);
+            //var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution);
 
-            SerializeResult(baseOutput, "out");
+            //SerializeResult(baseOutput, "out");
         }
 
         public static void Solve()
@@ -70,18 +70,18 @@ namespace AngkorWat.Phases
             File.WriteAllText(path, json);
         }
 
-        private static Phase2Data GetPhase2Data()
+        private static Data GetPhase2Data()
         {
             Phase2InputContainer inputContainer = ReadInputData2();
 
-            var ret = new Phase2Data();
+            var ret = new Data();
 
             ret.Children = inputContainer.children
-                .Select((e, index) => new Phase2Child(e))
+                .Select((e, index) => new Phase1Child(e))
                 .ToList();
 
             ret.Gifts = inputContainer.gifts
-                .Select(e => new Phase2Gift(e))
+                .Select(e => new Gift(e))
                 .ToList();
 
             return ret;

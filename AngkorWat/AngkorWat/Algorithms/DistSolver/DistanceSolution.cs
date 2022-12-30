@@ -22,7 +22,7 @@ namespace AngkorWat.Algorithms.DistSolver
     }
     internal interface ILocation : IPunkt
     {
-        public int LocationId { get; }
+        public int Id { get; }
         public bool IsSanta { get; }
         public DerPunkt AsPunkt();
     }
@@ -32,7 +32,7 @@ namespace AngkorWat.Algorithms.DistSolver
         public int Y => 0;
         public bool IsSanta => true;
         public PunktType PunktType => PunktType.SANTA;
-        public int LocationId => 0;
+        public int Id => 0;
         public Santa()
         {
 

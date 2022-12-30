@@ -10,10 +10,23 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.Phase2DDOS
 {
+    internal class VictimSolution
+    {
+        public List<int> TargetChilds { get; set; }
+        public List<int> TargetGifts { get; set; }
+        public List<(int ChildId, int GiftId)> Base { get; set; }
+        public VictimSolution()
+        {
+            TargetChilds = new();
+            TargetGifts = new();
+            Base = new();
+        }
+    }
+
     internal class DDOSChildToGiftSolver
     {
-        private Phase2Data data;
-        public DDOSChildToGiftSolver(Phase2Data data)
+        private Data data;
+        public DDOSChildToGiftSolver(Data data)
         {
             this.data = data;
         }
@@ -208,7 +221,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                 .OrderBy(e => e.Id)
                 .First();
 
-            var selectedChildren = new HashSet<Phase2Child>() { maleVictim, femaleVictim };
+            var selectedChildren = new HashSet<Phase1Child>() { maleVictim, femaleVictim };
 
             var testPairs = selectedChildren
                 .SelectMany(c => totalSelectedGifts, (c, g) => new Phase2ChildToGift(c, g))
@@ -223,6 +236,81 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             return (baseSolution, testSolution);
         }
+
+        //internal VictimSolution SolveVictim3()
+        //{
+        //    VictimSolution solution = new VictimSolution();
+
+        //    var male1 = data.Children
+        //        .Where(e => e.Gender == "male" && e.Age == 3)
+        //        .OrderBy(e => e.Id)
+        //        .First();
+
+        //    var male2 = data.Children
+        //        .Where(e => e.Gender == "male" && e.Age == 7)
+        //        .OrderBy(e => e.Id)
+        //        .First();
+
+        //    var female1 = data.Children
+        //        .Where(e => e.Gender == "female" && e.Age == 3)
+        //        .OrderBy(e => e.Id)
+        //        .First();
+
+        //    var female2 = data.Children
+        //        .Where(e => e.Gender == "female" && e.Age == 7)
+        //        .OrderBy(e => e.Id)
+        //        .First();
+
+        //    solution.TargetChilds = new List<int>()
+        //    {
+        //        male1.Id,
+        //        male2.Id,
+        //        female1.Id,
+        //        female2.Id
+        //    };
+
+        //    var giftTypes = data.Gifts
+        //        .Select(e => e.Type)
+        //        .Distinct()
+        //        .OrderBy(e => e)
+        //        .ToList();
+
+        //    var maxPricesPerCategory = data.Gifts
+        //        .GroupBy(e => e.Type)
+        //        .ToDictionary(g => g.Key, g => g.Max(c => c.Price));
+
+        //    var minPricesPerCategory = data.Gifts
+        //        .GroupBy(e => e.Type)
+        //        .ToDictionary(g => g.Key, g => g.Min(c => c.Price));
+
+        //    foreach (var giftType in giftTypes)
+        //    {
+        //        var highestGift = data.Gifts
+        //            .Where(g => g.Type == giftType && g.Price == maxPricesPerCategory[giftType])
+        //            .OrderBy(g => g.Id)
+        //            .First();
+
+        //        var lowestGift = data.Gifts
+        //            .Where(g => g.Type == giftType && g.Price == minPricesPerCategory[giftType])
+        //            .OrderBy(g => g.Id)
+        //            .First();
+
+        //        solution.TargetGifts.Add(highestGift.Id);
+        //        solution.TargetGifts.Add(lowestGift.Id);
+        //    }
+
+        //    var freeGifts = data.Gifts
+        //        .Where(e => !solution.TargetGifts.Contains(e.Id))
+        //        .OrderBy(e => e.Price)
+        //        .ThenBy(e => e.Id)
+        //        .Take(data.Children.Count)
+        //        .ToList();
+
+        //    for (int i = 0; i < data.Children.Count; i++)
+        //    {
+        //        solution.Base.Add((data.Children[i].Id, freeGifts[i].Id));
+        //    }
+        //}
 
         private ChildToGiftSolution MakeBaseLevel(List<Phase2ChildToGift> excludes)
         {

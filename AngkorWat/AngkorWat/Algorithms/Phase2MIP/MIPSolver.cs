@@ -4,13 +4,11 @@ using Google.OrTools.Sat;
 using AngkorWat.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 using AngkorWat.Algorithms.Phase2MIP.HappinessFunctions;
+using AngkorWat.Algorithms.DistSolver;
 
 namespace AngkorWat.Algorithms.Phase2MIP
 {
@@ -24,25 +22,26 @@ namespace AngkorWat.Algorithms.Phase2MIP
         public string Gender { get; }
         public int Age { get; }
         public int Count => Children.Count;
-        public List<Phase2Child> Children { get; }
-        public Dictionary<Phase2Child, bool> AvailableChildren { get; set; }
-        public ChildrenGroup(List<Phase2Child> children)
+        public List<Phase1Child> Children { get; }
+        public Dictionary<Phase1Child, bool> AvailableChildren { get; set; }
+        public ChildrenGroup(Dictionary<Phase1Child, double> children)
         {
-            Children = children;
+            Children = children.Keys.ToList();
 
             Gender = children
-                .Select(e => e.Gender)
+                .Select(e => e.Key.Gender)
                 .Distinct()
                 .Single();
 
             Age = children
-                .Select(e => e.Age)
+                .Select(e => e.Key.Age)
                 .Distinct()
                 .Single();
 
             AvailableChildren = children
+                .OrderByDescending(kv => kv.Value)
                 .ToDictionary(
-                    c => c,
+                    c => c.Key,
                     c => true
                 );
         }
@@ -58,26 +57,27 @@ namespace AngkorWat.Algorithms.Phase2MIP
         public int Price { get; }
         public string Type { get; }
         public int Count => Gifts.Count;
-        public List<Phase2Gift> Gifts { get; }
-        public Dictionary<Phase2Gift, bool> AvailableGifts { get; set; }
+        public List<Gift> Gifts { get; }
+        public Dictionary<Gift, bool> AvailableGifts { get; set; }
 
-        public GiftGroup(List<Phase2Gift> gifts)
+        public GiftGroup(Dictionary<Gift, int> gifts)
         {
-            Gifts = gifts;
+            Gifts = gifts.Keys.ToList();
 
             Price = gifts
-                .Select(e => e.Price)
+                .Select(e => e.Key.Price)
                 .Distinct()
                 .Single();
 
             Type = gifts
-                .Select(e => e.Type)
+                .Select(e => e.Key.Type)
                 .Distinct()
                 .Single();
 
-            AvailableGifts = Gifts
+            AvailableGifts = gifts
+                .OrderBy(kv => kv.Value)
                 .ToDictionary(
-                    g => g,
+                    g => g.Key,
                     g => true
                 );
         }
@@ -115,10 +115,12 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
     internal class MIPSolver
     {
-        private readonly Phase2Data data;
-        public MIPSolver(Phase2Data data)
+        private readonly Data data;
+        private readonly DistanceSolution routes;
+        public MIPSolver(Data data, DistanceSolution routes)
         {
             this.data = data;
+            this.routes = routes;
         }
 
         public ChildToGiftSolution Solve()
@@ -132,7 +134,15 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
             foreach (var (_, childs) in childrenLU)
             {
-                var childrenGroup = new ChildrenGroup(childs.ToList());
+                var childs1 = childs
+                    .ToDictionary(
+                        c => c,
+                        c => routes
+                            .Routes[(data.Santa, data.Children.Where(e => e.Id == c.Id).Single())]
+                            .TravelTime
+                    );
+
+                var childrenGroup = new ChildrenGroup(childs1);
 
                 childrenGroups.Add(childrenGroup);
             }
@@ -144,12 +154,18 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
             foreach (var (_, gifts) in giftLU)
             {
-                var giftGroup = new GiftGroup(gifts.ToList());
+                var gifts1 = gifts
+                    .ToDictionary(
+                        c => c,
+                        c => data.Gifts.Single(e => e.Id == c.Id).Weight +
+                             data.Gifts.Single(e => e.Id == c.Id).Volume
+                    );
+
+                //var giftGroup = new GiftGroup(gifts.ToList());
+                var giftGroup = new GiftGroup(gifts1);
 
                 giftGroups.Add(giftGroup);
             }
-
-
 
             var childGroupToGiftGroupDVars = new List<ChildGroupToGiftGroupDVar>();
 
@@ -307,7 +323,7 @@ namespace AngkorWat.Algorithms.Phase2MIP
                 LinearExpr.WeightedSum(
                     childGroupToGiftGroupDVars.Select(e => e.DVar),
                     childGroupToGiftGroupDVars.Select(e => e.GiftGroup.Price)
-                ) <= data.MaxCOST
+                ) <= data.MaxGiftCost
                 );
         }
 

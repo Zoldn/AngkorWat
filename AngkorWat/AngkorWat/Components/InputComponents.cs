@@ -9,32 +9,42 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    internal class Phase1Gift
+    internal class Gift
     {
-        public int Id { get; set;  }
-        public int Weight { get; set; }
-        public int Volume { get; set; }
+        public int Id { get; }
+        public int Weight { get; }
+        public int Volume { get; }
+        public string Type { get; }
+        public int Price { get; }
 
-        public Phase1Gift()
-        {
-        }
-        public Phase1Gift(RawPhase1Gift rawGift)
+        public Gift(RawPhase1Gift rawGift)
         {
             Id = rawGift.id;
             Weight = rawGift.weight;
             Volume = rawGift.volume;
+            Type = "";
+            Price = 0;
         }
 
-        public Phase1Gift(Phase3Gift g)
+        public Gift(RawPhase2Gift rawGift)
         {
-            Id = g.Id;
-            Weight = g.Weight;
-            Volume = g.Volume;
+            Id = rawGift.id;
+            Type = rawGift.type;
+            Price = rawGift.price;
+        }
+
+        public Gift(RawPhase3Gift rawGift)
+        {
+            Id = rawGift.id;
+            Weight = rawGift.weight;
+            Volume = rawGift.volume;
+            Type = rawGift.type;
+            Price = rawGift.price;
         }
 
         public override string ToString()
         {
-            return $"Gift {Id}, {Weight}/{Volume}";
+            return $"Gift {Id}, (W: {Weight}/V: {Volume}) {Type}, {Price}";
         }
     }
 
@@ -56,34 +66,40 @@ namespace AngkorWat.Components
         }
     }
 
-    internal interface IPhase1Child : ILocation
-    {
-        //public int X { get; }
-        //public int Y { get; }
-        //public bool IsSanta { get; }
-        //public PunktType PunktType { get; }
-        //public int LocationId { get; set; }
-    }
-
-    internal class Phase1Child : ILocation, IPhase1Child
+    internal class Phase1Child : ILocation
     {
         public int X { get; }
         public int Y { get; }
+        public string Gender { get; }
+        public int Age { get; }
         public bool IsSanta => false;
         public PunktType PunktType => PunktType.CHILD;
-        public int LocationId { get; set; }
+        public int Id { get; set; }
         public Phase1Child(RawPhase1Child rawChild, int id)
         {
             X = rawChild.x;
             Y = rawChild.y;
-            LocationId = id;
+            Id = id;
+            Gender = "";
+            Age = 0;
         }
 
-        public Phase1Child(Phase3Child c)
+        public Phase1Child(RawPhase2Child rawChild)
         {
-            X = c.X;
-            Y = c.Y;
-            LocationId = c.Id;
+            X = 0;
+            Y = 0;
+            Id = rawChild.id;
+            Gender = rawChild.gender;
+            Age = rawChild.age;
+        }
+
+        public Phase1Child(RawPhase3Child rawChild, int id)
+        {
+            X = rawChild.x;
+            Y = rawChild.y;
+            Id = id;
+            Gender = rawChild.gender;
+            Age = rawChild.age;
         }
 
         public DerPunkt AsPunkt()
@@ -97,6 +113,8 @@ namespace AngkorWat.Components
         }
     }
 
+
+    /*
     internal class Phase2Gift
     {
         public int Id { get; set; }
@@ -112,6 +130,9 @@ namespace AngkorWat.Components
 
         public Phase2Gift(Phase3Gift g)
         {
+            Id = g.Id;
+            Type = g.Type;
+            Price = g.Price;
         }
 
         public override string ToString()
@@ -155,16 +176,16 @@ namespace AngkorWat.Components
         public int Age { get; set; }
         public bool IsSanta => false;
         public PunktType PunktType => PunktType.CHILD;
-        public int LocationId { get; set ; }
-        public Phase3Child(RawPhase3Child rawChild)
+        public int Id { get; set ; }
+        public Phase3Child(RawPhase3Child rawChild, int index)
         {
-            Id = rawChild.id;
+            Id = index;
             Gender = rawChild.gender;
             Age = rawChild.age;
             X = rawChild.x;
             Y = rawChild.y;
 
-            LocationId = rawChild.id;
+            Id = rawChild.id;
         }
 
         public DerPunkt AsPunkt()
@@ -200,4 +221,5 @@ namespace AngkorWat.Components
             return $"Gift {Id}, {Type}/{Price}, ({Weight}/{Volume})";
         }
     }
+    */
 }

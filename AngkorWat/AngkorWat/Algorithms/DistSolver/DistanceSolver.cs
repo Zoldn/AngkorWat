@@ -21,10 +21,10 @@ namespace AngkorWat.Algorithms.DistSolver
 
     internal class DistanceSolver
     {
-        private readonly Phase1Data allData;
+        private readonly Data allData;
         public HashSet<(int, int)> ChildrenPositions { get; private set; }
 
-        public DistanceSolver(Phase1Data allData)
+        public DistanceSolver(Data allData)
         {
             this.allData = allData;
 
@@ -48,7 +48,7 @@ namespace AngkorWat.Algorithms.DistSolver
             {
                 foreach (var to in locations)
                 {
-                    if (from.LocationId >= to.LocationId)
+                    if (from.Id >= to.Id)
                     {
                         continue;
                     }

@@ -1,6 +1,7 @@
 ﻿using AngkorWat.Algorithms.DistSolver;
 using AngkorWat.Algorithms.PackSolver;
 using AngkorWat.Algorithms.RouteSolver;
+using Google.OrTools.Sat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,16 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    internal class Phase1Data
+    internal class Data
     {
+        /// <summary>
+        /// Id карты
+        /// </summary>
+        public string MapId { get; init; }
+        /// <summary>
+        /// Максимальная стоимость подарков
+        /// </summary>
+        public int MaxGiftCost { get; init; }
         /// <summary>
         /// Скорость в воздухе [км/с]
         /// </summary>
@@ -27,16 +36,27 @@ namespace AngkorWat.Components
         /// Размер квадрата с нижней левой вершиной в (0, 0), который нельзя покидать
         /// </summary>
         public int SquareSide => 10000;
-        public List<IPhase1Child> Children { get; set; }
+        /// <summary>
+        /// Максимальная масса подарков в санях
+        /// </summary>
+        public int WeightLimit => 200;
+        /// <summary>
+        /// Максимальный объем подарков в санях
+        /// </summary>
+        public int VolumeLimit => 100;
+
+        public List<Phase1Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
-        public List<Phase1Gift> Gifts { get; set; }
-        public Phase1Data()
+        public List<Gift> Gifts { get; set; }
+        
+        public Data()
         {
             Santa = new();
 
             Children = new();
             SnowAreas = new();
             Gifts = new();
+            MapId = "";
         }
     }
 }

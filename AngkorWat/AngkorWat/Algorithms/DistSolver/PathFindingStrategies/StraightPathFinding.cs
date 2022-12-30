@@ -9,8 +9,8 @@ namespace AngkorWat.Algorithms.DistSolver.PathFindingStrategies
 {
     internal class StraightPathFinding : IPathFindingStrategy
     {
-        protected Phase1Data allData;
-        public StraightPathFinding(Phase1Data allData) 
+        protected Data allData;
+        public StraightPathFinding(Data allData) 
         {
             this.allData = allData;
         }

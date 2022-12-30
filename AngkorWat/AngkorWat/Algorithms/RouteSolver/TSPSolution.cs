@@ -26,6 +26,7 @@ namespace AngkorWat.Algorithms.RouteSolver
         public double TravelTime { get; internal set; }
         public double Distance { get; internal set; }
         public List<Packing> OrderedPackings { get; internal set; }
+        public List<LocationSequence> Sequences2 { get; internal set; }
 
         public TSPSolution()
         {
@@ -33,6 +34,8 @@ namespace AngkorWat.Algorithms.RouteSolver
 
             Sequences = new();
             FullRoute = new();
+
+            Sequences2 = new();
         }
     }
 }

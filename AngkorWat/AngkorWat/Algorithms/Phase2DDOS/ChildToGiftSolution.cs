@@ -9,9 +9,9 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 {
     internal class Phase2ChildToGift
     {
-        public Phase2Child Child { get; }
-        public Phase2Gift Gift { get; }
-        public Phase2ChildToGift(Phase2Child child, Phase2Gift gift)
+        public Phase1Child Child { get; }
+        public Gift Gift { get; }
+        public Phase2ChildToGift(Phase1Child child, Gift gift)
         {
             Child = child;
             Gift = gift;

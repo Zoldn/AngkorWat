@@ -1,6 +1,9 @@
-﻿using AngkorWat.Algorithms.Phase2DDOS;
+﻿using AngkorWat.Algorithms.DistSolver;
+using AngkorWat.Algorithms.PackSolver;
+using AngkorWat.Algorithms.Phase2DDOS;
 using AngkorWat.Algorithms.Phase2MIP;
 using AngkorWat.Algorithms.Phase3Solver;
+using AngkorWat.Algorithms.RouteSolver;
 using AngkorWat.Components;
 using AngkorWat.Constants;
 using AngkorWat.IO;
@@ -19,92 +22,70 @@ namespace AngkorWat.Phases
         {
             var phase3Data = GetAllData();
 
-            var phase2Data = ToPhase2Data(phase3Data);
+            //var selectedGifts = childToGiftSolution.ChildToGifts
+            //    .Select(e => e.Gift.Id)
+            //    .ToHashSet();
 
-            var phase2MIPSolver = new MIPSolver(phase2Data);
+            //phase1Data.Gifts = phase1Data.Gifts
+            //    .Where(e => selectedGifts.Contains(e.Id))
+            //    .ToList();
 
-            var childToGifts = phase2MIPSolver.Solve();
+            var phase1Solution = new Phase1Solution();
 
-            var selectedPairs = ToPhase3ChildsToGift(childToGifts, phase3Data);
+            var distSolver = new DistanceSolver(phase3Data);
 
-            var phase1Data = ToPhase1Data(phase3Data);
+            phase1Solution.Routes = distSolver.Solve();
+
+            var mipSolver = new MIPSolver(phase3Data, phase1Solution.Routes);
+
+            var childToGiftSolution = mipSolver.Solve();
+
+            var tspSolver = new Phase3TSPSolver(phase3Data, phase1Solution, childToGiftSolution);
+
+            var tspSolution = tspSolver.Solve();
+
+            var output = new Phase1OutputContainer(phase3Data, tspSolution);
+
+            SerializeResult(output);
+
         }
 
-        private static List<Phase3ChildToGift> ToPhase3ChildsToGift(
-            ChildToGiftSolution childToGifts, Phase3Data phase3Data)
+        private static void SerializeResult(Phase1OutputContainer output)
         {
-            var childDict = phase3Data
-                .Children
-                .ToDictionary(c => c.Id);
+            var json = JsonConvert.SerializeObject(output);
 
-            var giftDict = phase3Data
-                .Gifts
-                .ToDictionary(g => g.Id);
+            string path = Path.Combine(AngkorConstants.FilesRoute, "result.json");
 
-            return childToGifts.ChildToGifts
-                .Select(e => new Phase3ChildToGift(
-                    childDict[e.Child.Id],
-                    giftDict[e.Gift.Id]
-                    ))
-                .ToList();
+            File.WriteAllText(path, json);
         }
 
-        private static Phase1Data ToPhase1Data(Phase3Data data)
-        {
-            Phase1Data phase1Data = new Phase1Data();
-
-            phase1Data.Children = data.Children
-                .Select(c => new Phase1Child(c) as IPhase1Child)
-                .ToList();
-
-            phase1Data.SnowAreas = data.SnowAreas;
-
-            phase1Data.Gifts = data.Gifts
-                .Select(g => new Phase1Gift(g))
-                .ToList();
-
-            return phase1Data;
-        }
-
-        private static Phase2Data ToPhase2Data(Phase3Data data)
-        {
-            Phase2Data phase2Data = new Phase2Data();
-
-            phase2Data.Children = data.Children
-                .Select(c => new Phase2Child(c))
-                .ToList();
-
-            phase2Data.Gifts = data.Gifts
-                .Select(g => new Phase2Gift(g))
-                .ToList();
-
-            return phase2Data;
-        }
-
-        private static Phase3Data GetAllData()
+        private static Data GetAllData()
         {
             var inputContainer = ReadInputData();
 
-            var ret = new Phase3Data();
+            var ret = new Data
+            {
+                MapId = "dd6ed651-8ed6-4aeb-bcbc-d8a51c8383cc",
 
-            ret.Children = inputContainer.children
-                .Select((e, index) => new Phase3Child(e))
-                .ToList();
+                Children = inputContainer.children
+                .Select((e, index) => new Phase1Child(e, index + 1))
+                .ToList(),
 
-            ret.SnowAreas = inputContainer.snowAreas
+                SnowAreas = inputContainer.snowAreas
                 .Select(e => new SnowArea(e))
-                .ToList();
+                .ToList(),
 
-            ret.Gifts = inputContainer.gifts
-                .Select(e => new Phase3Gift(e))
-                .ToList();
+                Gifts = inputContainer.gifts
+                .Select(e => new Gift(e))
+                .ToList()
+            };
 
             return ret;
         }
 
         private static Phase3InputContainer ReadInputData()
         {
-            string path = Path.Combine(AngkorConstants.FilesRoute, "santa_phase3.json");
+            string path = Path.Combine(AngkorConstants.FilesRoute, "phase3_santa.json");
 
             string json = File.ReadAllText(path);
 

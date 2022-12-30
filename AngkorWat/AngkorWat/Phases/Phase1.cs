@@ -17,7 +17,7 @@ namespace AngkorWat.Phases
     {
         public static void Phase1SingleStart()
         {
-            var allData = GetAllData();
+            var allData = GetData();
 
             var deterministicSolution = new Phase1Solution();
 
@@ -35,19 +35,19 @@ namespace AngkorWat.Phases
 
             curSolution.Sequences = tspSolver.Solve();
 
-            var output = new Phase1OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08",
-                allData, curSolution);
+            //var output = new Phase1OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08",
+            //    allData, curSolution);
 
-            SerializeResult(output);
+            //SerializeResult(output);
         }
 
         public static void Phase1MultiStart()
         {
-            var allData = GetAllData();
+            var data = GetData();
 
             var deterministicSolution = new Phase1Solution();
 
-            var distanceSolver = new DistanceSolver(allData);
+            var distanceSolver = new DistanceSolver(data);
 
             deterministicSolution.Routes = distanceSolver.Solve();
 
@@ -59,11 +59,11 @@ namespace AngkorWat.Phases
 
                 solutionVariants.Add(curSolution);
 
-                var packingSolver = new PackingSolver(allData);
+                var packingSolver = new PackingSolver(data);
 
                 curSolution.PackingSolution = packingSolver.Solve();
 
-                var tspSolver = new TSPSolver(allData, curSolution);
+                var tspSolver = new TSPSolver(data, curSolution);
 
                 curSolution.Sequences = tspSolver.Solve();
             }
@@ -76,13 +76,19 @@ namespace AngkorWat.Phases
                 .Select(v => v.Sequences.TravelTime)
                 .ToList();
 
-            foreach (var solutionVariant in solutionVariants)
-            {
-                var output = new Phase1OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08",
-                    allData, solutionVariant);
+            var bestSolution = solutionVariants
+                .First();
 
-                SerializeResult(output);
-            }
+            var output = new Phase1OutputContainer(data, bestSolution.Sequences);
+
+            SerializeResult(output);
+
+            //foreach (var solutionVariant in solutionVariants)
+            //{
+            //    var output = new Phase1OutputContainer(data, solutionVariant.Sequences);
+
+            //    SerializeResult(output);
+            //}
         }
 
         private static void SerializeResult(Phase1OutputContainer output)
@@ -94,23 +100,26 @@ namespace AngkorWat.Phases
             File.WriteAllText(path, json);
         }
 
-        private static Phase1Data GetAllData()
+        private static Data GetData()
         {
             var inputContainer = ReadInputData();
 
-            var ret = new Phase1Data();
+            var ret = new Data()
+            {
+                MapId = "faf7ef78-41b3-4a36-8423-688a61929c08",
 
-            ret.Children = inputContainer.children
-                .Select((e, index) => new Phase1Child(e, index + 1) as IPhase1Child)
-                .ToList();
+                Children = inputContainer.children
+                    .Select((e, index) => new Phase1Child(e, index + 1))
+                    .ToList(),
 
-            ret.SnowAreas = inputContainer.snowAreas
-                .Select(e => new SnowArea(e))
-                .ToList();
+                SnowAreas = inputContainer.snowAreas
+                    .Select(e => new SnowArea(e))
+                    .ToList(),
 
-            ret.Gifts = inputContainer.gifts
-                .Select(e => new Phase1Gift(e))
-                .ToList();
+                Gifts = inputContainer.gifts
+                    .Select(e => new Gift(e))
+                    .ToList(),
+            };
 
             return ret;
         }
