@@ -45,7 +45,7 @@ namespace AngkorWat.Components
         /// </summary>
         public int VolumeLimit => 100;
 
-        public List<Phase1Child> Children { get; set; }
+        public List<Child> Children { get; set; }
         public List<SnowArea> SnowAreas { get; set; }
         public List<Gift> Gifts { get; set; }
         

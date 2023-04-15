@@ -23,8 +23,6 @@ namespace AngkorWat.Algorithms.PackSolver
     internal class PackingSolution
     {
         public List<Packing> Packings { get; set; }
-        public int BagsCount => Packings.Count;
-        public List<int> BagsInsides => Packings.Select(e => e.Gifts.Count).ToList();
         public PackingSolution()
         {
             Packings = new();

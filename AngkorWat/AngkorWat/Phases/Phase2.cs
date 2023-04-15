@@ -1,5 +1,7 @@
 ﻿using AngkorWat.Algorithms.Phase2DDOS;
 using AngkorWat.Algorithms.Phase2MIP;
+using AngkorWat.Algorithms.Phase2MIP.HappinessFunctions;
+using AngkorWat.Algorithms.Phase3FullSolver;
 using AngkorWat.Components;
 using AngkorWat.Constants;
 using AngkorWat.IO;
@@ -14,32 +16,29 @@ namespace AngkorWat.Phases
 {
     internal static class Phase2
     {
-        public static void SolveMIP()
+        public static void SolvePhase2Packing()
         {
             var allData = GetPhase2Data();
 
-            //var mipSolver = new MIPSolver(allData);
+            var happinessFunction = new Phase2TrueHappinessFunction(allData);
 
-            //var solution = mipSolver.Solve();
+            var mipSolver = new MIPSolver(allData, happinessFunction);
 
-            //var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution);
+            var solution = mipSolver.Solve(
+                targetChildren: allData.Children,
+                availableGifts: allData.Gifts,
+                childToPackGroups: allData.Children.ToDictionary(c => c, c => null as ChildPackingGroup)
+                );
 
-            //SerializeResult(baseOutput, "out");
+            var baseOutput = new Phase2OutputContainer(mapId: "a8e01288-28f8-45ee-9db4-f74fc4ff02c8", solution);
+
+            SerializeResult(baseOutput, "out");
         }
 
         public static void Solve()
         {
             var allData = GetPhase2Data();
 
-            //var commonPrices = allData.Gifts
-            //    .GroupBy(g => g.Price / 100)
-            //    .ToDictionary(
-            //        g => g.Key,
-            //        g => g.Select(e => e.Type).Distinct().Count()
-            //    )
-            //    .Where(kv => kv.Value >= 13)
-            //    .Select(kv => kv.Key)
-            //    .ToList();
 
             var d = allData
                 .Gifts
@@ -74,22 +73,27 @@ namespace AngkorWat.Phases
         {
             Phase2InputContainer inputContainer = ReadInputData2();
 
-            var ret = new Data();
+            var ret = new Data
+            {
+                MapId = "a8e01288-28f8-45ee-9db4-f74fc4ff02c8",
 
-            ret.Children = inputContainer.children
-                .Select((e, index) => new Phase1Child(e))
-                .ToList();
+                Children = inputContainer.children
+                    .Select((e, index) => new Child(e))
+                    .ToList(),
 
-            ret.Gifts = inputContainer.gifts
-                .Select(e => new Gift(e))
-                .ToList();
+                Gifts = inputContainer.gifts
+                    .Select(e => new Gift(e))
+                    .ToList(),
+
+                MaxGiftCost = 100000,
+            };
 
             return ret;
         }
 
         private static Phase2InputContainer ReadInputData2()
         {
-            string path = Path.Combine(AngkorConstants.FilesRoute, "santa_gifts.json");
+            string path = Path.Combine(AngkorConstants.FilesRoute, "phase2_santa.json");
 
             string json = File.ReadAllText(path);
 

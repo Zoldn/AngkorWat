@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using AngkorWat.Algorithms.Phase2MIP.HappinessFunctions;
 using AngkorWat.Algorithms.DistSolver;
+using System.Diagnostics;
+using AngkorWat.Algorithms.Phase3FullSolver;
 
 namespace AngkorWat.Algorithms.Phase2MIP
 {
@@ -21,27 +23,26 @@ namespace AngkorWat.Algorithms.Phase2MIP
     {
         public string Gender { get; }
         public int Age { get; }
-        public int Count => Children.Count;
-        public List<Phase1Child> Children { get; }
-        public Dictionary<Phase1Child, bool> AvailableChildren { get; set; }
-        public ChildrenGroup(Dictionary<Phase1Child, double> children)
+        public int Count => AvailableChildren.Count;
+        public ChildPackingGroup ChildPackingGroup { get; private set; }
+        public Dictionary<Child, bool> AvailableChildren { get; set; }
+        public ChildrenGroup(IEnumerable<Child> children, ChildPackingGroup childPackingGroup = null)
         {
-            Children = children.Keys.ToList();
-
             Gender = children
-                .Select(e => e.Key.Gender)
+                .Select(e => e.Gender)
                 .Distinct()
                 .Single();
 
             Age = children
-                .Select(e => e.Key.Age)
+                .Select(e => e.Age)
                 .Distinct()
                 .Single();
 
+            ChildPackingGroup = childPackingGroup;
+
             AvailableChildren = children
-                .OrderByDescending(kv => kv.Value)
                 .ToDictionary(
-                    c => c.Key,
+                    c => c,
                     c => true
                 );
         }
@@ -56,28 +57,35 @@ namespace AngkorWat.Algorithms.Phase2MIP
     {
         public int Price { get; }
         public string Type { get; }
-        public int Count => Gifts.Count;
-        public List<Gift> Gifts { get; }
+        public int Weight { get; }
+        public int Volume { get; }
+        public int Count => AvailableGifts.Count;
         public Dictionary<Gift, bool> AvailableGifts { get; set; }
-
-        public GiftGroup(Dictionary<Gift, int> gifts)
+        public GiftGroup(IEnumerable<Gift> gifts)
         {
-            Gifts = gifts.Keys.ToList();
-
             Price = gifts
-                .Select(e => e.Key.Price)
+                .Select(e => e.Price)
                 .Distinct()
                 .Single();
 
             Type = gifts
-                .Select(e => e.Key.Type)
+                .Select(e => e.Type)
+                .Distinct()
+                .Single();
+
+            Weight = gifts
+                .Select(e => e.Weight)
+                .Distinct()
+                .Single();
+
+            Volume = gifts
+                .Select(e => e.Weight)
                 .Distinct()
                 .Single();
 
             AvailableGifts = gifts
-                .OrderBy(kv => kv.Value)
                 .ToDictionary(
-                    g => g.Key,
+                    g => g,
                     g => true
                 );
         }
@@ -88,6 +96,9 @@ namespace AngkorWat.Algorithms.Phase2MIP
         }
     } 
 
+    /// <summary>
+    /// Переменная кол-ва подарков определенного типа для множества детей определенного типа
+    /// </summary>
     internal class ChildGroupToGiftGroupDVar
     {
         public ChildrenGroup ChildrenGroup { get; }
@@ -116,70 +127,27 @@ namespace AngkorWat.Algorithms.Phase2MIP
     internal class MIPSolver
     {
         private readonly Data data;
-        private readonly DistanceSolution routes;
-        public MIPSolver(Data data, DistanceSolution routes)
+        private IHappinessFunction happinessFunction;
+        public int WeightLimit { get; init; }
+        public int VolumeLimit { get; init; }
+        public MIPSolver(Data data, IHappinessFunction happinessFunction)
         {
             this.data = data;
-            this.routes = routes;
+            this.happinessFunction = happinessFunction;
+            WeightLimit = 0;
+            VolumeLimit = 0;
         }
 
-        public ChildToGiftSolution Solve()
+        public Dictionary<Child, Gift> Solve(List<Child> targetChildren, List<Gift> availableGifts,
+            Dictionary<Child, ChildPackingGroup> childToPackGroups)
         {
-            CpModel model = new CpModel();
+            var model = new CpModel();
 
-            var childrenLU = data.Children
-                .ToLookup(e => (e.Age, e.Gender));
+            var childrenGroups = GroupChildren(targetChildren, childToPackGroups);
+            var giftGroups = GroupGifts(availableGifts);
 
-            var childrenGroups = new List<ChildrenGroup>();
-
-            foreach (var (_, childs) in childrenLU)
-            {
-                var childs1 = childs
-                    .ToDictionary(
-                        c => c,
-                        c => routes
-                            .Routes[(data.Santa, data.Children.Where(e => e.Id == c.Id).Single())]
-                            .TravelTime
-                    );
-
-                var childrenGroup = new ChildrenGroup(childs1);
-
-                childrenGroups.Add(childrenGroup);
-            }
-
-            var giftGroups = new List<GiftGroup>();
-
-            var giftLU = data.Gifts
-                .ToLookup(e => (e.Price, e.Type));
-
-            foreach (var (_, gifts) in giftLU)
-            {
-                var gifts1 = gifts
-                    .ToDictionary(
-                        c => c,
-                        c => data.Gifts.Single(e => e.Id == c.Id).Weight +
-                             data.Gifts.Single(e => e.Id == c.Id).Volume
-                    );
-
-                //var giftGroup = new GiftGroup(gifts.ToList());
-                var giftGroup = new GiftGroup(gifts1);
-
-                giftGroups.Add(giftGroup);
-            }
-
-            var childGroupToGiftGroupDVars = new List<ChildGroupToGiftGroupDVar>();
-
-            foreach (var childGroup in childrenGroups)
-            {
-                foreach (var giftGroup in giftGroups)
-                {
-                    var childGroupToGiftGroupDVar = new ChildGroupToGiftGroupDVar(childGroup, giftGroup, model);
-
-                    childGroupToGiftGroupDVars.Add(childGroupToGiftGroupDVar);
-                }
-            }
-
-            IHappinessFunction happinessFunction = new LinearHappinessFunction();
+            var childGroupToGiftGroupDVars = InitializeDVars(model, 
+                childrenGroups, giftGroups);
 
             InitializeHappiness(childGroupToGiftGroupDVars, happinessFunction);
 
@@ -188,6 +156,8 @@ namespace AngkorWat.Algorithms.Phase2MIP
             InitializeLimitedGiftGroups(model, childGroupToGiftGroupDVars);
 
             InitializeTotalCostLimitation(model, childGroupToGiftGroupDVars);
+
+            InitializeWeightVolumeConstraints(model, childGroupToGiftGroupDVars, childToPackGroups);
 
             LinearExpr happinessExpr = InitializeHappinessObjective(model, childGroupToGiftGroupDVars);
 
@@ -204,7 +174,7 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
             CpSolver solver = new()
             {
-                StringParameters = 
+                StringParameters =
                     $"relative_gap_limit: {relGap.ToString(nfi)}," +
                     $"log_search_progress: true," +
                     //$"search_branching: 1, " +
@@ -226,30 +196,101 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
             var selectedPairs = ExtractSolution(solver, childGroupToGiftGroupDVars);
 
-            Console.WriteLine($"Total cost is {selectedPairs.Sum(e => e.Gift.Price)}");
+            Console.WriteLine($"Total cost is {selectedPairs.Sum(e => e.Value.Price)}");
 
-            var d1 = selectedPairs
-                .Select(e => e.Child)
-                .Distinct()
-                .Count();
+            Debug.Assert(selectedPairs.Count == targetChildren.Count);
+            Debug.Assert(selectedPairs.Select(e => e.Value).Distinct().Count() == targetChildren.Count);
 
-            var d2 = selectedPairs
-                .Select(e => e.Gift)
-                .Distinct()
-                .Count();
-
-            var solution = new ChildToGiftSolution()
-            {
-                ChildToGifts = selectedPairs,
-            };
-
-            return solution;
+            return selectedPairs;
         }
 
-        private List<Phase2ChildToGift> ExtractSolution(CpSolver solver, 
+        private void InitializeWeightVolumeConstraints(CpModel model, 
+            List<ChildGroupToGiftGroupDVar> childGroupToGiftGroupDVars,
+            Dictionary<Child, ChildPackingGroup> childToPackGroups)
+        {
+            var lu = childGroupToGiftGroupDVars
+                .ToLookup(dvar => dvar.ChildrenGroup.ChildPackingGroup);
+
+            foreach (var (_, dvars) in lu)
+            {
+                if (WeightLimit > 0)
+                {
+                    model.Add(
+                        LinearExpr.WeightedSum(
+                            dvars.Select(e => e.DVar),
+                            dvars.Select(e => e.GiftGroup.Weight)
+                            ) <= WeightLimit
+                        );
+                }
+
+                if (VolumeLimit > 0)
+                {
+                    model.Add(
+                        LinearExpr.WeightedSum(
+                            dvars.Select(e => e.DVar),
+                            dvars.Select(e => e.GiftGroup.Volume)
+                            ) <= VolumeLimit
+                        );
+                }
+            }
+        }
+
+        private static List<ChildGroupToGiftGroupDVar> InitializeDVars(CpModel model, List<ChildrenGroup> childrenGroups, List<GiftGroup> giftGroups)
+        {
+            var childGroupToGiftGroupDVars = new List<ChildGroupToGiftGroupDVar>();
+
+            foreach (var childGroup in childrenGroups)
+            {
+                foreach (var giftGroup in giftGroups)
+                {
+                    var childGroupToGiftGroupDVar = new ChildGroupToGiftGroupDVar(childGroup, giftGroup, model);
+
+                    childGroupToGiftGroupDVars.Add(childGroupToGiftGroupDVar);
+                }
+            }
+
+            return childGroupToGiftGroupDVars;
+        }
+
+        private List<GiftGroup> GroupGifts(List<Gift> availableGifts)
+        {
+            var giftGroups = new List<GiftGroup>();
+
+            var giftLU = availableGifts
+                .ToLookup(e => (e.Price, e.Type, e.Weight, e.Volume));
+
+            foreach (var (_, gifts) in giftLU)
+            {
+                var giftGroup = new GiftGroup(gifts);
+
+                giftGroups.Add(giftGroup);
+            }
+
+            return giftGroups;
+        }
+
+        private static List<ChildrenGroup> GroupChildren(List<Child> targetChildren, 
+            Dictionary<Child, ChildPackingGroup> childToPackGroups)
+        {
+            var childrenLU = targetChildren
+                .ToLookup(e => (e.Age, e.Gender, childToPackGroups[e]));
+
+            var childrenGroups = new List<ChildrenGroup>();
+
+            foreach (var ((_, _, childToPackGroup), childs) in childrenLU)
+            {
+                var childrenGroup = new ChildrenGroup(childs, childToPackGroup);
+
+                childrenGroups.Add(childrenGroup);
+            }
+
+            return childrenGroups;
+        }
+
+        private Dictionary<Child, Gift> ExtractSolution(CpSolver solver, 
             List<ChildGroupToGiftGroupDVar> childGroupToGiftGroupDVars)
         {
-            var ret = new List<Phase2ChildToGift>();
+            var ret = new Dictionary<Child, Gift>();
 
             foreach (var dvar in childGroupToGiftGroupDVars)
             {
@@ -279,7 +320,7 @@ namespace AngkorWat.Algorithms.Phase2MIP
 
                 for (int i = 0; i < dvar.Value; i++)
                 {
-                    ret.Add(new Phase2ChildToGift(childs[i], gifts[i]));
+                    ret.Add(childs[i], gifts[i]);
                 }
 
                 foreach (var child in childs)

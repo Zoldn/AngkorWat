@@ -27,8 +27,8 @@ namespace AngkorWat.Algorithms.RouteSolver
         private readonly Data allData;
         private readonly Phase1Solution fullSolution;
 
-        public Dictionary<Phase1Child, bool> AvailableChildren { get; set; }
-        public Dictionary<Phase1Child, double> DistancesToSanta { get; set; }
+        public Dictionary<Child, bool> AvailableChildren { get; set; }
+        public Dictionary<Child, double> DistancesToSanta { get; set; }
         public Metric SelectFurthestChildStrategy { get; set; }
         public Metric SelectClosestChildStrategy { get; set; }
 
@@ -150,7 +150,7 @@ namespace AngkorWat.Algorithms.RouteSolver
             Console.WriteLine($"FINAL RESULT: Travel time = {solution.TravelTime}, distance = {solution.Distance}");
         }
 
-        private List<ILocation> SolveSequence(List<Phase1Child> targetChilds)
+        private List<ILocation> SolveSequence(List<Child> targetChilds)
         {
             var manager = new RoutingIndexManager(targetChilds.Count + 1, 1, 0);
 
@@ -253,9 +253,9 @@ namespace AngkorWat.Algorithms.RouteSolver
                 );
         }
 
-        private List<Phase1Child> GetClosestChildsToSelected(Phase1Child furthestChild, int count)
+        private List<Child> GetClosestChildsToSelected(Child furthestChild, int count)
         {
-            Func<Phase1Child, double> distanceCalculator;
+            Func<Child, double> distanceCalculator;
 
             switch (SelectClosestChildStrategy)
             {
@@ -304,7 +304,7 @@ namespace AngkorWat.Algorithms.RouteSolver
                 );
         }
 
-        private Phase1Child GetFurthestChild()
+        private Child GetFurthestChild()
         {
             return DistancesToSanta
                 .Where(kv => AvailableChildren[kv.Key])

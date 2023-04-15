@@ -35,21 +35,6 @@ namespace AngkorWat.Algorithms.PackSolver
         {
             Console.WriteLine($"starting");
 
-            if (File.Exists(CachePath))
-            {
-                string json = File.ReadAllText(CachePath);
-
-                var container = JsonConvert.DeserializeObject<PackingSolution>(json);
-
-                if (container == null)
-                {
-                    throw new FileLoadException();
-                }
-
-                Console.WriteLine($"PACKING SOLVER: Using solving from cache");
-                return container;
-            }
-
             var ret = new PackingSolution();
 
             AvailableGifts = allData.Gifts

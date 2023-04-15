@@ -31,16 +31,16 @@ namespace AngkorWat.Algorithms.Phase2DDOS
             this.data = data;
         }
 
-        public ChildToGiftSolution SolveBase()
+        public Dictionary<Child, Gift> SolveBase()
         {
-            var solution = new ChildToGiftSolution();
+            var solution = new Dictionary<Child, Gift>();
 
             solution = MakeBaseLevel();
 
             return solution;
         }
 
-        public (ChildToGiftSolution Base, ChildToGiftSolution Test) SolveVictim(int backet = 0)
+        public (Dictionary<Child, Gift> Base, Dictionary<Child, Gift> Test) SolveVictim(int backet = 0)
         {
             var uniqueGenders = data.Children
                 .Select(c => c.Gender)
@@ -126,29 +126,25 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                 .OrderBy(e => e.Id)
                 .First();
 
-            var testPairs = new List<Phase2ChildToGift>()
+            var testPairs = new Dictionary<Child, Gift>()
             {
-                new Phase2ChildToGift(lowestAgeVictim, lowestGift),
-                new Phase2ChildToGift(lowestAgeVictim, averageGift),
-                new Phase2ChildToGift(lowestAgeVictim, highestGift),
-                new Phase2ChildToGift(averageAgeVictim, lowestGift),
-                new Phase2ChildToGift(averageAgeVictim, averageGift),
-                new Phase2ChildToGift(averageAgeVictim, highestGift),
-                new Phase2ChildToGift(highestAgeVictim, lowestGift),
-                new Phase2ChildToGift(highestAgeVictim, averageGift),
-                new Phase2ChildToGift(highestAgeVictim, highestGift),
+                { lowestAgeVictim, lowestGift },
+                { lowestAgeVictim, averageGift },
+                { lowestAgeVictim, highestGift },
+                { averageAgeVictim, lowestGift },
+                { averageAgeVictim, averageGift },
+                { averageAgeVictim, highestGift },
+                { highestAgeVictim, lowestGift },
+                { highestAgeVictim, averageGift },
+                { highestAgeVictim, highestGift },
             };
-
-            var testSolution = new ChildToGiftSolution();
-
-            testSolution.ChildToGifts = testPairs;
 
             var solution = MakeBaseLevel(testPairs, firstBacket.GiftType);
 
-            return (solution, testSolution);
+            return (solution, testPairs);
         }
 
-        internal (ChildToGiftSolution Base, ChildToGiftSolution Test) SolveVictim2() // 
+        internal (Dictionary<Child, Gift> Base, Dictionary<Child, Gift> Test) SolveVictim2() // 
         {
             var uniqueGenders = data.Children
                 .Select(c => c.Gender)
@@ -221,103 +217,27 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                 .OrderBy(e => e.Id)
                 .First();
 
-            var selectedChildren = new HashSet<Phase1Child>() { maleVictim, femaleVictim };
+            HashSet<Child> selectedChildren = new() 
+            { 
+                maleVictim, 
+                femaleVictim 
+            };
 
             var testPairs = selectedChildren
-                .SelectMany(c => totalSelectedGifts, (c, g) => new Phase2ChildToGift(c, g))
-                .ToList();
-
-            var testSolution = new ChildToGiftSolution()
-            {
-                ChildToGifts = testPairs,
-            };
+                .SelectMany(c => totalSelectedGifts, (c, g) => (c, g))
+                .ToDictionary(kv => kv.c, kv => kv.g);
 
             var baseSolution = MakeBaseLevel(testPairs);
 
-            return (baseSolution, testSolution);
+            return (baseSolution, testPairs);
         }
 
-        //internal VictimSolution SolveVictim3()
-        //{
-        //    VictimSolution solution = new VictimSolution();
-
-        //    var male1 = data.Children
-        //        .Where(e => e.Gender == "male" && e.Age == 3)
-        //        .OrderBy(e => e.Id)
-        //        .First();
-
-        //    var male2 = data.Children
-        //        .Where(e => e.Gender == "male" && e.Age == 7)
-        //        .OrderBy(e => e.Id)
-        //        .First();
-
-        //    var female1 = data.Children
-        //        .Where(e => e.Gender == "female" && e.Age == 3)
-        //        .OrderBy(e => e.Id)
-        //        .First();
-
-        //    var female2 = data.Children
-        //        .Where(e => e.Gender == "female" && e.Age == 7)
-        //        .OrderBy(e => e.Id)
-        //        .First();
-
-        //    solution.TargetChilds = new List<int>()
-        //    {
-        //        male1.Id,
-        //        male2.Id,
-        //        female1.Id,
-        //        female2.Id
-        //    };
-
-        //    var giftTypes = data.Gifts
-        //        .Select(e => e.Type)
-        //        .Distinct()
-        //        .OrderBy(e => e)
-        //        .ToList();
-
-        //    var maxPricesPerCategory = data.Gifts
-        //        .GroupBy(e => e.Type)
-        //        .ToDictionary(g => g.Key, g => g.Max(c => c.Price));
-
-        //    var minPricesPerCategory = data.Gifts
-        //        .GroupBy(e => e.Type)
-        //        .ToDictionary(g => g.Key, g => g.Min(c => c.Price));
-
-        //    foreach (var giftType in giftTypes)
-        //    {
-        //        var highestGift = data.Gifts
-        //            .Where(g => g.Type == giftType && g.Price == maxPricesPerCategory[giftType])
-        //            .OrderBy(g => g.Id)
-        //            .First();
-
-        //        var lowestGift = data.Gifts
-        //            .Where(g => g.Type == giftType && g.Price == minPricesPerCategory[giftType])
-        //            .OrderBy(g => g.Id)
-        //            .First();
-
-        //        solution.TargetGifts.Add(highestGift.Id);
-        //        solution.TargetGifts.Add(lowestGift.Id);
-        //    }
-
-        //    var freeGifts = data.Gifts
-        //        .Where(e => !solution.TargetGifts.Contains(e.Id))
-        //        .OrderBy(e => e.Price)
-        //        .ThenBy(e => e.Id)
-        //        .Take(data.Children.Count)
-        //        .ToList();
-
-        //    for (int i = 0; i < data.Children.Count; i++)
-        //    {
-        //        solution.Base.Add((data.Children[i].Id, freeGifts[i].Id));
-        //    }
-        //}
-
-        private ChildToGiftSolution MakeBaseLevel(List<Phase2ChildToGift> excludes)
+        private Dictionary<Child, Gift> MakeBaseLevel(Dictionary<Child, Gift> excludes)
         {
-            var solution = new ChildToGiftSolution();
+            var solution = new Dictionary<Child, Gift>();
 
             var excludeGifts = excludes
-                .Select(e => e.Gift)
+                .Select(e => e.Value)
                 .ToHashSet();
 
             var freegifts = data.Gifts
@@ -333,37 +253,27 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             for (int i = 0; i < data.Children.Count; i++)
             {
-                solution.ChildToGifts.Add(new Phase2ChildToGift(
-                    data.Children[i], selectedGifts[i]
-                    ));
+                solution.Add(data.Children[i], selectedGifts[i]);
             }
 
             var ttt1 = solution
-                .ChildToGifts
-                .GroupBy(e => e.Gift)
+                .GroupBy(e => e.Value)
                 .Count(g => g.Count() > 1);
 
             var ttt2 = solution
-                .ChildToGifts
-                .Select(e => e.Child)
+                .Select(e => e.Key)
                 .Distinct()
                 .Count();
 
             return solution;
         }
 
-
-        //internal (ChildToGiftSolution Base, ChildToGiftSolution Test) SolveVictim(int backet = 0)
-        //{
-        //    var solution = new ChildToGiftSolution();
-        //}
-
-        private ChildToGiftSolution MakeBaseLevel(List<Phase2ChildToGift> excludes, string giftType)
+        private Dictionary<Child, Gift> MakeBaseLevel(Dictionary<Child, Gift> excludes, string giftType)
         {
-            var solution = new ChildToGiftSolution();
+            var solution = new Dictionary<Child, Gift>();
 
             var excludeGifts = excludes
-                .Select(e => e.Gift)
+                .Select(e => e.Value)
                 .ToHashSet();
 
             var freegifts = data.Gifts
@@ -391,13 +301,13 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                 .ToList();
 
             var targetChildren = excludes
-                .Select(e => e.Child)
+                .Select(e => e.Key)
                 .Distinct()
                 .ToList();
 
             for (int i = 0; i < 3; i++)
             {
-                solution.ChildToGifts.Add(new Phase2ChildToGift(targetChildren[i], similarGifts[i]));
+                solution.Add(targetChildren[i], similarGifts[i]);
             }
 
             int giftCounter = 0;
@@ -409,28 +319,24 @@ namespace AngkorWat.Algorithms.Phase2DDOS
                     continue;
                 }
 
-                solution.ChildToGifts.Add(new Phase2ChildToGift(
-                    child, selectedGifts[giftCounter++]
-                    ));
+                solution.Add(child, selectedGifts[giftCounter++]);
             }
 
             var ttt1 = solution
-                .ChildToGifts
-                .GroupBy(e => e.Gift)
+                .GroupBy(e => e.Value)
                 .Count(g => g.Count() > 1);
 
             var ttt2 = solution
-                .ChildToGifts
-                .Select(e => e.Child)
+                .Select(e => e.Key)
                 .Distinct()
                 .Count();
 
             return solution;
         }
 
-        private ChildToGiftSolution MakeBaseLevel()
+        private Dictionary<Child, Gift> MakeBaseLevel()
         {
-            var solution = new ChildToGiftSolution();
+            var solution = new Dictionary<Child, Gift>();
 
             var selectedGifts = data.Gifts
                             .OrderBy(x => x.Price)
@@ -440,9 +346,7 @@ namespace AngkorWat.Algorithms.Phase2DDOS
 
             for (int i = 0; i < data.Children.Count; i++)
             {
-                solution.ChildToGifts.Add(new Phase2ChildToGift(
-                    data.Children[i], selectedGifts[i]
-                    ));
+                solution.Add(data.Children[i], selectedGifts[i]);
             }
 
             return solution;

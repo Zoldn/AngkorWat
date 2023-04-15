@@ -50,16 +50,15 @@ namespace AngkorWat.IO
         }
 
         
-        public Phase2OutputContainer(string mapId, ChildToGiftSolution solution)
+        public Phase2OutputContainer(string mapId, Dictionary<Child, Gift> solution)
         {
             mapID = mapId;
 
             presentingGifts = solution
-                .ChildToGifts
                 .Select(g => new presentingGift()
                 {
-                    childID = g.Child.Id,
-                    giftID = g.Gift.Id,
+                    childID = g.Key.Id,
+                    giftID = g.Value.Id,
                 })
                 .ToList();
         }

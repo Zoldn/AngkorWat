@@ -35,10 +35,9 @@ namespace AngkorWat.Phases
 
             curSolution.Sequences = tspSolver.Solve();
 
-            //var output = new Phase1OutputContainer(mapId: "faf7ef78-41b3-4a36-8423-688a61929c08",
-            //    allData, curSolution);
+            var output = new Phase1OutputContainer(allData, curSolution.Sequences);
 
-            //SerializeResult(output);
+            SerializeResult(output);
         }
 
         public static void Phase1MultiStart()
@@ -109,7 +108,7 @@ namespace AngkorWat.Phases
                 MapId = "faf7ef78-41b3-4a36-8423-688a61929c08",
 
                 Children = inputContainer.children
-                    .Select((e, index) => new Phase1Child(e, index + 1))
+                    .Select((e, index) => new Child(e, index + 1))
                     .ToList(),
 
                 SnowAreas = inputContainer.snowAreas
@@ -126,7 +125,7 @@ namespace AngkorWat.Phases
 
         private static Phase1InputContainer ReadInputData()
         {
-            string path = Path.Combine(AngkorConstants.FilesRoute, "santa.json");
+            string path = Path.Combine(AngkorConstants.FilesRoute, "phase1_santa.json");
 
             string json = File.ReadAllText(path);
 

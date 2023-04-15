@@ -44,17 +44,45 @@ namespace AngkorWat.Algorithms.DistSolver
             //IPathFindingStrategy pathFindingStrategy = new StraightPathFinding(allData);
             IPathFindingStrategy pathFindingStrategy = new GreedPathFinding(allData);
 
-            foreach (var from in locations)
+            /// Ищем все расстояния от Санты до всех детей
+            foreach (var to in allData.Children)
             {
-                foreach (var to in locations)
-                {
-                    if (from.Id >= to.Id)
+                var route = new Route(allData.Santa, to);
+
+                pathFindingStrategy.Calculate(route);
+
+                CheckAdditionalPointNotChildren(route);
+
+                solution.Routes.Add((allData.Santa, to), route);
+
+                solution.Routes.Add((to, allData.Santa), route.AsReverse());
+            }
+
+            foreach (var from in allData.Children)
+            {
+                var euclidClosestChild = allData
+                    .Children
+                    .Select(c => new
                     {
-                        continue;
-                    }
+                        Child = c,
+                        Distance = GeometryUtils.GetDistance(c, from)
+                    })
+                    .OrderBy(c => c.Distance)
+                    //.Take(200)
+                    .Where(c => c.Child.Id > from.Id
+                        && c.Distance < allData.SquareSide * 0.5
+                    )
+                    .Select(c => c.Child)
+                    .ToList();
+
+                foreach (var to in euclidClosestChild)
+                {
+                    //if (from.Id >= to.Id)
+                    //{
+                    //    continue;
+                    //}
 
                     var route = new Route(from, to);
-
 
                     pathFindingStrategy.Calculate(route);
 

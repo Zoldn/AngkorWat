@@ -2,7 +2,9 @@
 using AngkorWat.Algorithms.PackSolver;
 using AngkorWat.Algorithms.Phase2DDOS;
 using AngkorWat.Algorithms.Phase2MIP;
-using AngkorWat.Algorithms.Phase3Solver;
+using AngkorWat.Algorithms.Phase2MIP.HappinessFunctions;
+using AngkorWat.Algorithms.Phase3DensePacker;
+using AngkorWat.Algorithms.Phase3FullSolver;
 using AngkorWat.Algorithms.RouteSolver;
 using AngkorWat.Components;
 using AngkorWat.Constants;
@@ -20,33 +22,40 @@ namespace AngkorWat.Phases
     {
         public static void Solve()
         {
-            var phase3Data = GetAllData();
+            var data = GetAllData();
 
-            //var selectedGifts = childToGiftSolution.ChildToGifts
-            //    .Select(e => e.Gift.Id)
-            //    .ToHashSet();
+            var distSolver = new DistanceSolver(data);
 
-            //phase1Data.Gifts = phase1Data.Gifts
-            //    .Where(e => selectedGifts.Contains(e.Id))
-            //    .ToList();
+            var routes = distSolver.Solve();
 
-            var phase1Solution = new Phase1Solution();
+            var phase3Solver = new Phase3Solver(data, routes);
 
-            var distSolver = new DistanceSolver(phase3Data);
+            phase3Solver.Solve();
 
-            phase1Solution.Routes = distSolver.Solve();
+            //while (availableChilds.Any(kv => kv.Value))
+            //{
+            //    var denseSolver = new DensePackSolver(data);
 
-            var mipSolver = new MIPSolver(phase3Data, phase1Solution.Routes);
+            //    var maxPackingSize = denseSolver.GetMostDensePacking(availableGifts
+            //        .Where(kv => kv.Value)
+            //        .Select(kv => kv.Key)
+            //        .ToList()
+            //        );
 
-            var childToGiftSolution = mipSolver.Solve();
 
-            var tspSolver = new Phase3TSPSolver(phase3Data, phase1Solution, childToGiftSolution);
+            //}
 
-            var tspSolution = tspSolver.Solve();
+            //var mipSolver = new MIPSolver(data, new LinearHappinessFunction());
 
-            var output = new Phase1OutputContainer(phase3Data, tspSolution);
+            //var childToGiftSolution = mipSolver.Solve();
 
-            SerializeResult(output);
+            //var tspSolver = new Phase3TSPSolver(phase3Data, phase1Solution, childToGiftSolution);
+
+            //var tspSolution = tspSolver.Solve();
+
+            //var output = new Phase1OutputContainer(data, null);
+
+            //SerializeResult(output);
 
         }
 
@@ -67,17 +76,19 @@ namespace AngkorWat.Phases
             {
                 MapId = "dd6ed651-8ed6-4aeb-bcbc-d8a51c8383cc",
 
+                MaxGiftCost = 50000,
+
                 Children = inputContainer.children
-                .Select((e, index) => new Phase1Child(e, index + 1))
-                .ToList(),
+                    .Select((e, index) => new Child(e, index + 1))
+                    .ToList(),
 
                 SnowAreas = inputContainer.snowAreas
-                .Select(e => new SnowArea(e))
-                .ToList(),
+                    .Select(e => new SnowArea(e))
+                    .ToList(),
 
                 Gifts = inputContainer.gifts
-                .Select(e => new Gift(e))
-                .ToList()
+                    .Select(e => new Gift(e))
+                    .ToList()
             };
 
             return ret;
