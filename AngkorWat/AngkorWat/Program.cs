@@ -22,16 +22,14 @@ internal class Program
     {
         HttpHelper.SetApiKey("11111111");
 
-        //var ret = await HttpHelper.Get("http://webcode.me");
+        //Phase1.Phase1Start();
+    }
 
-        //Console.WriteLine(ret);
-
-        //var user = new User("John Doe", "gardener");
-
-        //var ret2 = await HttpHelper.Post("https://httpbin.org/post", user);
-
-        //Console.WriteLine(ret2);
-
+    /// <summary>
+    /// 
+    /// </summary>
+    private static async void Test()
+    {
         var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
 
         for (int i = 0; i < 3; i++)
@@ -44,7 +42,5 @@ internal class Program
 
             await ddoser.RunStep(user);
         }
-
-        //Phase1.Phase1Start();
     }
 }
