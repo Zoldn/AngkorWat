@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AngkorWat.IO
+namespace AngkorWat.IO.JSON
 {
     internal class BaseOutputContainer
     {
