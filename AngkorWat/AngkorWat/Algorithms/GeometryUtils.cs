@@ -1,5 +1,4 @@
-﻿using AngkorWat.Algorithms.DistSolver;
-using AngkorWat.Components;
+﻿using AngkorWat.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,19 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms
 {
+    internal interface ICircle
+    {
+        public double X { get; }
+        public double Y { get; }
+        public double R { get; }
+    }
+
+    internal interface IPunkt
+    {
+        public double X { get; }
+        public double Y { get; }
+    }
+
     internal static class GeometryUtils
     {
         /// <summary>
@@ -28,7 +40,7 @@ namespace AngkorWat.Algorithms
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static double GetOverlapWithSnowArea(SnowArea snowArea, IPunkt from, IPunkt to)
+        public static double GetOverlapWithSnowArea(ICircle snowArea, IPunkt from, IPunkt to)
         {
             var alpha = to.X - from.X;
             var beta = to.Y - from.Y;
@@ -61,7 +73,7 @@ namespace AngkorWat.Algorithms
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public static double GetOverlapWithSnowArea(SnowArea snowArea, IPunkt from, IPunkt to,
+        public static double GetOverlapWithSnowArea(ICircle snowArea, IPunkt from, IPunkt to,
             out double outT1, out double outT2)
         {
             outT1 = 0.0d;
@@ -94,7 +106,7 @@ namespace AngkorWat.Algorithms
             return (clampedT2 - clampedT1) * GetDistance(from, to);
         }
 
-        public static bool IsPunktInSnowArea(SnowArea snowArea, IPunkt punkt)
+        public static bool IsPunktInSnowArea(ICircle snowArea, IPunkt punkt)
         {
             return (snowArea.X - punkt.X) * (snowArea.X - punkt.X) +
                 (snowArea.Y - punkt.Y) * (snowArea.Y - punkt.Y) <= snowArea.R * snowArea.R;
@@ -162,10 +174,10 @@ namespace AngkorWat.Algorithms
             return dphi;
         }
 
-        internal static bool IsPointInArea(IPunkt punkt, Data allData)
+        internal static bool IsPointInArea(IPunkt punkt, double size)
         {
-            return punkt.X >= 0 && punkt.X <= allData.SquareSide
-                && punkt.Y >= 0 && punkt.Y <= allData.SquareSide;
+            return punkt.X >= 0 && punkt.X <= size
+                && punkt.Y >= 0 && punkt.Y <= size;
         }
     }
 }
