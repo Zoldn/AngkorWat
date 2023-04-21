@@ -54,6 +54,12 @@ internal class Program
 
         var bestShot = Shoota.InitializeShot(x: 56, y: 67, canvasWidth: 250, mass: 10);
 
+        if (bestShot is null)
+        {
+            Console.WriteLine("Shot is unstable or impossible");
+            return;
+        }
+
         //bestShot.ColorCodes.Add(colorCode.Value, 10);
 
         foreach (var item in brew)
@@ -130,6 +136,16 @@ internal class Program
 
             var shoota = new Shoota();
 
+            Console.WriteLine("\tTargeting shot");
+
+            var bestShot = Shoota.InitializeShot(x: x, y: y, canvasWidth: width, mass: amount);
+
+            if (bestShot is null)
+            {
+                Console.WriteLine("Shot is unstable or impossible. Retry");
+                continue;
+            }
+
             Console.WriteLine("\tFetching colors from storage");
 
             var availableColors = await shoota.GetAllAvailableColors();
@@ -146,16 +162,14 @@ internal class Program
 
             var brew = colorBrewer.Brew(targetColor, amount);
 
-            Console.WriteLine("\tTargeting shot");
-
-            var bestShot = Shoota.InitializeShot(x: x, y: y, canvasWidth: width, mass: amount);
+            Console.WriteLine("\tCharging shoota");
 
             foreach (var item in brew)
             {
                 bestShot.ColorCodes.Add(item.ColorCode, item.Amount);
             }
 
-            Console.WriteLine("\tShooting!");
+            Console.WriteLine("\tShoot!");
 
             await shoota.TestShooting(bestShot);
 

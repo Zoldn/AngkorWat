@@ -48,8 +48,12 @@ namespace AngkorWat.Algorithms.CBrewer
                 throw new Exception("You wut m8?");
             }
 
-            AvailableColors.Shuffle(new Random());
-            var selectedColors = AvailableColors.Take(SampleSize).ToList();
+            //AvailableColors.Shuffle(new Random());
+
+            var selectedColors = AvailableColors
+                .OrderBy(c => ColorUtils.ColorDiffL1(c.Color, targetColor))
+                .Take(SampleSize)
+                .ToList();
 
             var ret = new List<AvailableColorRecord>();
 
@@ -163,10 +167,11 @@ namespace AngkorWat.Algorithms.CBrewer
 
             var brewedRGB = Color.FromArgb(r, g, b);
 
-            var l1Diff = Math.Abs(r - targetColor.R)
-               + Math.Abs(g - targetColor.G)
-               + Math.Abs(b - targetColor.B);
+            //var l1Diff = Math.Abs(r - targetColor.R)
+            //   + Math.Abs(g - targetColor.G)
+            //   + Math.Abs(b - targetColor.B);
 
+            var l1Diff = ColorUtils.ColorDiffL1(brewedRGB, targetColor);
 
             Console.WriteLine($"\tFor target {targetColor} brewed {brewedRGB}), L1 diff is {l1Diff}");
         }

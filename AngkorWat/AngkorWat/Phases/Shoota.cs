@@ -78,7 +78,7 @@ namespace AngkorWat.Phases
             public double RoundedDistance { get; init; }
         }
 
-        public static Shot InitializeShot(int x, int y, int canvasWidth, 
+        public static Shot? InitializeShot(int x, int y, int canvasWidth, 
             int mass,
             int shootaYPosition = -300)
         {
@@ -101,6 +101,11 @@ namespace AngkorWat.Phases
 
                 int roundPower = (int)Math.Round(truePower);
 
+                if (roundPower > 1000)
+                {
+                    continue;
+                }
+
                 double roundedDistance = eta * roundPower / mass * Math.Sin(2 * Math.PI / 180.0d * vAngle);
 
                 var record = new TargetDistanceRecord()
@@ -111,6 +116,11 @@ namespace AngkorWat.Phases
                 };
 
                 records.Add(record);
+            }
+
+            if (records.Count == 0)
+            {
+                return null;
             }
 
             var bestRecord = records.ArgMin(e => Math.Abs(e.RoundedDistance - distanceToTarget));
@@ -125,6 +135,11 @@ namespace AngkorWat.Phases
             var error = Math.Sqrt((xp - x) * (xp - x) + (yp - y) * (yp - y));
 
             Console.WriteLine($"\tBest shot to target ({x}, {y}) is ({xp}, {yp}), error = {error}");
+
+            if (error > 10)
+            {
+                return null;
+            }
 
             return shot;
         }
