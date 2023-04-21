@@ -5,6 +5,8 @@ using AngkorWat.Phases;
 using System;
 using System.Text;
 using AngkorWat.IO.HTTP;
+using AngkorWat.Algorithms.CBrewer;
+using System.Drawing;
 
 internal class Program
 {
@@ -22,23 +24,43 @@ internal class Program
     {
         HttpHelper.SetApiKey("643ec1df4dabc643ec1df4dac0");
 
+        //await DoShoota();
 
-        await DoShoota();
+        await ShootaInterface();
     }
 
     private static async Task DoShoota()
     {
         var shoota = new Shoota();
 
-        var colorCode = await shoota.TakeRandomAvailableColor(minValue: 10);
+        var availableColors = await shoota.GetAllAvailableColors();
 
-        if (colorCode is null)
+        var colorBrewer = new ColorBrewer(availableColors, isInteger: true)
         {
-            return;
-        }
+            TimeLimitSeconds = 5,
+            SampleSize = 2000,
+        };
+
+        Color targetColor = Color.FromArgb(252, 194, 27);
+
+        var brew = colorBrewer.Brew(targetColor, 10);
+
+        //var colorCode = await shoota.TakeRandomAvailableColor(minValue: 10);
+
+        //if (colorCode is null)
+        //{
+        //    return;
+        //}
 
         var bestShot = Shoota.InitializeShot(x: 56, y: 67, canvasWidth: 250, mass: 10);
-        bestShot.ColorCodes.Add(colorCode.Value, 10);
+
+        //bestShot.ColorCodes.Add(colorCode.Value, 10);
+
+        foreach (var item in brew)
+        {
+            bestShot.ColorCodes.Add(item.ColorCode, item.Amount);
+        }
+
         //var shot = new Shot()
         //{
         //    Power = 26,
@@ -48,11 +70,99 @@ internal class Program
 
         //shot.ColorCodes.Add(colorCode.Value, 10);
 
-        var color = ColorHelper.CodeToRGB(colorCode.Value);
+        //var color = ColorHelper.CodeToRGB(colorCode.Value);
 
         await shoota.TestShooting(bestShot);
 
-        Console.WriteLine($"Shot with color {color} and power = {bestShot.Power}");
+        Console.WriteLine($"Shot with color {targetColor} and power = {bestShot.Power}");
+    }
+
+    private static async Task ShootaInterface()
+    {
+        while (true)
+        {
+            Console.WriteLine("Boss! Shoota iz redy!");
+            Console.WriteLine("\tInsert parameters: CanvasWidth, Red, Green, Blue, Amount, X, Y");
+            var line = Console.ReadLine();
+
+            if (line == null)
+            {
+                Console.WriteLine($"Failed input. Retry");
+                continue;
+            }
+
+            var args = line.Split(" ").ToList();
+
+            if (args.Count != 7)
+            {
+                Console.WriteLine($"Wrong number of arguments {args.Count} need 7. Retry"); 
+                continue;
+            }
+
+            int width;
+            int r;
+            int g;
+            int b;
+            int amount;
+            int x;
+            int y;
+
+            try
+            {
+                width = int.Parse(args[0]);
+                r = int.Parse(args[1]);
+                g = int.Parse(args[2]);
+                b = int.Parse(args[3]);
+                amount = int.Parse(args[4]);
+                x = int.Parse(args[5]);
+                y = int.Parse(args[6]);
+
+                if (r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255 || amount <= 0)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Failed to parse values. Retry");
+                continue;
+            }
+
+            var shoota = new Shoota();
+
+            Console.WriteLine("\tFetching colors from storage");
+
+            var availableColors = await shoota.GetAllAvailableColors();
+
+            Console.WriteLine("\tBrewing colors");
+
+            var colorBrewer = new ColorBrewer(availableColors, isInteger: true)
+            {
+                TimeLimitSeconds = 5,
+                SampleSize = 2000,
+            };
+
+            Color targetColor = Color.FromArgb(r, g, b);
+
+            var brew = colorBrewer.Brew(targetColor, amount);
+
+            Console.WriteLine("\tTargeting shot");
+
+            var bestShot = Shoota.InitializeShot(x: x, y: y, canvasWidth: width, mass: amount);
+
+            foreach (var item in brew)
+            {
+                bestShot.ColorCodes.Add(item.ColorCode, item.Amount);
+            }
+
+            Console.WriteLine("\tShooting!");
+
+            await shoota.TestShooting(bestShot);
+
+            Console.WriteLine("\tSuccessful shot!");
+
+            await Task.Delay(100);
+        }
     }
 
     private static async Task ColorRequester()

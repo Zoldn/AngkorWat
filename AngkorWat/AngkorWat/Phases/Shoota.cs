@@ -1,4 +1,5 @@
-﻿using AngkorWat.Components;
+﻿using AngkorWat.Algorithms.CBrewer.Components;
+using AngkorWat.Components;
 using AngkorWat.IO.HTTP;
 using AngkorWat.Utils;
 using Newtonsoft.Json;
@@ -63,7 +64,11 @@ namespace AngkorWat.Phases
 
             var container = JsonConvert.DeserializeObject<ShotResponse>(response);
 
-            Console.WriteLine(response);
+            if (container is null || !container.success) 
+            {
+                Console.WriteLine("Failed shot");
+                Console.WriteLine(response);
+            }
         }
 
         private class TargetDistanceRecord 
@@ -119,7 +124,7 @@ namespace AngkorWat.Phases
 
             var error = Math.Sqrt((xp - x) * (xp - x) + (yp - y) * (yp - y));
 
-            Console.WriteLine($"Best shot to target ({x}, {y}) is ({xp}, {yp}), error = {error}");
+            Console.WriteLine($"\tBest shot to target ({x}, {y}) is ({xp}, {yp}), error = {error}");
 
             return shot;
         }
@@ -134,8 +139,6 @@ namespace AngkorWat.Phases
                 return null;
             }
 
-            Console.WriteLine("List");
-
             var notZeroAvailableColors = listOfColorsResponse.response
                 .Where(kv => kv.Value >= minValue)
                 .Select(kv => kv.Key)
@@ -148,6 +151,28 @@ namespace AngkorWat.Phases
             Console.WriteLine(colorCode);
 
             return colorCode;
+        }
+
+        internal async Task<List<AvailableColorRecord>> GetAllAvailableColors()
+        {
+            var listOfColorsResponse = await RequestColorList();
+
+            if (listOfColorsResponse is null
+                || !listOfColorsResponse.success)
+            {
+                return new List<AvailableColorRecord>();
+            }
+
+            var notZeroAvailableColors = listOfColorsResponse.response
+                .Where(kv => kv.Value > 0)
+                .Select(kv => new AvailableColorRecord(int.Parse(kv.Key), kv.Value))
+                .ToList();
+
+            //int colorCode = int.Parse(colorString);
+
+            //Console.WriteLine(colorCode);
+
+            return notZeroAvailableColors;
         }
 
         private async Task<ColorListOnStoreResponse?> RequestColorList()
