@@ -22,10 +22,41 @@ internal class Program
     {
         HttpHelper.SetApiKey("643ec1df4dabc643ec1df4dac0");
 
-        //await HttpHelper.PostMultipart("http://api.datsart.dats.team/art/stage/next");
 
-        //Phase1.Phase1Start();
+        await DoShoota();
+    }
 
+    private static async Task DoShoota()
+    {
+        var shoota = new Shoota();
+
+        var colorCode = await shoota.TakeRandomAvailableColor(minValue: 10);
+
+        if (colorCode is null)
+        {
+            return;
+        }
+
+        var bestShot = Shoota.InitializeShot(x: 56, y: 67, canvasWidth: 250, mass: 10);
+        bestShot.ColorCodes.Add(colorCode.Value, 10);
+        //var shot = new Shot()
+        //{
+        //    Power = 26,
+        //    HAngle = 0,
+        //    VAngle = 45,
+        //};
+
+        //shot.ColorCodes.Add(colorCode.Value, 10);
+
+        var color = ColorHelper.CodeToRGB(colorCode.Value);
+
+        await shoota.TestShooting(bestShot);
+
+        Console.WriteLine($"Shot with color {color} and power = {bestShot.Power}");
+    }
+
+    private static async Task ColorRequester()
+    {
         var requester = new ColorRequester();
 
         await requester.Run();
