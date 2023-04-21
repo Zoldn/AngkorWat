@@ -20,7 +20,7 @@ internal class Program
 
     private static async Task Main(string[] _)
     {
-        HttpHelper.SetApiKey("11111111");
+        HttpHelper.SetApiKey("643ec1df4dabc643ec1df4dac0");
 
         //Phase1.Phase1Start();
     }
