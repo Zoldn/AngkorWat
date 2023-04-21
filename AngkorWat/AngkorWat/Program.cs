@@ -22,7 +22,13 @@ internal class Program
     {
         HttpHelper.SetApiKey("643ec1df4dabc643ec1df4dac0");
 
+        //await HttpHelper.PostMultipart("http://api.datsart.dats.team/art/stage/next");
+
         //Phase1.Phase1Start();
+
+        var requester = new ColorRequester();
+
+        await requester.Run();
     }
 
     /// <summary>
