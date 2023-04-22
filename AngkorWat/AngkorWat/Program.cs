@@ -32,9 +32,11 @@ internal class Program
 
         //await ShootaInterfaceStable();
 
-        await AutoShootaInterfaceStable();
+        //await AutoShootaInterfaceStable();
 
-        //var imageLoader = new TargetImageLoader();
+        var imageLoader = new TargetImageLoader(@"C:\Users\User\Desktop\Хакатон\19.png");
+
+        imageLoader.Run();
 
         //await FindGoodColor();
     }
