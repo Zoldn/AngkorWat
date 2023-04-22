@@ -90,7 +90,10 @@ namespace AngkorWat.Phases
                 }
 
                 //var selected = (random.Next(3) + 1);
-                var selected = factoryResponse.response.ArgMax(kv => kv.Value.amount).Key;
+                //var selected = factoryResponse.response.ArgMax(kv => kv.Value.amount).Key;
+                var selected = factoryResponse.response
+                    .ArgMax(kv => kv.Value.color).Key;
+
 
                 var sendToTake = new Dictionary<string, string>()
                 {

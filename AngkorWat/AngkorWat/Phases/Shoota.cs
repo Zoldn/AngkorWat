@@ -50,9 +50,9 @@ namespace AngkorWat.Phases
         {
             var payload = new Dictionary<string, string>()
             {
-                { "angleHorizontal", shot.HAngle.ToString() },
-                { "angleVertical", shot.VAngle.ToString() },
-                { "power", shot.Power.ToString() },
+                { "angleHorizontal", shot.HAngle.ToString().Replace(",", ".") },
+                { "angleVertical", shot.VAngle.ToString().Replace(",", ".") },
+                { "power", shot.Power.ToString().Replace(",", ".") },
             };
 
             foreach (var (color, amount) in shot.ColorCodes)
@@ -74,7 +74,7 @@ namespace AngkorWat.Phases
         private class TargetDistanceRecord 
         {
             public int VAngle { get; init; }
-            public int Power { get; init; }
+            public double Power { get; init; }
             public double RoundedDistance { get; init; }
         }
 
@@ -91,7 +91,7 @@ namespace AngkorWat.Phases
                 (x - canvasWidth / 2.0d) * (x - canvasWidth / 2.0d) + 
                 (y - shootaYPosition) * (y - shootaYPosition));
 
-            shot.HAngle = Math.Round(Math.Asin((x - canvasWidth / 2.0d) / distanceToTarget) / Math.PI * 180.0d);
+            shot.HAngle = Math.Round(Math.Asin((x - canvasWidth / 2.0d) / distanceToTarget) / Math.PI * 180.0d, 5);
 
             var records = new List<TargetDistanceRecord>(90);
 
@@ -99,7 +99,7 @@ namespace AngkorWat.Phases
             {
                 double truePower = (distanceToTarget * mass / eta / Math.Sin(2 * Math.PI / 180.0d * vAngle));
 
-                int roundPower = (int)Math.Round(truePower);
+                double roundPower = Math.Round(truePower, 5);
 
                 if (roundPower > 1000)
                 {
