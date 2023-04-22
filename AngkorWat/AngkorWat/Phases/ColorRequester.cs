@@ -1,8 +1,10 @@
-﻿using AngkorWat.IO.HTTP;
+﻿using AngkorWat.Algorithms;
+using AngkorWat.IO.HTTP;
 using AngkorWat.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -69,6 +71,8 @@ namespace AngkorWat.Phases
 
             int iteration = 0;
 
+            Color gray = Color.Gray;
+
             while (true)
             {
                 ++iteration;
@@ -91,9 +95,23 @@ namespace AngkorWat.Phases
 
                 //var selected = (random.Next(3) + 1);
                 //var selected = factoryResponse.response.ArgMax(kv => kv.Value.amount).Key;
-                var selected = factoryResponse.response
-                    .ArgMax(kv => kv.Value.color).Key;
 
+                var ttt = factoryResponse.response
+                    .Select(
+                        kv => new
+                        {
+                            Pot = kv.Key,
+                            Color = Color.FromArgb(
+                                kv.Value.color / 256 / 256,
+                                kv.Value.color / 256 % 256,
+                                kv.Value.color % 256),
+                        }
+                    )
+                    .ToArray();
+
+                var selected = ttt
+                    .ArgMax(kv => ColorUtils.ColorDiffL0(Color.Gray, kv.Color))
+                    .Pot;
 
                 var sendToTake = new Dictionary<string, string>()
                 {

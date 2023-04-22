@@ -33,6 +33,11 @@ namespace AngkorWat.Algorithms
             return Math.Sqrt((from.X - to.X) * (from.X - to.X) + (from.Y - to.Y) * (from.Y - to.Y));
         }
 
+        public static double GetDistance(double x0, double y0, double x1, double y1)
+        {
+            return Math.Sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
+        }
+
         /// <summary>
         /// Длина пересечения круга с отрезком из from в to в км
         /// </summary>
