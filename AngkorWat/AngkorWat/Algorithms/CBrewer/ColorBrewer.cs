@@ -159,6 +159,130 @@ namespace AngkorWat.Algorithms.CBrewer
             return ret;
         }
 
+        public List<AvailableColorRecord> BrewExact(Color targetColor, int minAmount, int maxAmount)
+        {
+            if (minAmount < 0 || maxAmount < 0)
+            {
+                throw new Exception("You wut m8?");
+            }
+
+            //AvailableColors.Shuffle(new Random());
+
+            var selectedColors = AvailableColors
+                .OrderBy(c => ColorUtils.ColorDiffL1(c.Color, targetColor))
+                .Take(SampleSize)
+                .ToList();
+
+            var ret = new List<AvailableColorRecord>();
+
+            Solver solver = Solver.CreateSolver("SCIP");
+
+            solver.SetTimeLimit(TimeLimitSeconds * 1000);
+
+            var colorWeights = new List<AvailableColorWeightDVar>(selectedColors.Count);
+
+            foreach (var availableColor in selectedColors)
+            {
+                colorWeights.Add(new AvailableColorWeightDVar(solver, availableColor, isInteger: IsInteger));
+            }
+
+            /// Суммарный вес должен быть равен заданному весу
+            var weightConstraint = solver.MakeConstraint(lb: 0, ub: 0, $"Total amount constraint");
+
+            var totalWeight = new TotalWeightDVar(solver, minAmount, maxAmount);
+
+            foreach (var colorWeight in colorWeights)
+            {
+                weightConstraint.SetCoefficient(colorWeight.DVar, 1.0d);
+            }
+
+            weightConstraint.SetCoefficient(totalWeight.DVar, -1.0d);
+
+            /// Переменные отличия слева и справа от целевого значения
+            var colorDiffDVars = new List<ColorDiffDVar>();
+
+            Dictionary<ColorComponent, int> targetComponents = new()
+            {
+                { ColorComponent.RED, targetColor.R },
+                { ColorComponent.GREEN, targetColor.G },
+                { ColorComponent.BLUE, targetColor.B },
+            };
+
+            foreach (var color in Colors)
+            {
+                //var dvar = new ColorDiffDVar(solver, color, amount, isInteger: IsInteger);
+
+                //colorDiffDVars.Add(dvar);
+
+                var constraint = solver.MakeConstraint(
+                    lb: 0.0d,
+                    ub: 0.0d,
+                    $"Equality {color} constraint");
+
+                constraint.SetCoefficient(totalWeight.DVar, -targetComponents[color]);
+
+                foreach (var colorWeight in colorWeights)
+                {
+                    constraint.SetCoefficient(colorWeight.DVar, colorWeight.ColorComponents[color]);
+                }
+
+                //var rightConstraint = solver.MakeConstraint(
+                //    lb: double.NegativeInfinity,
+                //    ub: amount * targetComponents[color],
+                //    $"Right {color} constraint");
+
+                //rightConstraint.SetCoefficient(dvar.RightDVar, -amount);
+
+                //foreach (var colorWeight in colorWeights)
+                //{
+                //    rightConstraint.SetCoefficient(colorWeight.DVar, colorWeight.ColorComponents[color]);
+                //}
+            }
+
+            /// Целевая функция
+
+            var objective = solver.Objective();
+
+            //foreach (var colorDiffDVar in colorDiffDVars)
+            //{
+            //    objective.SetCoefficient(colorDiffDVar.LeftDVar, 1.0d);
+            //    objective.SetCoefficient(colorDiffDVar.RightDVar, 1.0d);
+            //}
+
+            objective.SetCoefficient(totalWeight.DVar, 1.0d);
+
+            objective.SetMaximization();
+
+            var status = solver.Solve();
+
+            if (status != Solver.ResultStatus.OPTIMAL
+                && status != Solver.ResultStatus.FEASIBLE)
+            {
+                return new List<AvailableColorRecord>();
+            }
+
+            //Console.WriteLine($"Objective value = {objective.Value()}");
+
+            foreach (var colorWeight in colorWeights)
+            {
+                colorWeight.Extract();
+            }
+
+            foreach (var dvar in colorDiffDVars)
+            {
+                dvar.Extract();
+            }
+
+            ret = colorWeights
+                .Where(w => w.Value > 0)
+                .Select(w => new AvailableColorRecord(w.AvailableColorRecord.ColorCode, (int)Math.Round(w.Value)))
+                .ToList();
+
+            CheckBrew(ret, targetColor);
+
+            return ret;
+        }
+
         private void CheckBrew(List<AvailableColorRecord> ret, Color targetColor)
         {
             var r = (int)Math.Round((double)ret.Sum(e => e.R * e.Amount) / ret.Sum(e => e.Amount));
