@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,6 +90,45 @@ namespace AngkorWat.IO.HTTP
             var ret = JsonConvert.DeserializeObject<TOutput>(result);
 
             return (ret, response.StatusCode);
+        }
+
+        public static async Task<string> PostMultipart(string url)
+        {
+            using MultipartFormDataContent multipartContent = new();
+
+            //multipartContent.Add(new StringContent("John", Encoding.UTF8, MediaTypeNames.Text.Plain), "first_name");
+            //multipartContent.Add(new StringContent("Doe", Encoding.UTF8, MediaTypeNames.Text.Plain), "last_name");
+
+            using var response = await Client.PostAsync(url, multipartContent);
+
+            string result = response.Content.ReadAsStringAsync().Result;
+
+            //Console.WriteLine(response.StatusCode);
+
+            return result;
+        }
+
+        public static async Task<string> PostMultipartWithContent(string url,
+            Dictionary<string, string> content)
+        {
+            using MultipartFormDataContent multipartContent = new("----WebKitFormBoundary7MA4YWxkTrZu0gW");
+
+            foreach (var (key, value) in content)
+            {
+                multipartContent.Add(
+                    new StringContent(value, Encoding.UTF8, MediaTypeNames.Text.Plain), key);
+            }
+
+            //multipartContent.Add(new StringContent("John", Encoding.UTF8, MediaTypeNames.Text.Plain), "first_name");
+            //multipartContent.Add(new StringContent("Doe", Encoding.UTF8, MediaTypeNames.Text.Plain), "last_name");
+
+            using var response = await Client.PostAsync(url, multipartContent);
+
+            string result = response.Content.ReadAsStringAsync().Result;
+
+            //Console.WriteLine(response.StatusCode);
+
+            return result;
         }
     }
 }
