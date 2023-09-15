@@ -34,11 +34,24 @@ internal class Program
 
         //await AutoShootaInterfaceStable();
 
-        var imageLoader = new TargetImageLoader(@"C:\Users\User\Desktop\Хакатон\19.png");
+        await RunOmniShooter();
 
-        imageLoader.Run();
+        //var imageLoader = new TargetImageLoader(@"C:\Users\User\Desktop\Хакатон\19.png");
+
+        //imageLoader.Run();
 
         //await FindGoodColor();
+    }
+
+    private static async Task RunOmniShooter()
+    {
+        var omniShooter = new OmniShooter(@"C:\Users\User\Desktop\Хакатон\final.png", 500)
+        {
+            ChunkSize = 9,
+            Skip = 9,
+        };
+
+        await omniShooter.Run();
     }
 
     private static async Task FindGoodColor()

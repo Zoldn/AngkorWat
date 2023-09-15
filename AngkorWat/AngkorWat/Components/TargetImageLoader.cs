@@ -81,8 +81,8 @@ namespace AngkorWat.Components
                 )
                 .Select(g => new Chunk()
                 {
-                    X = g.Key.CX + ChunkSize / 2,
-                    Y = g.Key.CY + ChunkSize / 2,
+                    X = g.Key.CX * ChunkSize + ChunkSize / 2,
+                    Y = g.Key.CY * ChunkSize + ChunkSize / 2,
                     PresentColors = g
                         .GroupBy(q => q.Color)
                         .ToDictionary(q => q.Key, q => q.Count())
@@ -93,7 +93,15 @@ namespace AngkorWat.Components
 
             foreach (var chunk in chunks)
             {
-                var mostCommonColor = chunk.PresentColors.ArgMax(kv => kv.Value).Key;
+                //var mostCommonColor = chunk.PresentColors.ArgMax(kv => kv.Value).Key;
+
+                var total = chunk.PresentColors.Sum(kv => kv.Value);
+
+                int r = (int)Math.Round(chunk.PresentColors.Sum(kv => kv.Key.R * kv.Value) / (double)total);
+                int g = (int)Math.Round(chunk.PresentColors.Sum(kv => kv.Key.G * kv.Value) / (double)total);
+                int b = (int)Math.Round(chunk.PresentColors.Sum(kv => kv.Key.B * kv.Value) / (double)total);
+
+                var mostCommonColor = Color.FromArgb(r, g, b); //chunk.PresentColors.Average(kv => kv.K);
 
                 chunk.Color = mostCommonColor;
 

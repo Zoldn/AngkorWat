@@ -14,11 +14,14 @@ namespace AngkorWat.Phases
         public string FileName { get; set; }
         public int ChunkSize { get; init; }
         public int CanvasWidth { get; init; }
+        public int Skip { get; init; }
+
         public OmniShooter(string fileName, int canvasWidth)
         {
             FileName = fileName;
             ChunkSize = 16;
             CanvasWidth = canvasWidth;
+            Skip = 0;
         }
 
         public async Task Run()
@@ -32,11 +35,12 @@ namespace AngkorWat.Phases
 
             chunks = chunks
                 .Where(e => e.IsShooting)
+                .Skip(Skip)
                 .ToList();
 
             int chunkIndex = 0;
 
-            int amount = (int)Math.Round(Math.PI * ChunkSize * ChunkSize / 4.0d);
+            int amount = (int)Math.Round(Math.PI * (ChunkSize + 5) * (ChunkSize + 5) / 4.0d);
 
             if (amount == 0)
             {
@@ -68,8 +72,8 @@ namespace AngkorWat.Phases
 
                     var colorBrewer = new ColorBrewer(availableColors, isInteger: true)
                     {
-                        TimeLimitSeconds = 5,
-                        SampleSize = 5000,
+                        TimeLimitSeconds = 2,
+                        SampleSize = 3000,
                     };
                     //var brew = colorBrewer.Brew(targetColor, amount);
                    // var brew = colorBrewer.BrewExact(TargetColor, MinAmount, MaxAmount);
