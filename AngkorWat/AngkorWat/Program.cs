@@ -20,7 +20,7 @@ internal class Program
 
     private static async Task Main(string[] _)
     {
-        HttpHelper.SetApiKey("657d451ec2314657d451ec2318");
+        HttpHelper.SetApiKey("05d74cb4-7f21-424f-afc6-9dc573c82974");
 
         //var ret = await HttpHelper.Get("http://webcode.me");
 
