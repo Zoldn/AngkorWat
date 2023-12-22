@@ -8,6 +8,7 @@ using AngkorWat.IO.HTTP;
 
 internal class Program
 {
+    /*
     public class User
     {
         public string Name { get; set; }
@@ -17,10 +18,14 @@ internal class Program
             Name = string.Empty;
         }
     }
+    */
+    
 
     private static async Task Main(string[] _)
     {
         HttpHelper.SetApiKey("65009ad92d33965009ad92d33b");
+
+        await Phase1.Phase1Start();
 
         //var ret = await HttpHelper.Get("http://webcode.me");
 
@@ -32,6 +37,7 @@ internal class Program
 
         //Console.WriteLine(ret2);
 
+        /*
         var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
 
         for (int i = 0; i < 3; i++)
@@ -44,6 +50,7 @@ internal class Program
 
             await ddoser.RunStep(user);
         }
+        */
 
         //Phase1.Phase1Start();
     }

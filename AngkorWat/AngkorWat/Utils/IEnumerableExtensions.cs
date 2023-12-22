@@ -91,5 +91,22 @@ namespace AngkorWat.Utils
 
             return d1 / d2;
         }
+
+        public static double Product<T>(this IEnumerable<T> x, Func<T, double> selector)
+        {
+            if (!x.Any())
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            double ret = 1.0d;
+
+            foreach (var item in x)
+            {
+                ret *= selector(item);
+            }
+
+            return ret;
+        }
     }
 }

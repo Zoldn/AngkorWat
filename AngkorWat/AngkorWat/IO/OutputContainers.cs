@@ -11,7 +11,6 @@ namespace AngkorWat.IO
     internal class Phase1OutputContainer : BaseOutputContainer
     {
         public Phase1OutputContainer(Data data)
-            : base(data.MapId)
         {
             
         }

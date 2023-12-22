@@ -24,7 +24,7 @@ namespace AngkorWat.IO.HTTP
         public static void SetApiKey(string key)
         {
             ApiKey = key;
-            Client.DefaultRequestHeaders.Add("X-API-Key", ApiKey);
+            Client.DefaultRequestHeaders.Add("token", ApiKey);
         }
 
         public static async Task<string> Get(string url)
