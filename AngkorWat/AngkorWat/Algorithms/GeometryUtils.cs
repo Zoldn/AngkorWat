@@ -9,17 +9,27 @@ namespace AngkorWat.Algorithms
 {
     internal interface ICircle
     {
-        public double X { get; }
-        public double Y { get; }
-        public double R { get; }
+        public int X { get; }
+        public int Y { get; }
+        public int R { get; }
     }
 
     internal interface IPunkt
     {
-        public double X { get; }
-        public double Y { get; }
+        public int X { get; }
+        public int Y { get; }
     }
 
+    internal class Position : IPunkt
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public Position(int x = 0, int y = 0) 
+        {
+            X = x;
+            Y = y;
+        }
+    }
     internal static class GeometryUtils
     {
         /// <summary>

@@ -10,17 +10,14 @@ namespace AngkorWat.Components
     /// <summary>
     /// Внутреннее представление входных данных
     /// </summary>
-    internal class Data
+    public class Data
     {
-        /// <summary>
-        /// Id карты
-        /// </summary>
-        public string MapId { get; init; }
-        
-        
-        public Data()
+        public Map Map { get; set; }
+        public Scan CurrentScan { get; set; } = new Scan();
+
+        public Data(Map map)
         {
-            MapId = string.Empty;
+            Map = map;
         }
     }
 }

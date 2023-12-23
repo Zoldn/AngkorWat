@@ -22,6 +22,8 @@ internal class Program
     {
         HttpHelper.SetApiKey("05d74cb4-7f21-424f-afc6-9dc573c82974");
 
+        await Phase1.Phase1Start();
+
         //var ret = await HttpHelper.Get("http://webcode.me");
 
         //Console.WriteLine(ret);
@@ -32,18 +34,18 @@ internal class Program
 
         //Console.WriteLine(ret2);
 
-        var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
+        //var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
 
-        for (int i = 0; i < 3; i++)
-        {
-            var user = new User()
-            {
-                Name = "John Doe",
-                Occupation = 100 * i,
-            };
+        //for (int i = 0; i < 3; i++)
+        //{
+        //    var user = new User()
+        //    {
+        //        Name = "John Doe",
+        //        Occupation = 100 * i,
+        //    };
 
-            await ddoser.RunStep(user);
-        }
+        //    await ddoser.RunStep(user);
+        //}
 
         //Phase1.Phase1Start();
     }

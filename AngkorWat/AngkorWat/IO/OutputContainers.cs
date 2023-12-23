@@ -8,12 +8,8 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.IO
 {
-    internal class Phase1OutputContainer : BaseOutputContainer
+    internal class Phase1OutputContainer 
     {
-        public Phase1OutputContainer(Data data)
-            : base(data.MapId)
-        {
-            
-        }
+
     }
 }
