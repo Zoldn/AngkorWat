@@ -72,7 +72,7 @@
             button2.Name = "button2";
             button2.Size = new Size(60, 61);
             button2.TabIndex = 1;
-            button2.Text = "Up";
+            button2.Text = "Up/N";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
@@ -92,7 +92,7 @@
             button4.Name = "button4";
             button4.Size = new Size(60, 61);
             button4.TabIndex = 5;
-            button4.Text = "Right";
+            button4.Text = "Right/E";
             button4.UseVisualStyleBackColor = true;
             button4.Click += button4_Click;
             // 
@@ -102,7 +102,7 @@
             button5.Name = "button5";
             button5.Size = new Size(60, 61);
             button5.TabIndex = 4;
-            button5.Text = "Down";
+            button5.Text = "Down/S";
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
             // 
@@ -112,7 +112,7 @@
             button6.Name = "button6";
             button6.Size = new Size(60, 61);
             button6.TabIndex = 3;
-            button6.Text = "Left";
+            button6.Text = "Left/W";
             button6.UseVisualStyleBackColor = true;
             button6.Click += button6_Click;
             // 
