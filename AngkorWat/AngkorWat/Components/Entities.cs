@@ -50,7 +50,7 @@ namespace AngkorWat.Components
         [JsonProperty("enemyShips")]
         public List<Ship> EnemyShips { get; set; } = new();
         [JsonProperty("zone")]
-        public Zone Zone { get; set; } = new();
+        public Zone? Zone { get; set; } = null;// = new();
         [JsonProperty("tick")]
         public int Tick { get; set; } = 0;
         public Scan() { }
@@ -58,13 +58,11 @@ namespace AngkorWat.Components
     
     public enum Directions
     {
-        NORTH = 0, 
-        SOUTH = 1, 
-        EAST = 2, 
+        NORTH = 0,
+        EAST = 1,
+        SOUTH = 2, 
         WEST = 3,
     }
-
-
 
     public class Ship : IPunkt
     {

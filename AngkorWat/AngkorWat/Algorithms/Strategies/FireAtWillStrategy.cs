@@ -54,10 +54,10 @@ namespace AngkorWat.Algorithms.Strategies
             switch (ship.Direction)
             {
                 case Directions.NORTH:
-                    futureY -= ship.Y;
+                    futureY -= ship.Speed;
                     break;
                 case Directions.SOUTH:
-                    futureY += ship.Y;
+                    futureY += ship.Speed;
                     break;
                 case Directions.EAST:
                     futureX += ship.Speed;

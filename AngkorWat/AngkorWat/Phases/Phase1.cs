@@ -1,4 +1,5 @@
-﻿using AngkorWat.Algorithms.Strategies;
+﻿using AngkorWat.Algorithms;
+using AngkorWat.Algorithms.Strategies;
 using AngkorWat.Components;
 using AngkorWat.IO.HTTP;
 using AngkorWat.IO.JSON;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Phases
 {
-    internal static class Phase1
+    public static class Phase1
     {
         public async static Task Phase1Start()
         {
@@ -30,10 +31,19 @@ namespace AngkorWat.Phases
 
             //await SendCommand(data);
 
+            var fireStrategy = new FireAtWillStrategy();
+            var moveStrategy = new DoNothingStrategy();
+
             while (true)
             {
                 await LoadScan(data);
-                await SendCommand(data);
+
+                var commands = IShipStrategy.GenerateEmpty(data);
+
+                fireStrategy.UpdateCommands(data, commands);
+                moveStrategy.UpdateCommands(data, commands);
+
+                await SendCommand(data, commands);
 
                 await Task.Delay(3000);
             }
@@ -45,9 +55,15 @@ namespace AngkorWat.Phases
             ///IOHelper.SerializeResult(outputContainer);
         }
 
+        public static RawScan TempLocalResponse()
+        {
+            return IOHelper.ReadInputData<RawScan>("scan_response.json");
+        }
+
         public static async Task LoadScan(Data data)
         {
-            var rawScan = await HttpHelper.Get<RawScan>("https://datsblack.datsteam.dev/api/scan");
+            ///var rawScan = await HttpHelper.Get<RawScan>("https://datsblack.datsteam.dev/api/scan");
+            var rawScan = TempLocalResponse();
 
             if (rawScan is null)
             {
@@ -65,6 +81,9 @@ namespace AngkorWat.Phases
             {
                 ship.Initialize();
             }
+
+            data.RemoveAllShips();
+            data.UploadShipsToMap();
 
             Console.WriteLine($"Scan is get for tick {rawScan.Scan.Tick}");
         }
@@ -95,13 +114,8 @@ namespace AngkorWat.Phases
             }
         }
 
-        public static async Task SendCommand(Data data)
+        public static async Task SendCommand(Data data, List<ShipCommand> commands)
         {
-            var commands = IShipStrategy.GenerateEmpty(data);
-
-            var strategy = new FireAtWillStrategy();
-            strategy.UpdateCommands(data, commands);
-
             var fullOrder = new FullOrder() { Commands = commands };
 
             var ret = await HttpHelper.Post<FullOrder, RawLongScanResponse>(
