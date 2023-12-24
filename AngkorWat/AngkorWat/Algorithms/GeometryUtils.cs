@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms
 {
-    internal interface ICircle
+    public interface ICircle
     {
         public int X { get; }
         public int Y { get; }
         public int R { get; }
     }
 
-    internal interface IPunkt
+    public interface IPunkt
     {
         public int X { get; }
         public int Y { get; }
     }
 
-    internal class Position : IPunkt
+    public class Position : IPunkt
     {
         public int X { get; set; }
         public int Y { get; set; }

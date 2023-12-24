@@ -39,10 +39,10 @@
             checkBox1 = new CheckBox();
             checkBox2 = new CheckBox();
             groupBox1 = new GroupBox();
+            comboBox2 = new ComboBox();
             comboBox1 = new ComboBox();
             label1 = new Label();
             numericUpDown1 = new NumericUpDown();
-            comboBox2 = new ComboBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             SuspendLayout();
@@ -148,14 +148,25 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Fleet Control";
             // 
+            // comboBox2
+            // 
+            comboBox2.FormattingEnabled = true;
+            comboBox2.Items.AddRange(new object[] { "None", "Stop", "Diagonaling", "Group", "Independant" });
+            comboBox2.Location = new Point(186, 20);
+            comboBox2.Name = "comboBox2";
+            comboBox2.Size = new Size(121, 23);
+            comboBox2.TabIndex = 7;
+            comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
+            // 
             // comboBox1
             // 
             comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "North", "East", "South", "West" });
+            comboBox1.Items.AddRange(new object[] { "north", "east", "south", "west" });
             comboBox1.Location = new Point(103, 20);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(71, 23);
             comboBox1.TabIndex = 6;
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
             // label1
             // 
@@ -174,15 +185,7 @@
             numericUpDown1.Name = "numericUpDown1";
             numericUpDown1.Size = new Size(46, 23);
             numericUpDown1.TabIndex = 0;
-            // 
-            // comboBox2
-            // 
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Items.AddRange(new object[] { "None", "Stop", "Diagonaling", "Group", "Independant" });
-            comboBox2.Location = new Point(186, 20);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(121, 23);
-            comboBox2.TabIndex = 7;
+            numericUpDown1.ValueChanged += numericUpDown1_ValueChanged;
             // 
             // Form1
             // 

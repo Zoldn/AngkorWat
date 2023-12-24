@@ -1,3 +1,4 @@
+using AngkorWat.Algorithms.Strategies;
 using AngkorWat.Components;
 using AngkorWat.IO.HTTP;
 using AngkorWat.IO.JSON;
@@ -26,6 +27,9 @@ namespace WinFormsApp1
 
         private Directions? GlobalFleetDirection { get; set; } = null;
         private int? GlobalSpeed { get; set; } = null;
+
+        public IShipStrategy MovingStrategy { get; private set; } = new DoNothingStrategy();
+        public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
 
         public Form1()
         {
@@ -64,6 +68,20 @@ namespace WinFormsApp1
             RefreshView();
         }
 
+        private async void timer1_Tick(object sender, EventArgs e)
+        {
+            await Phase1.LoadScan(data);
+
+            var commands = IShipStrategy.GenerateEmpty(data);
+
+            FiringStrategy.UpdateCommands(data, commands);
+            MovingStrategy.UpdateCommands(data, commands);
+
+            await Phase1.SendCommand(data, commands);
+
+            RefreshView();
+        }
+
         #region View stuff
         private double ViewX { get; set; } = 0.0d;
         private double ViewY { get; set; } = 0.0d;
@@ -91,12 +109,6 @@ namespace WinFormsApp1
                 ViewX + ViewScale,
                 data.Map.SizeY - (ViewY + ViewScale),
                 data.Map.SizeY - (ViewY - ViewScale));
-        }
-        private async void timer1_Tick(object sender, EventArgs e)
-        {
-            await Phase1.LoadScan(data);
-
-            RefreshView();
         }
 
         private void RefreshView()
@@ -259,5 +271,54 @@ namespace WinFormsApp1
         }
 
         #endregion
+
+        #region Global control
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var strategy = (string)comboBox2.Items[comboBox2.SelectedIndex];
+
+            switch (strategy)
+            {
+                case "None":
+                    MovingStrategy = new DoNothingStrategy();
+                    break;
+                case "Diagonaling":
+                    MovingStrategy = new DiagonalingStrategy(data);
+                    break;
+                case "Stop":
+                    MovingStrategy = new StopStrategy();
+                    break;
+                case "Group":
+                    MovingStrategy = new GroupStrategy();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        #endregion
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (MovingStrategy is not GroupStrategy groupStrategy)
+            {
+                return;
+            }
+
+            var direction = DirectionHelper.GetFromString(comboBox1.Text);
+
+            groupStrategy.Direction = direction;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            if (MovingStrategy is not GroupStrategy groupStrategy)
+            {
+                return;
+            }
+
+            groupStrategy.TargetSpeed = (int)numericUpDown1.Value;
+        }
     }
 }

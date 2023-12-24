@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.Strategies
 {
-    internal class FireAtWillStrategy : IShipStrategy
+    public class FireAtWillStrategy : IShipStrategy
     {
         public FireAtWillStrategy() { }
         public void UpdateCommands(Data data, List<ShipCommand> commands)

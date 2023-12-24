@@ -62,8 +62,8 @@ namespace AngkorWat.Phases
 
         public static async Task LoadScan(Data data)
         {
-            ///var rawScan = await HttpHelper.Get<RawScan>("https://datsblack.datsteam.dev/api/scan");
-            var rawScan = TempLocalResponse();
+            var rawScan = await HttpHelper.Get<RawScan>("https://datsblack.datsteam.dev/api/scan");
+            ///var rawScan = TempLocalResponse();
 
             if (rawScan is null)
             {
