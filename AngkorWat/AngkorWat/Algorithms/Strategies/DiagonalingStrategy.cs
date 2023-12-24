@@ -21,8 +21,31 @@ namespace AngkorWat.Algorithms.Strategies
 
             IsOk = true;
 
+            var diffX = commands.Max(c => c.Ship.X) - commands.Min(c => c.Ship.X);
+            var diffY = commands.Max(c => c.Ship.Y) - commands.Min(c => c.Ship.Y);
+
             PivotPointX = (int)Math.Round(commands.Select(e => e.Ship.X).Average());
             PivotPointY = (int)Math.Round(commands.Select(e => e.Ship.Y).Average());
+
+            /*
+            switch (Direction)
+            {
+                case Directions.NORTH:
+                    PivotPointY += diffX;
+                    break;
+                case Directions.EAST:
+                    PivotPointX += diffY;
+                    break;
+                case Directions.SOUTH:
+                    PivotPointY -= diffX;
+                    break;
+                case Directions.WEST:
+                    PivotPointX -= diffY;
+                    break;
+                default:
+                    break;
+            }
+            */
 
             if (commands.Select(e => e.Ship.Direction).Distinct().Count() != 1)
             {

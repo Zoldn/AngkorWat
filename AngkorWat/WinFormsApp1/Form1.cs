@@ -50,6 +50,8 @@ namespace WinFormsApp1
                 Width = 1400,
             };
 
+            formsPlot1.MouseClick += formsPlot1_MouseClicked;
+
             ShipTable = new DataTable();
 
             ShipTable.Columns.Add("Fire", typeof(string));
@@ -84,6 +86,17 @@ namespace WinFormsApp1
             map.PrintInfo();
 
             data = new Data(map);
+        }
+
+        private async void formsPlot1_MouseClicked(object? sender, MouseEventArgs e)
+        {
+            double x = formsPlot1.Plot.GetCoordinateX(e.X);
+            double y = formsPlot1.Plot.GetCoordinateY(e.Y);
+
+            int tx = (int)x;
+            int ty = (int)(data.Map.SizeY - y);
+
+            await Phase1.RequestLongScan(tx, ty);
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -235,7 +248,7 @@ namespace WinFormsApp1
                 }
             }
 
-            if (IsZoneVisible && data.CurrentScan.Zone is not null && 
+            if (IsZoneVisible && data.CurrentScan.Zone is not null &&
                 data.CurrentScan.Zone.Radius > 0)
             {
                 var circle = formsPlot1.Plot.AddCircle(
@@ -247,6 +260,8 @@ namespace WinFormsApp1
 
                 ///circle.Color = Color.FromArgb(50, Color.Aqua);
             }
+
+            label2.Text = $"Ship number: {data.CurrentScan.MyShips.Count(e => e.HP > 0)}";
 
             formsPlot1.Refresh();
 

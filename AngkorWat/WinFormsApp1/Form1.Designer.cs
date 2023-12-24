@@ -44,6 +44,7 @@
             label1 = new Label();
             numericUpDown1 = new NumericUpDown();
             dataGridView1 = new DataGridView();
+            label2 = new Label();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
@@ -198,11 +199,21 @@
             dataGridView1.Size = new Size(348, 223);
             dataGridView1.TabIndex = 10;
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(1424, 216);
+            label2.Name = "label2";
+            label2.Size = new Size(78, 15);
+            label2.TabIndex = 11;
+            label2.Text = "Ship number:";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1784, 961);
+            Controls.Add(label2);
             Controls.Add(dataGridView1);
             Controls.Add(groupBox1);
             Controls.Add(checkBox2);
@@ -244,5 +255,6 @@
         private ComboBox comboBox1;
         private ComboBox comboBox2;
         private DataGridView dataGridView1;
+        private Label label2;
     }
 }
