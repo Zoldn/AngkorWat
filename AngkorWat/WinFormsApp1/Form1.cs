@@ -5,7 +5,9 @@ using AngkorWat.IO.JSON;
 using AngkorWat.Phases;
 using ScottPlot;
 using ScottPlot.Drawing.Colormaps;
+using ScottPlot.Plottable;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinFormsApp1
@@ -32,9 +34,8 @@ namespace WinFormsApp1
         public IShipStrategy MovingStrategy { get; private set; } = new DoNothingStrategy();
         public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
 
-        /// <summary>
-        /// private DataTable 
-        /// </summary>
+
+        private DataTable ShipTable { get; set; }
 
         public Form1()
         {
@@ -46,6 +47,11 @@ namespace WinFormsApp1
                 Dock = DockStyle.Left,
                 Width = 1400,
             };
+
+            ShipTable = new DataTable();
+            ShipTable.Columns.Add("Id", typeof(int));
+
+            dataGridView1.DataSource = ShipTable;
 
             formsPlot1.Configuration.Zoom = false;
             formsPlot1.Configuration.Pan = false;
@@ -67,10 +73,47 @@ namespace WinFormsApp1
         private async void Form1_Load(object sender, EventArgs e)
         {
             await Phase1.LoadScan(data);
+            UpdateShipTable(data);
 
             SetStartingView();
 
             RefreshView();
+        }
+
+        private void UpdateShipTable(Data data)
+        {
+            foreach (var ship in data.CurrentScan.MyShips)
+            {
+                if (TryGetTableRow(ship, out var row))
+                {
+
+                }
+                else
+                {
+                    row = ShipTable.NewRow();
+
+                    row["Id"] = ship.ShipId;
+
+                    ShipTable.Rows.Add(row);
+                }
+            }
+        }
+
+        private bool TryGetTableRow(Ship ship, [MaybeNullWhen(false)][NotNullWhen(true)] out DataRow? row)
+        {
+            for (int i = 0; i < ShipTable.Rows.Count; i++)
+            {
+                var trow = ShipTable.Rows[i];
+
+                if ((int)trow["Id"] == ship.ShipId)
+                {
+                    row = trow;
+                    return true;
+                }
+            }
+
+            row = null;
+            return false;
         }
 
         private async void timer1_Tick(object sender, EventArgs e)
@@ -153,13 +196,15 @@ namespace WinFormsApp1
                     data.CurrentScan.Zone.X,
                     data.Map.SizeY - data.CurrentScan.Zone.Y,
                     data.CurrentScan.Zone.Radius,
-                    color: Color.FromArgb(0, Color.Aqua),
-                    lineStyle: LineStyle.None);
+                    color: Color.Aqua,
+                    lineStyle: LineStyle.Solid);
 
-                circle.Color = Color.FromArgb(50, Color.Aqua);
+                ///circle.Color = Color.FromArgb(50, Color.Aqua);
             }
 
             formsPlot1.Refresh();
+
+            dataGridView1.Refresh();
         }
 
         private void button1_Click(object sender, EventArgs e)
