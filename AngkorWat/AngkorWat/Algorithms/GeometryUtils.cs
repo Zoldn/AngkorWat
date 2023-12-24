@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms
 {
-    internal interface ICircle
+    public interface ICircle
     {
         public int X { get; }
         public int Y { get; }
         public int R { get; }
     }
 
-    internal interface IPunkt
+    public interface IPunkt
     {
         public int X { get; }
         public int Y { get; }
     }
 
-    internal class Position : IPunkt
+    public class Position : IPunkt
     {
         public int X { get; set; }
         public int Y { get; set; }
@@ -30,7 +30,7 @@ namespace AngkorWat.Algorithms
             Y = y;
         }
     }
-    internal static class GeometryUtils
+    public static class GeometryUtils
     {
         /// <summary>
         /// Расстояние между двумя абстрактными точками в км
@@ -172,7 +172,7 @@ namespace AngkorWat.Algorithms
             return sum;
         }
 
-        internal static double AngleDistance(double phiFrom, double phiTo)
+        public static double AngleDistance(double phiFrom, double phiTo)
         {
             var dphi = Math.Abs(phiTo - phiFrom);
 
@@ -184,7 +184,7 @@ namespace AngkorWat.Algorithms
             return dphi;
         }
 
-        internal static bool IsPointInArea(IPunkt punkt, double size)
+        public static bool IsPointInArea(IPunkt punkt, double size)
         {
             return punkt.X >= 0 && punkt.X <= size
                 && punkt.Y >= 0 && punkt.Y <= size;
