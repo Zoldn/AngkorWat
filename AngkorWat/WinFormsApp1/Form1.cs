@@ -97,6 +97,28 @@ namespace WinFormsApp1
                     ShipTable.Rows.Add(row);
                 }
             }
+
+            int index = 0;
+            int iteration = 0;
+
+            while (index < ShipTable.Rows.Count)
+            {
+                iteration++;
+                var trow = ShipTable.Rows[index];
+
+                if (!data.CurrentScan.MyShips.Any(s => s.ShipId == (int)trow["Id"]))
+                {
+                    ShipTable.Rows.RemoveAt(index);
+                }
+                else
+                {
+                    index++;
+                }
+                if (iteration > 1000)
+                {
+                    throw new StackOverflowException();
+                }
+            }
         }
 
         private bool TryGetTableRow(Ship ship, [MaybeNullWhen(false)][NotNullWhen(true)] out DataRow? row)
@@ -190,7 +212,8 @@ namespace WinFormsApp1
                 }
             }
 
-            if (IsZoneVisible && data.CurrentScan.Zone is not null)
+            if (IsZoneVisible && data.CurrentScan.Zone is not null && 
+                data.CurrentScan.Zone.Radius > 0)
             {
                 var circle = formsPlot1.Plot.AddCircle(
                     data.CurrentScan.Zone.X,
