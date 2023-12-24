@@ -61,6 +61,7 @@ namespace WinFormsApp1
             ShipTable.Columns.Add("X", typeof(int));
             ShipTable.Columns.Add("Y", typeof(int));
             ShipTable.Columns.Add("Id", typeof(int));
+            ShipTable.Columns.Add("IsTarget", typeof(bool));
 
             dataGridView1.DataSource = ShipTable;
             dataGridView1.Columns[0].Width = 30;
