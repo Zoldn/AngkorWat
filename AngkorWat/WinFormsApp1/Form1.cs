@@ -8,6 +8,7 @@ using ScottPlot.Drawing.Colormaps;
 using ScottPlot.Plottable;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Windows.Forms;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinFormsApp1
@@ -50,9 +51,23 @@ namespace WinFormsApp1
             };
 
             ShipTable = new DataTable();
+
             ShipTable.Columns.Add("Id", typeof(int));
+            ShipTable.Columns.Add("Fire", typeof(string));
+            ShipTable.Columns.Add("HP", typeof(string));
+            ShipTable.Columns.Add("Speed", typeof(string));
+            ShipTable.Columns.Add("X", typeof(int));
+            ShipTable.Columns.Add("Y", typeof(int));
+            ShipTable.Columns.Add("Dir", typeof(string));
 
             dataGridView1.DataSource = ShipTable;
+            dataGridView1.Columns[0].Width = 30;
+            dataGridView1.Columns[1].Width = 30;
+            dataGridView1.Columns[2].Width = 30;
+            dataGridView1.Columns[3].Width = 40;
+            dataGridView1.Columns[4].Width = 30;
+            dataGridView1.Columns[5].Width = 30;
+            dataGridView1.Columns[6].Width = 30;
 
             formsPlot1.Configuration.Zoom = false;
             formsPlot1.Configuration.Pan = false;
@@ -87,7 +102,12 @@ namespace WinFormsApp1
             {
                 if (TryGetTableRow(ship, out var row))
                 {
-
+                    row["Fire"] = ship.CannonCooldownLeft == 0 ? "R!" : ship.CannonCooldownLeft.ToString();
+                    row["HP"] = $"{ship.HP}/{ship.MaxHP}";
+                    row["Speed"] = $"{ship.Speed}/{ship.MaxSpeed}";
+                    row["X"] = ship.X;
+                    row["Y"] = ship.Y;
+                    row["Dir"] = ship.RawDirection;
                 }
                 else
                 {
@@ -142,6 +162,8 @@ namespace WinFormsApp1
         private async void timer1_Tick(object sender, EventArgs e)
         {
             await Phase1.LoadScan(data);
+
+            UpdateShipTable(data);
 
             var commands = IShipStrategy.GenerateEmpty(data);
 
