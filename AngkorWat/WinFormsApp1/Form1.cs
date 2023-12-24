@@ -101,12 +101,24 @@ namespace WinFormsApp1
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            await Phase1.LoadScan(data);
-            UpdateShipTable(data);
+            while (true)
+            {
+                try
+                {
+                    await Phase1.LoadScan(data);
+                    UpdateShipTable(data);
 
-            SetStartingView();
+                    SetStartingView();
 
-            RefreshView();
+                    RefreshView();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    await Task.Delay(3000);
+                    continue;
+                }
+            }
         }
 
         private void UpdateShipTable(Data data)
@@ -174,16 +186,31 @@ namespace WinFormsApp1
 
         private async void timer1_Tick(object sender, EventArgs e)
         {
-            await Phase1.LoadScan(data);
+            try
+            {
+                await Phase1.LoadScan(data);
 
-            UpdateShipTable(data);
+                UpdateShipTable(data);
 
-            var commands = IShipStrategy.GenerateEmpty(data);
+                var commands = IShipStrategy.GenerateEmpty(data);
 
-            FiringStrategy.UpdateCommands(data, commands);
-            MovingStrategy.UpdateCommands(data, commands);
+                FiringStrategy.UpdateCommands(data, commands);
+                MovingStrategy.UpdateCommands(data, commands);
 
-            await Phase1.SendCommand(data, commands);
+                await Phase1.SendCommand(data, commands);
+
+            }
+            catch (Exception ex)
+            {
+                timer1.Enabled = false;
+
+                var ret = MessageBox.Show("Task failed successfully", "Task failed successfully", MessageBoxButtons.OK);
+
+                if (ret == DialogResult.OK)
+                {
+                    Application.Exit();
+                }
+            }
 
             RefreshView();
         }
