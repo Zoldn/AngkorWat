@@ -258,6 +258,13 @@ namespace WinFormsApp1
                     color: Color.Aqua,
                     lineStyle: LineStyle.Solid);
 
+                formsPlot1.Plot.AddCircle(
+                    data.CurrentScan.Zone.X,
+                    data.Map.SizeY - data.CurrentScan.Zone.Y,
+                    2,
+                    color: Color.Aqua,
+                    lineStyle: LineStyle.Solid);
+
                 ///circle.Color = Color.FromArgb(50, Color.Aqua);
             }
 
