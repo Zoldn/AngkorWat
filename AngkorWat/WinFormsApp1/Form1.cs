@@ -5,6 +5,7 @@ using AngkorWat.IO.JSON;
 using AngkorWat.Phases;
 using ScottPlot;
 using ScottPlot.Drawing.Colormaps;
+using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinFormsApp1
@@ -31,6 +32,10 @@ namespace WinFormsApp1
         public IShipStrategy MovingStrategy { get; private set; } = new DoNothingStrategy();
         public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
 
+        /// <summary>
+        /// private DataTable 
+        /// </summary>
+
         public Form1()
         {
             InitializeComponent();
@@ -39,7 +44,7 @@ namespace WinFormsApp1
             formsPlot1 = new()
             {
                 Dock = DockStyle.Left,
-                Width = 1000,
+                Width = 1400,
             };
 
             formsPlot1.Configuration.Zoom = false;

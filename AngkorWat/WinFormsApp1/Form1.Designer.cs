@@ -43,8 +43,10 @@
             comboBox1 = new ComboBox();
             label1 = new Label();
             numericUpDown1 = new NumericUpDown();
+            dataGridView1 = new DataGridView();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // timer1
@@ -55,7 +57,7 @@
             // 
             // button1
             // 
-            button1.Location = new Point(980, 12);
+            button1.Location = new Point(1424, 11);
             button1.Name = "button1";
             button1.Size = new Size(60, 61);
             button1.TabIndex = 0;
@@ -65,7 +67,7 @@
             // 
             // button2
             // 
-            button2.Location = new Point(1046, 12);
+            button2.Location = new Point(1490, 11);
             button2.Name = "button2";
             button2.Size = new Size(60, 61);
             button2.TabIndex = 1;
@@ -75,7 +77,7 @@
             // 
             // button3
             // 
-            button3.Location = new Point(1112, 12);
+            button3.Location = new Point(1556, 11);
             button3.Name = "button3";
             button3.Size = new Size(60, 61);
             button3.TabIndex = 2;
@@ -85,7 +87,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(1112, 79);
+            button4.Location = new Point(1556, 78);
             button4.Name = "button4";
             button4.Size = new Size(60, 61);
             button4.TabIndex = 5;
@@ -95,7 +97,7 @@
             // 
             // button5
             // 
-            button5.Location = new Point(1046, 79);
+            button5.Location = new Point(1490, 78);
             button5.Name = "button5";
             button5.Size = new Size(60, 61);
             button5.TabIndex = 4;
@@ -105,7 +107,7 @@
             // 
             // button6
             // 
-            button6.Location = new Point(980, 79);
+            button6.Location = new Point(1424, 78);
             button6.Name = "button6";
             button6.Size = new Size(60, 61);
             button6.TabIndex = 3;
@@ -116,7 +118,7 @@
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(1178, 12);
+            checkBox1.Location = new Point(1622, 11);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(109, 19);
             checkBox1.TabIndex = 6;
@@ -127,7 +129,7 @@
             // checkBox2
             // 
             checkBox2.AutoSize = true;
-            checkBox2.Location = new Point(1178, 37);
+            checkBox2.Location = new Point(1622, 36);
             checkBox2.Name = "checkBox2";
             checkBox2.Size = new Size(81, 19);
             checkBox2.TabIndex = 7;
@@ -141,7 +143,7 @@
             groupBox1.Controls.Add(comboBox1);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(numericUpDown1);
-            groupBox1.Location = new Point(980, 146);
+            groupBox1.Location = new Point(1424, 145);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(348, 58);
             groupBox1.TabIndex = 9;
@@ -187,11 +189,21 @@
             numericUpDown1.TabIndex = 0;
             numericUpDown1.ValueChanged += numericUpDown1_ValueChanged;
             // 
+            // dataGridView1
+            // 
+            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView1.Location = new Point(1424, 250);
+            dataGridView1.Name = "dataGridView1";
+            dataGridView1.RowTemplate.Height = 25;
+            dataGridView1.Size = new Size(348, 223);
+            dataGridView1.TabIndex = 10;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1340, 761);
+            ClientSize = new Size(1784, 961);
+            Controls.Add(dataGridView1);
             Controls.Add(groupBox1);
             Controls.Add(checkBox2);
             Controls.Add(checkBox1);
@@ -209,6 +221,7 @@
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -230,5 +243,6 @@
         private Label label1;
         private ComboBox comboBox1;
         private ComboBox comboBox2;
+        private DataGridView dataGridView1;
     }
 }
