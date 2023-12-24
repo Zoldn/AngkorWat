@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Algorithms.Strategies
 {
-    internal class FireFocusWeAllWill : IShipStrategy
+    public class FireFocusWeAllWill : IShipStrategy
     {
         public FireFocusWeAllWill() { }
         public void UpdateCommands(Data data, List<ShipCommand> commands)

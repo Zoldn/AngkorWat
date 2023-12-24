@@ -32,7 +32,8 @@ namespace WinFormsApp1
         private int? GlobalSpeed { get; set; } = null;
 
         public IShipStrategy MovingStrategy { get; private set; } = new DoNothingStrategy();
-        public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
+        ///public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
+        public IShipStrategy FiringStrategy { get; private set; } = new FireFocusWeAllWill();
 
 
         private DataTable ShipTable { get; set; }
