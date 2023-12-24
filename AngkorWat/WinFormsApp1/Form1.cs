@@ -435,7 +435,17 @@ namespace WinFormsApp1
                     MovingStrategy = new StopStrategy();
                     break;
                 case "Group":
-                    MovingStrategy = new GroupStrategy();
+                    var strategy1 = new GroupStrategy();
+
+                    if (comboBox1.Text != "")
+                    {
+                        strategy1.Direction = DirectionHelper.GetFromString(comboBox1.Text);
+                    }
+
+                    strategy1.TargetSpeed = (int)numericUpDown1.Value;
+
+                    MovingStrategy = strategy1;
+
                     break;
                 default:
                     break;
