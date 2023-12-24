@@ -16,9 +16,10 @@ namespace AngkorWat.IO.JSON
         }
     }
 
-    internal static class IOHelper
+    public static class IOHelper
     {
-        public static string FilesRoute => Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..");
+        ///public static string FilesRoute => Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..");
+        public static string FilesRoute => @"";
         public static void SerializeResult<T>(T output, string filename = "result.json")
         {
             var json = JsonConvert.SerializeObject(output);
