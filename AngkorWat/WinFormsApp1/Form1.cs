@@ -33,7 +33,7 @@ namespace WinFormsApp1
 
         public IShipStrategy MovingStrategy { get; private set; } = new DoNothingStrategy();
         ///public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
-        public IShipStrategy FiringStrategy { get; private set; } = new FireFocusWeAllWill();
+        public IShipStrategy FiringStrategy { get; private set; } = new FireAtWillStrategy();
 
 
         private DataTable ShipTable { get; set; }
