@@ -18,16 +18,21 @@ namespace AngkorWat.Components
         [JsonProperty("planet")]
         public Planet Planet { get; set; } = new();
         [JsonProperty("universe")]
-        public List<(string, string, int)> Routes { get; set; } = new();
+        public List<List<string>> Routes { get; set; } = new();
         public UniverseState() { }
     }
 
     internal class Route
     {
-        public string LocationFrom { get; set; } = string.Empty;
-        public string LocationTo { get; set; } = string.Empty;
+        public Planet LocationFrom { get; } 
+        public Planet LocationTo { get; }
         public int Cost { get; set; }
-        public Route() { }
+        public Route(Planet from, Planet to, int cost) 
+        {
+            LocationFrom = from;
+            LocationTo = to;
+            Cost = cost;
+        }
     }
 
     internal class Ship
@@ -39,7 +44,9 @@ namespace AngkorWat.Components
         [JsonProperty("fuelUsed")]
         public int FuelUsed { get; set; }
         [JsonProperty("garbage")]
-        public Dictionary<string, List<List<int>>> Garbage { get; set; } = new();
+        public Dictionary<string, List<(int X, int Y)>> Garbage { get; set; } = new();
+        [JsonProperty("planet")]
+        public Planet Planet { get; set; } = new();
         public Ship() { }
     }
 
@@ -49,6 +56,7 @@ namespace AngkorWat.Components
         public string Name { get; set; } = string.Empty; 
         [JsonProperty("garbage")]
         public Dictionary<string, List<List<int>>> Garbage { get; set; } = new();
+        public double DistanceFromEden { get; set; } = double.PositiveInfinity;
         public Planet() { }
     }
 
@@ -64,7 +72,11 @@ namespace AngkorWat.Components
         [JsonProperty("fuelDiff")]
         public int FuelDiff { get; set; }
         [JsonProperty("planetDiffs")]
-        public PlanetDiff PlanetDiff { get; set; } = new();
+        public List<PlanetDiff> PlanetDiff { get; set; } = new();
+        [JsonProperty("planetGarbage")]
+        public Dictionary<string, List<List<int>>> PlanetGarbage { get; set; } = new();
+        [JsonProperty("shipGarbage")]
+        public Dictionary<string, List<List<int>>> ShipGarbage { get; set; } = new();
     }
     internal class PlanetDiff
     {
@@ -74,10 +86,6 @@ namespace AngkorWat.Components
         public string LocationTo { get; set; } = string.Empty;
         [JsonProperty("fuel")]
         public int Fuel { get; set; }
-        [JsonProperty("planetGarbage")]
-        public Dictionary<string, List<List<int>>> PlanetGarbage { get; set; } = new();
-        [JsonProperty("shipGarbage")]
-        public Dictionary<string, List<List<int>>> ShipGarbage { get; set; } = new();
         public PlanetDiff() { }
     }
 

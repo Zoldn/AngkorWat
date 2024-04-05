@@ -12,15 +12,14 @@ namespace AngkorWat.Components
     /// </summary>
     internal class Data
     {
-        /// <summary>
-        /// Id карты
-        /// </summary>
-        public string MapId { get; init; }
-        
-        
+        public Dictionary<string, Planet> Planets { get; set; } = new();
+        public List<Route> Routes { get; set; } = new();
+        public ILookup<Planet, Route> RoutesFrom { get; set; }
+        public ILookup<Planet, Route> RoutesTo { get; set; }
+        public Ship Ship { get; internal set; }
+
         public Data()
         {
-            MapId = string.Empty;
         }
     }
 }
