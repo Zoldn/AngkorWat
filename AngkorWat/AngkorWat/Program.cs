@@ -32,6 +32,7 @@ internal class Program
 
         //Console.WriteLine(ret2);
 
+        /*
         var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
 
         for (int i = 0; i < 3; i++)
@@ -44,6 +45,7 @@ internal class Program
 
             await ddoser.RunStep(user);
         }
+        */
 
         //Phase1.Phase1Start();
     }
