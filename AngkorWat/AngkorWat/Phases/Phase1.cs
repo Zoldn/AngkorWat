@@ -1,4 +1,5 @@
 ﻿using AngkorWat.Components;
+using AngkorWat.IO.HTTP;
 using AngkorWat.IO.JSON;
 using Newtonsoft.Json;
 using System;
@@ -11,27 +12,10 @@ namespace AngkorWat.Phases
 {
     internal static class Phase1
     {
-        public static void Phase1Start()
+        public async static Task Phase1Start()
         {
-            string mapId = "";
-
-            var inputContainer = IOHelper.ReadInputData<int>("phase1_input.json");
-
-            var data = PrepairData(mapId, inputContainer);
-
-            var outputContainer = new BaseOutputContainer(mapId);
-
-            IOHelper.SerializeResult(outputContainer);
-        }
-
-        public static Data PrepairData(string mapId, int rawData)
-        {
-            var data = new Data()
-            {
-                MapId = mapId,
-            };
-
-            return data;
+            var universeState = await HttpHelper.Get<UniverseState>(
+                "https://datsedenspace.datsteam.dev/player/universe");
         }
     }
 }
