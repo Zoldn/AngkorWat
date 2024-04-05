@@ -8,5 +8,12 @@ using System.Threading.Tasks;
 
 namespace AngkorWat.Components
 {
-    
+    internal class Universe
+    {
+        public Universe() 
+        {
+            
+            public string Name { get; set; }
+        }
+    }
 }
