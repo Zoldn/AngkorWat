@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AngkorWat.Utils;
+using System.Runtime.Intrinsics.X86;
+using System.ComponentModel.DataAnnotations;
 
 namespace AngkorWat.Algorithms
 {
@@ -29,7 +32,16 @@ namespace AngkorWat.Algorithms
 
         public GarbageItem Rotate() 
         {
-            return new GarbageItem() { Name = Name };
+            var rotatedItem = new GarbageItem() { Name = Name };
+
+            var minX = Form.Min(e => e.Y);
+            var minY = Form.Min(e => -e.X);
+
+            rotatedItem.Form = Form
+                .Select(e => (e.Y - minX, -e.X - minY))
+                .ToList();
+
+            return rotatedItem;
         }
     }
 
@@ -89,9 +101,9 @@ namespace AngkorWat.Algorithms
         }
 
         public PackingSolution Solve(int sizeX, int sizeY, List<GarbageItem> garbageItems,
-            int minLimit = 0)
+            int minLimit = 0, bool doRotate = false)
         {
-            CpModel model = new CpModel();
+            var model = new CpModel();
 
             foreach (var item in garbageItems)
             {
@@ -99,23 +111,43 @@ namespace AngkorWat.Algorithms
                 GarbageItemDVars.Add(dvar);
 
                 AddFormConstraint(model, dvar, sizeX, sizeY);
+
+                if (doRotate)
+                {
+                    var rotatedItem = item.Rotate();
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var rotatedDvar = new GarbageItemDVar(rotatedItem, model, sizeX, sizeY);
+                        GarbageItemDVars.Add(rotatedDvar);
+
+                        AddFormConstraint(model, rotatedDvar, sizeX, sizeY);
+
+                        rotatedItem = rotatedItem.Rotate();
+                    }
+                }
             }
 
             AddNoOverlapConstraint(model, sizeX, sizeY);
 
-            AddMinLimitConstraint(model, minLimit);
+            AddMinLimitConstraint(model, minLimit, garbageItems, sizeX, sizeY);
+
+            if (doRotate)
+            {
+                AddRotationConstraint(model);
+            }
 
             AddObjective(model);
 
             CpSolver solver = new CpSolver();
-            solver.StringParameters = "max_time_in_seconds:4.0";
+            solver.StringParameters = "max_time_in_seconds:5.0";
 
             CpSolverStatus status = solver.Solve(model);
 
             if (status == CpSolverStatus.Feasible
                 || status == CpSolverStatus.Optimal)
             {
-                var solution = ExtractSolution(solver);
+                var solution = ExtractSolution(solver, garbageItems);
                 PrintResult(sizeX, sizeY);
 
                 return solution;
@@ -128,11 +160,37 @@ namespace AngkorWat.Algorithms
             }
         }
 
-        private void AddMinLimitConstraint(CpModel model, int minLimit)
+        private void AddRotationConstraint(CpModel model)
         {
-            model.Add(LinearExpr.WeightedSum(
-                GarbageItemDVars.Select(e => e.IsPresentDVar), 
-                GarbageItemDVars.Select(e => e.Item.Form.Count)) >= minLimit);
+            var lu = GarbageItemDVars
+                .ToLookup(d => d.Item.Name);
+
+            foreach (var (_, items) in lu)
+            {
+                model.AddAtMostOne(items.Select(i => i.IsPresentDVar));
+            }
+        }
+
+        private void AddMinLimitConstraint(CpModel model, int minLimit, List<GarbageItem> garbageItems, 
+            int sizeX, int sizeY)
+        {
+            var totalWeight = LinearExpr.WeightedSum(
+                GarbageItemDVars.Select(e => e.IsPresentDVar),
+                GarbageItemDVars.Select(e => e.Item.Form.Count));
+
+            var b1 = model.NewBoolVar("");
+            model.Add(totalWeight >= minLimit).OnlyEnforceIf(b1);
+            model.Add(totalWeight < minLimit).OnlyEnforceIf(b1.Not());
+
+            var b2 = model.NewBoolVar("");
+            model.Add(totalWeight == garbageItems.Sum(e => e.Form.Count)).OnlyEnforceIf(b2);
+            model.Add(totalWeight != garbageItems.Sum(e => e.Form.Count)).OnlyEnforceIf(b2.Not());
+
+            var b3 = model.NewBoolVar("");
+            model.Add(totalWeight == sizeX * sizeY).OnlyEnforceIf(b3);
+            model.Add(totalWeight != sizeX * sizeY).OnlyEnforceIf(b3.Not());
+
+            model.AddBoolOr(new List<ILiteral>() { b1, b2, b3 });
         }
 
         private void PrintResult(int sizeX, int sizeY)
@@ -180,9 +238,12 @@ namespace AngkorWat.Algorithms
 
                 Console.WriteLine();
             }
+
+            Console.WriteLine($"\nCurrent load is " +
+                $"{GarbageItemDVars.Where(e => e.IsPresentResult).Sum(e => e.Item.Form.Count)}/{sizeX * sizeY}");
         }
 
-        private PackingSolution ExtractSolution(CpSolver solver)
+        private PackingSolution ExtractSolution(CpSolver solver, List<GarbageItem> garbageItems)
         {
             var itemCount = solver.ObjectiveValue;
 
@@ -198,6 +259,21 @@ namespace AngkorWat.Algorithms
                 IsOk = true,
             };
 
+            var lu = GarbageItemDVars
+                .ToLookup(d => d.Item.Name);
+
+            foreach (var (key, items) in lu)
+            {
+                var dvar = items.FirstOrDefault(e => e.IsPresentResult) ?? items.First();
+
+                dvar.Item.X = dvar.XResult;
+                dvar.Item.Y = dvar.YResult;
+                dvar.Item.IsTaken = dvar.IsPresentResult;
+
+                packingSolution.GarbageItems.Add(dvar.Item);
+            }
+
+            /*
             foreach (var dvar in GarbageItemDVars)
             {
                 dvar.Item.X = dvar.XResult;
@@ -206,6 +282,7 @@ namespace AngkorWat.Algorithms
 
                 packingSolution.GarbageItems.Add(dvar.Item);
             }
+            */
 
             return packingSolution;
         }
