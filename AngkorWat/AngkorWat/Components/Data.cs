@@ -18,6 +18,12 @@ namespace AngkorWat.Components
         public ILookup<Planet, Route> RoutesTo { get; set; }
         public Ship Ship { get; internal set; }
 
+        public HashSet<string> BannedPlanets { get; set; } = new(); 
+        public HashSet<string> AlwaysEmpty { get; set; } = new() 
+        {
+            "Earth", "Eden",
+        };
+
         public Data()
         {
         }

@@ -44,7 +44,7 @@ namespace AngkorWat.Components
         [JsonProperty("fuelUsed")]
         public int FuelUsed { get; set; }
         [JsonProperty("garbage")]
-        public Dictionary<string, List<(int X, int Y)>> Garbage { get; set; } = new();
+        public Dictionary<string, List<List<int>>> Garbage { get; set; } = new();
         [JsonProperty("planet")]
         public Planet Planet { get; set; } = new();
         public Ship() { }
@@ -58,6 +58,10 @@ namespace AngkorWat.Components
         public Dictionary<string, List<List<int>>> Garbage { get; set; } = new();
         public double DistanceFromEden { get; set; } = double.PositiveInfinity;
         public Planet() { }
+        public override string ToString()
+        {
+            return $"{Name}";
+        }
     }
 
     internal class Travel

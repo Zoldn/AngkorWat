@@ -68,6 +68,11 @@ namespace AngkorWat.IO.HTTP
 
             Console.WriteLine(response.StatusCode);
 
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
+            }
+
             string result = response.Content.ReadAsStringAsync().Result;
 
             var ret = JsonConvert.DeserializeObject<TOutput>(result);

@@ -140,7 +140,7 @@ namespace AngkorWat.Algorithms
             AddObjective(model);
 
             CpSolver solver = new CpSolver();
-            solver.StringParameters = "max_time_in_seconds:5.0";
+            solver.StringParameters = "max_time_in_seconds:3.7192037";
 
             CpSolverStatus status = solver.Solve(model);
 

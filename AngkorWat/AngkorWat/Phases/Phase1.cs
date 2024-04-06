@@ -57,7 +57,7 @@ namespace AngkorWat.Phases
                     data.Ship.Garbage = travelResponse.ShipGarbage
                         .ToDictionary(
                             f => f.Key,
-                            f => f.Value.Select(e => (e[0], e[1])).ToList()
+                            f => f.Value.Select(e => new List<int>() { e[0], e[1] }).ToList()
                         );
                 }
                 else
@@ -65,14 +65,14 @@ namespace AngkorWat.Phases
                     data.Ship.Garbage.Clear();
                 }
 
-                Dictionary<string, List<(int, int)>> planetGarbage;
+                Dictionary<string, List<List<int>>> planetGarbage;
 
                 if (travelResponse.PlanetGarbage is not null)
                 {
                     planetGarbage = travelResponse.PlanetGarbage
                         .ToDictionary(
                             f => f.Key,
-                            f => f.Value.Select(e => (e[0], e[1])).ToList()
+                            f => f.Value.Select(e => new List<int>() { e[0], e[1] }).ToList()
                         );
                 }
                 else
@@ -82,7 +82,7 @@ namespace AngkorWat.Phases
                 
                 var totalGarbage = data.Ship.Garbage
                     .Concat(planetGarbage)
-                    .Select(e => new GarbageItem(e.Key, e.Value))
+                    .Select(e => new GarbageItem(e.Key, e.Value.Select(e => (e[0], e[1])).ToList()))
                     .ToList();
 
                 int minLimit = GetMinLimit(data);
@@ -90,21 +90,32 @@ namespace AngkorWat.Phases
                 var solution = solver.Solve(data.Ship.CapacityX, data.Ship.CapacityY, 
                     totalGarbage, minLimit);
 
-                var collectData = MakeCollectData(solution);
+                if (solution.GarbageItems.Any())
+                {
+                    var collectData = MakeCollectData(solution);
 
-                var collectRet = await HttpHelper.Post<CollectGarbage, CollectGarbageResponse>(
-                    "https://datsedenspace.datsteam.dev/player/collect", collectData);
+                    var collectRet = await HttpHelper.Post<CollectGarbage, CollectGarbageResponse>(
+                        "https://datsedenspace.datsteam.dev/player/collect", collectData);
 
-                Thread.Sleep(250);
+                    Thread.Sleep(250);
 
-                ////////////////////////
+                    ////////////////////////
+                }
+                else
+                {
+                    bannedPlanets.Add(nextPlanet);
+                }
 
-                bannedPlanets.Add(nextPlanet);
+                if (solution.GarbageItems.All(g => g.IsTaken))
+                {
+                    bannedPlanets.Add(nextPlanet);
+                }
+
                 data.Ship.Planet = nextPlanet;
             }
         }
 
-        private static CollectGarbage MakeCollectData(PackingSolution solution)
+        public static CollectGarbage MakeCollectData(PackingSolution solution)
         {
             var ret = new CollectGarbage();
 
@@ -116,10 +127,15 @@ namespace AngkorWat.Phases
                     e => e.Form.Select(f => new List<int>() { f.X + e.X, f.Y + e.Y }).ToList()
                 );
 
+            //if (ret.ShipGarbage.Count == 0)
+            //{
+            //    ret.ShipGarbage = null;
+            //}
+
             return ret;
         }
 
-        private static int GetMinLimit(Data data)
+        public static int GetMinLimit(Data data)
         {
             var currentScrap = data.Ship.Garbage.Sum(kv => kv.Value.Count);
             var maxSize = data.Ship.CapacityX * data.Ship.CapacityY;
@@ -135,7 +151,7 @@ namespace AngkorWat.Phases
             }
         }
 
-        private static void InitializeShip(Data data, UniverseState universeState)
+        public static void InitializeShip(Data data, UniverseState universeState)
         {
             data.Ship = new Ship();
 
@@ -144,6 +160,8 @@ namespace AngkorWat.Phases
             data.Ship.Planet = currentPlanet;
             data.Ship.CapacityX = universeState.Ship.CapacityX;
             data.Ship.CapacityY = universeState.Ship.CapacityY;
+
+            data.Ship.Garbage = universeState.Ship.Garbage;
         }
 
         public static void InitializePlanets(Data data, UniverseState universeState)

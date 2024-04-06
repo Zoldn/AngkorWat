@@ -22,9 +22,13 @@ internal class Program
     {
         HttpHelper.SetApiKey("66087758cce5e66087758cce65");
 
-        await Phase1.Phase1Start();
+        //await Phase1.Phase1Start();
 
         //Phase2.TestRun();
+
+        //await Phase3.Run();
+
+        await Phase4.Run();
 
         //var ret = await HttpHelper.Get("http://webcode.me");
 

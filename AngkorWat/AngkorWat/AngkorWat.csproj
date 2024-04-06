@@ -19,7 +19,9 @@
 
   <ItemGroup>
     <PackageReference Include="Google.OrTools" Version="9.5.2237" />
+    <PackageReference Include="MASES.JCOBridge" Version="2.5.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="QuickGraph" Version="3.6.61119.7" />
   </ItemGroup>
 
 </Project>
