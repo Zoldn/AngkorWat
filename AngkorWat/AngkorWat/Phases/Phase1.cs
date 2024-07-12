@@ -48,7 +48,7 @@ namespace AngkorWat.Phases
 
                 await SendCommands(data);
 
-                await Task.Delay(2000);
+                await Task.Delay(1800);
             }
         }
 
