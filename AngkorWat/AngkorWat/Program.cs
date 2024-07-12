@@ -20,7 +20,7 @@ internal class Program
 
     private static async Task Main(string[] _)
     {
-        HttpHelper.SetApiKey("6690@raTaK.u_cnaJIuJI7b99");
+        HttpHelper.SetApiKey("6690ef7cc7b956690ef7cc7b99");
 
         //var ret = await HttpHelper.Get("http://webcode.me");
 
@@ -32,18 +32,25 @@ internal class Program
 
         //Console.WriteLine(ret2);
 
-        var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
-
-        for (int i = 0; i < 3; i++)
+        var phase = new Phase1() 
         {
-            var user = new User()
-            {
-                Name = "John Doe",
-                Occupation = 100 * i,
-            };
+            IsTest = true,
+        };
 
-            await ddoser.RunStep(user);
-        }
+        await phase.Run();
+
+        //var ddoser = new DDoser<User, string>("https://httpbin.org/post", 3);
+
+        //for (int i = 0; i < 3; i++)
+        //{
+        //    var user = new User()
+        //    {
+        //        Name = "John Doe",
+        //        Occupation = 100 * i,
+        //    };
+
+        //    await ddoser.RunStep(user);
+        //}
 
         //Phase1.Phase1Start();
     }

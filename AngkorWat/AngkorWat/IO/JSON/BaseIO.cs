@@ -9,10 +9,8 @@ namespace AngkorWat.IO.JSON
 {
     internal class BaseOutputContainer
     {
-        public string mapID { get; set; }
         public BaseOutputContainer(string mapID)
         {
-            this.mapID = mapID;
         }
     }
 

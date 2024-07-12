@@ -23,6 +23,10 @@ namespace AngkorWat.IO.HTTP
         public TError? Error { get; set; } = null;
         public bool IsOk { get; set; } = true;
         internal PostResponse() { }
+        public override string ToString()
+        {
+            return $"Ok={IsOk}; {Error?.ToString() ?? string.Empty}";
+        }
     }
 
     public class GetResponse<TOutput, TError>
@@ -34,6 +38,10 @@ namespace AngkorWat.IO.HTTP
         public TError? Error { get; set; } = null;
         public bool IsOk { get; set; } = true;
         public GetResponse() { }
+        public override string ToString()
+        {
+            return $"Ok={IsOk}; {Error?.ToString() ?? string.Empty}";
+        }
     }
 
     public class HttpHelper
@@ -49,7 +57,7 @@ namespace AngkorWat.IO.HTTP
         public static void SetApiKey(string key)
         {
             ApiKey = key;
-            Client.DefaultRequestHeaders.Add("X-API-Key", ApiKey);
+            Client.DefaultRequestHeaders.Add("X-Auth-Token", ApiKey);
         }
 
         public static async Task<string> Get(string url)
