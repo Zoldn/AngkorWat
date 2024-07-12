@@ -27,7 +27,7 @@ namespace AngkorWat.Phases
 
         public async Task Run()
         {
-            IBuildStrategy buildStrategy = new DoNothingBuildStrategy();
+            IBuildStrategy buildStrategy = new DoCrossBuildStrategy();
             IShootStrategy shootStrategy = new DoNothingShootStrategy();
             IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
 
