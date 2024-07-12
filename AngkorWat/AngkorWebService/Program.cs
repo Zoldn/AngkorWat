@@ -1,4 +1,6 @@
-namespace WebApplication
+using AngkorWebService.Models;
+
+namespace AngkorWebService
 {
     public class Program
     {
@@ -7,16 +9,15 @@ namespace WebApplication
             var builder = WebApplication.CreateBuilder(args);
             var app = builder.Build();
 
-            app.MapGet("/hello", () => "Hello World!");
-            //app.MapPost("/run", RunHandler);
+            app.MapGet("/", () => "Hello World!");
+            app.MapPost("/run", RunHandler);
 
             app.Run();
         }
 
-        /*
-        public static async Task<IResult> RunHandler(InputObject inputObject)
+        public static async Task<IResult> RunHandler(TestInputObject inputObject)
         {
-            var outputObject = new OutputObject();
+            var outputObject = new TestOutputObject();
 
             Console.WriteLine(inputObject.Id);
             Console.WriteLine(inputObject.Name);
@@ -36,6 +37,5 @@ namespace WebApplication
 
             return TypedResults.Ok(outputObject);
         }
-        */
     }
 }
