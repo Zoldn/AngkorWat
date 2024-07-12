@@ -28,7 +28,7 @@ namespace AngkorWat.Phases
         public async Task Run()
         {
             IBuildStrategy buildStrategy = new DoNothingBuildStrategy();
-            IShootStrategy shootStrategy = new DoNothingShootStrategy();
+            IShootStrategy shootStrategy = new BasicShootStrategy();
             IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
 
             var data = new WorldState();
@@ -40,9 +40,15 @@ namespace AngkorWat.Phases
             {
                 await LoadDynamicData(data);
 
+                PrintCurrentState(data);
+
+                ResetCommands(data);
+
                 shootStrategy.AddCommand(data);
                 buildStrategy.AddCommand(data);
                 moveStrategy.AddCommand(data);
+
+                PrintGeneratedCommands(data);
 
                 await Task.Delay(200);
 
@@ -50,6 +56,34 @@ namespace AngkorWat.Phases
 
                 await Task.Delay(1800);
             }
+        }
+
+        private void PrintCurrentState(WorldState data)
+        {
+            Console.WriteLine($"Turn {data.DynamicWorld.Turn}: " +
+                $"baseSize={data.DynamicWorld.Base.Count}, " +
+                $"nearbyZombies={data.DynamicWorld.Zombies.Count}, " +
+                $"gold={data.DynamicWorld.Player.Gold}, " +
+                $"HP={data.DynamicWorld.Base.Sum(b => b.Health)}");
+        }
+
+        private void ResetCommands(WorldState data)
+        {
+            data.TurnCommand.ShootCommands.Clear();
+
+            foreach (var baseTile in data.DynamicWorld.Base)
+            {
+                baseTile.IsReadyToShoot = true;
+            }
+
+            data.TurnCommand.BuildCommands.Clear();
+            data.TurnCommand.MoveCommand = new();
+        }
+
+        private void PrintGeneratedCommands(WorldState data)
+        {
+            Console.WriteLine($"\tShooting {data.TurnCommand.ShootCommands.Count} base tiles, " +
+                $"building {data.TurnCommand.BuildCommands.Count} base tiles");
         }
 
         internal string GetServer()

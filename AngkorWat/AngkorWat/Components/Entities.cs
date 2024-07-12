@@ -68,6 +68,9 @@ namespace AngkorWat.Components
         public int X { get; set; }
         [JsonProperty("y")]
         public int Y { get; set; }
+
+
+        public bool IsReadyToShoot { get; set; }
         public BaseTile() { }
     }
 
@@ -126,6 +129,7 @@ namespace AngkorWat.Components
         public int X { get; set; }
         [JsonProperty("y")]
         public int Y { get; set; }
+
         public Zombie() { }
     }
 
