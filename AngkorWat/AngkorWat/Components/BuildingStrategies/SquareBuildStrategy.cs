@@ -1,5 +1,4 @@
-﻿using Google.OrTools.Sat;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +11,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public SquareBuildStrategy() { }
         // constants
         public bool todayIsSafe = true;
-        public bool debugWrite = false;
+        public bool debugWrite = true;
         public int minDistanceToSpawns = 4;
         public string headPositioning = "center";
         // end constants
@@ -92,18 +91,15 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
                 // if it is safe this turn - on every 2nd radius we will skip half of the nodes
-                if (todayIsSafe && (radius % 2 == 1))
+                if (todayIsSafe)
                 {
-                    int shift = 0;
-                    for (int skipI = 0; skipI < squareCoordinates.Count; ++skipI)
+                    squareCoordinates = squareCoordinates.Where(c => c.X % 2 == 0 && (c.Y % 2 == 0)).ToList();
+                    if (debugWrite)
                     {
-                        if (skipI % 2 == 0)
-                            shift += 1;
-                        else
-                            squareCoordinates[skipI - shift] = squareCoordinates[skipI];
+                        Console.WriteLine("Square coords safe:");
+                        squareCoordinates.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                        Console.WriteLine("\n");
                     }
-
-                    squareCoordinates.RemoveRange(squareCoordinates.Count - shift, shift);
                 }
 
                 // check if our base is already here

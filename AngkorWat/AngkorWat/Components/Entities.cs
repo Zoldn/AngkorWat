@@ -252,7 +252,7 @@ namespace AngkorWat.Components
         {
             BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
             EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
-            ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
+            //ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
         }
 
         public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)
