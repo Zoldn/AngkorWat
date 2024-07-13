@@ -42,11 +42,19 @@ namespace AngkorWat.Phases
 
             var data = new WorldState();
 
-            await LoadStaticData(data); 
-            await Task.Delay(200);
+            // constants
+            int turnsBetweenStaticUpdates = 10;
+            int lastStaticUpdate = turnsBetweenStaticUpdates;
 
             while (true)
             {
+                if (lastStaticUpdate == turnsBetweenStaticUpdates)
+                {
+                    lastStaticUpdate = 0;
+                    await LoadStaticData(data);
+                    await Task.Delay(200);
+                }
+                lastStaticUpdate++;
                 await LoadDynamicData(data);
 
                 if (DoStop(data))
