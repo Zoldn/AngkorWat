@@ -32,7 +32,8 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
-            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 10) && (newOrders.Count < 4)) {
+            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 10) && (newOrders.Count < 4))
+            {
                 minDistanceToSpawns--;
                 newOrders = squareCommands(worldState, center);
             }
@@ -105,7 +106,19 @@ namespace AngkorWat.Components.BuildingStrategies
                 // if it is safe this turn - on every 2nd radius we will skip half of the nodes
                 if (todayIsSafe)
                 {
-                    squareCoordinates = squareCoordinates.Where(c => { 
+                    squareCoordinates = squareCoordinates.Where(c =>
+                    {
+                        if (worldState.DynamicWorld.EnemyBases.Count > 0)
+                        {
+                            if (worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
+                            {
+                                return (enemyTile.X - c.X) * (enemyTile.X - c.X) + (enemyTile.Y - c.Y) * (enemyTile.Y - c.Y);
+                            }) < 36) {
+                                return true;
+                            };
+
+                        }
+
                         if (c.X % 4 == 0 && c.Y % 4 == 1)
                         {
                             return false;
@@ -147,11 +160,11 @@ namespace AngkorWat.Components.BuildingStrategies
                     }
                 }
 
-                        // if almost all coords are forbidden - ignore this rule
-                        if (antiSpawnCoords.Count < 4)
-                        {
-                            antiSpawnCoords = squareCoordinates;
-                        }
+                // if almost all coords are forbidden - ignore this rule
+                if (antiSpawnCoords.Count < 4)
+                {
+                    antiSpawnCoords = squareCoordinates;
+                }
 
                 // check if our base is already in some slots for this radius
                 List<Coordinate> isItBaseCoords = new List<Coordinate>();
@@ -189,6 +202,17 @@ namespace AngkorWat.Components.BuildingStrategies
                         Console.WriteLine("Buildable square coords:");
                         buildableCoords.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
                         Console.WriteLine("\n");
+                    }
+
+                    if ((buildableCoords.Count > remainingGold) && worldState.DynamicWorld.EnemyBases.Count > 0)
+                    {
+                        buildableCoords = buildableCoords.OrderByDescending(tile =>
+                        {
+                            return worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
+                            {
+                                return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y);
+                            });
+                        }).ToList();
                     }
 
 
