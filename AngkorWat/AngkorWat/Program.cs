@@ -38,8 +38,8 @@ internal class Program
             IsServer = true,
             //PathToDynamicData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-dynamic.json",
             //PathToStaticData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-static.json",
-            PathToDynamicData = "E:/Projects/Hackaton/Defence/realm-test-day2-14-turn-200-dynamic.json",
-            PathToStaticData = "E:/Projects/Hackaton/Defence/realm-test-day2-14-turn-200-static.json",
+            PathToDynamicData = "E:/Projects/Hackaton/Defence/realm-test-day2-15-turn-140-dynamic.json",
+            PathToStaticData = "E:/Projects/Hackaton/Defence/realm-test-day2-15-turn-140-static.json",
         };
 
         await phase.Run();

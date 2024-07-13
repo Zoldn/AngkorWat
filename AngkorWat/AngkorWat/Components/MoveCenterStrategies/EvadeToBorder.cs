@@ -69,6 +69,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
                     Console.WriteLine($"new head coords: [{newy}, {newx}]");
                     Console.WriteLine("\n");
                 }
+
                 worldState.TurnCommand.MoveCommand = new Coordinate() { X = newHead.X, Y = newHead.Y };
             } else
             {
