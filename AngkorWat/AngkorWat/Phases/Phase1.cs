@@ -36,7 +36,7 @@ namespace AngkorWat.Phases
         {
             IBuildStrategy buildStrategy = new SquareBuildStrategy() ;
             IShootStrategy shootStrategy = new BasicShootStrategy();
-            IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
+            IMoveCenterStrategy moveStrategy = new EvadeToBorder();
 
             var predictor = new ZombieTurnPredictor();
 
