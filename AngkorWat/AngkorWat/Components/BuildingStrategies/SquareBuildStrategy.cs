@@ -32,7 +32,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
-            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 10) && (newOrders.Count < 4))
+            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 12) && (newOrders.Count < 4))
             {
                 minDistanceToSpawns--;
                 newOrders = squareCommands(worldState, center);
