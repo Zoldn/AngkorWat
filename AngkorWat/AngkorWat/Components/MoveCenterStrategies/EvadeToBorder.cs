@@ -44,13 +44,27 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 return true;
             }).ToList();
 
+            if (debugWrite)
+            {
+                Console.WriteLine("SafeFromZs:");
+                tilesSafeFromZombies.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                Console.WriteLine("\n");
+            }
+
             List<BaseTile> tilesSafeFromZombiesAndEnemy = tilesSafeFromZombies.Where(tile =>
             {
                 return worldState.DynamicWorld.EnemyBases.All(enemyTile =>
                 {
-                    return Math.Abs(enemyTile.X - tile.X) > 5 && Math.Abs(enemyTile.Y - tile.Y) > 5;
+                    return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y) > 36;
                 });
             }).ToList();
+
+            if (debugWrite)
+            {
+                Console.WriteLine("tilesSafeFromZombiesAndEnemy:");
+                tilesSafeFromZombiesAndEnemy.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                Console.WriteLine("\n");
+            }
 
             tilesSafeFromZombiesAndEnemy.Sort((a, b) =>
             {
@@ -58,6 +72,13 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 float distanceB = (b.X - centerx) * (b.X - centerx) + (b.Y - centery) * (b.Y - centery);
                 return (int)Math.Round(distanceB - distanceA);
             });
+
+            if (debugWrite)
+            {
+                Console.WriteLine("Square coords:");
+                tilesSafeFromZombiesAndEnemy.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                Console.WriteLine("\n");
+            }
 
             if (tilesSafeFromZombiesAndEnemy.Count > 0)
             {
