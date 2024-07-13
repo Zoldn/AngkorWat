@@ -30,7 +30,8 @@ namespace AngkorWat.Components.BuildingStrategies
             int radius = 1;
             bool todayIsSafe = true;
 
-            bool debugWrite = false;
+            bool debugWrite = true;
+            int lastBaseRadius = 0;
 
             while (!filledToMax && remainingGold > 0)
             {
@@ -78,7 +79,20 @@ namespace AngkorWat.Components.BuildingStrategies
                 }
 
                 // check if our base is already here
-                List<Coordinate> isItBaseCoords = new List<Coordinate>();
+                List<Coordinate> isItBaseCoords = new List<Coordinate>(); 
+                if (!squareCoordinates.TrueForAll((c) =>
+                {
+                    return whatIsHere(worldState, c) != "base";
+                }))
+                {
+                    lastBaseRadius = radius;
+                }
+
+                if (radius > lastBaseRadius + 1)
+                {
+                    break;
+                }
+                    
                 if (!squareCoordinates.TrueForAll((c) =>
                 {
                     return whatIsHere(worldState, c) == "base" || !canBuildHere(worldState, c);
@@ -99,12 +113,6 @@ namespace AngkorWat.Components.BuildingStrategies
                         Console.WriteLine("Buildable square coords:");
                         buildableCoords.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
                         Console.WriteLine("\n");
-                    }
-
-                    if (buildableCoords.Count == 0)
-                    {
-                        filledToMax = true;
-                        break;
                     }
 
 
