@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.OrTools.Sat;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,12 @@ namespace AngkorWat.Components.BuildingStrategies
     internal class SquareBuildStrategy : IBuildStrategy
     {
         public SquareBuildStrategy() { }
+        // constants
+        public bool todayIsSafe = true;
+        public bool debugWrite = false;
+        public int minDistanceToSpawns = 4;
+        public string headPositioning = "center";
+        // end constants
         public void AddCommand(WorldState worldState)
         {
             if (worldState.DynamicWorld.Base.Count == 0) { return; }
@@ -21,16 +28,37 @@ namespace AngkorWat.Components.BuildingStrategies
             List<Coordinate> newOrders = squareCommands(worldState, center);
 
             worldState.TurnCommand.BuildCommands.AddRange(newOrders);
+
+            if (headPositioning == "center")
+            {
+                int totalmass = worldState.DynamicWorld.Base.Count;
+                int totalx = 0;
+                int totaly = 0;
+                worldState.DynamicWorld.Base.ForEach(tile =>
+                {
+                    totalx += tile.X;
+                    totaly += tile.Y;
+
+                });
+                float x = (float)totalx / (float)totalmass;
+                float y = (float)totaly / (float)totalmass;
+                worldState.TurnCommand.MoveCommand = new Coordinate() { X = (int)Math.Round(x, 0), Y = (int)Math.Round(y, 0) };
+
+                if (debugWrite)
+                {
+                    Console.WriteLine($"new center coords: [{{(int)Math.Round(y, 0)}}, {{(int)Math.Round(x, 0)}}]");
+                    Console.WriteLine("\n");
+                }
+            }
+
         }
         public List<Coordinate> squareCommands(WorldState worldState, Coordinate center)
         {
+
             List<Coordinate> toBuild = new List<Coordinate>();
             bool filledToMax = false;
             int remainingGold = worldState.DynamicWorld.Player.Gold;
             int radius = 1;
-            bool todayIsSafe = true;
-
-            bool debugWrite = true;
             int lastBaseRadius = 0;
 
             while (!filledToMax && remainingGold > 0)
@@ -79,7 +107,7 @@ namespace AngkorWat.Components.BuildingStrategies
                 }
 
                 // check if our base is already here
-                List<Coordinate> isItBaseCoords = new List<Coordinate>(); 
+                List<Coordinate> isItBaseCoords = new List<Coordinate>();
                 if (!squareCoordinates.TrueForAll((c) =>
                 {
                     return whatIsHere(worldState, c) != "base";
@@ -92,7 +120,7 @@ namespace AngkorWat.Components.BuildingStrategies
                 {
                     break;
                 }
-                    
+
                 if (!squareCoordinates.TrueForAll((c) =>
                 {
                     return whatIsHere(worldState, c) == "base" || !canBuildHere(worldState, c);
