@@ -33,7 +33,7 @@ namespace AngkorWat.Phases
 
         public async Task Run()
         {
-            IBuildStrategy buildStrategy = new SquareBuildStrategy();
+            IBuildStrategy buildStrategy = new SquareBuildStrategy() ;
             IShootStrategy shootStrategy = new BasicShootStrategy();
             IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
 
@@ -61,13 +61,11 @@ namespace AngkorWat.Phases
 
                 PrintGeneratedCommands(data);
 
-                break;
+                await Task.Delay(200);
 
-                //await Task.Delay(200);
+                await SendCommands(data);
 
-                //await SendCommands(data);
-
-                //await Task.Delay((int)(data.DynamicWorld.TurnEndsInMs + 200));
+                await Task.Delay((int)(data.DynamicWorld.TurnEndsInMs + 200));
             }
         }
 
@@ -233,9 +231,9 @@ namespace AngkorWat.Phases
                 return;
             }
 
-            data.DynamicWorld.IsUpdated = true;
-
             data.SetDynamicData(ret.Output);
+
+            data.DynamicWorld.IsUpdated = true;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AngkorWat.IO;
 using Newtonsoft.Json;
+using OperationsResearch.Pdlp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,7 +19,17 @@ namespace AngkorWat.Components
         public int Y { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; } = string.Empty;  
+        public ZPotType PotType { get; set; }
         public ZombieSpawn() { }
+        public void ParseType()
+        {
+            if (!EnumParserHelper.TryParseZPotType(Type, out var type))
+            {
+                throw new Exception();
+            }
+
+            PotType = type.Value;
+        }
     }
     public class StaticWorld
     {
@@ -26,11 +37,16 @@ namespace AngkorWat.Components
         public string RealName { get; set; } = string.Empty;
         [JsonProperty("zpots")]
         public List<ZombieSpawn> ZPots { get; set; } = new();
+        public Dictionary<(int, int), ZombieSpawn> ZPotsDict = new();
         public StaticWorld() { }
 
         internal void FillNullLists()
         {
             ZPots ??= new();
+        }
+        internal void FillDict()
+        {
+            ZPotsDict = ZPots.ToDictionary(b => (b.X, b.Y)); 
         }
     }
 
@@ -49,6 +65,13 @@ namespace AngkorWat.Components
 
     public class Coordinate
     {
+        public Coordinate() { }
+        public Coordinate(Coordinate c)
+        {
+            X = c.X; 
+            Y = c.Y;
+        }
+
         [JsonProperty("x")]
         public int X { get; set; }
         [JsonProperty("y")]
@@ -77,6 +100,19 @@ namespace AngkorWat.Components
 
         public bool IsReadyToShoot { get; set; }
         public BaseTile() { }
+
+        public BaseTile(BaseTile c)
+        {
+            Attack = c.Attack;
+            Health = c.Health;
+            Id = c.Id;
+            LastAttack = new Coordinate() { X = c.LastAttack.X, Y = c.LastAttack.Y };
+            Range = c.Range;
+            X = c.X;
+            Y = c.Y;
+            IsHead = c.IsHead;
+            IsReadyToShoot = c.IsReadyToShoot;
+        }
     }
 
     public class EnemyBaseTile
@@ -96,6 +132,17 @@ namespace AngkorWat.Components
         [JsonProperty("y")]
         public int Y { get; set; }
         public EnemyBaseTile() { }
+
+        public EnemyBaseTile(EnemyBaseTile e)
+        {
+            e.Attack = Attack;
+            e.Health = Health;
+            e.Id = Id;
+            e.IsHead = IsHead;
+            e.LastAttack = new Coordinate(e.LastAttack);
+            e.X = X;
+            e.Y = Y;
+        }
     }
 
     public class Player
@@ -134,8 +181,41 @@ namespace AngkorWat.Components
         public int X { get; set; }
         [JsonProperty("y")]
         public int Y { get; set; }
-
+        public ZombieType ZombieTypeEnum { get; set; }
+        public DirectionType DirectionEnum { get; set; }
         public Zombie() { }
+
+        public Zombie(Zombie zombie)
+        {
+            Attack = zombie.Attack;
+            Health = zombie.Health;
+            Direction = zombie.Direction;
+            Id = zombie.Id;
+            Speed = zombie.Speed;
+            Type = zombie.Type;
+            WaitTurns = zombie.WaitTurns;
+            X = zombie.X;
+            Y = zombie.Y;
+            ZombieTypeEnum = zombie.ZombieTypeEnum;
+            DirectionEnum = zombie.DirectionEnum;
+        }
+
+        internal void ParseTypes()
+        {
+            if (!EnumParserHelper.TryParseZombieType(Type, out var ztype))
+            {
+                throw new Exception();
+            }
+
+            ZombieTypeEnum = ztype.Value;
+
+            if (!EnumParserHelper.TryParseZombieDirection(Direction, out var dir))
+            {
+                throw new Exception();
+            }
+
+            DirectionEnum = dir.Value;
+        }
     }
 
     public class DynamicWorld
@@ -158,13 +238,21 @@ namespace AngkorWat.Components
         /// Удалось ли получить последнюю актуальную информацию по раунду
         /// </summary>
         public bool IsUpdated { get; set; }
+        public Dictionary<(int, int), BaseTile> BaseTileDict { get; set; } = new();
+        public Dictionary<(int, int), EnemyBaseTile> EnemyBasesDict { get; set; } = new();
+        public Dictionary<(int, int), Zombie> ZombiesDict { get; set; } = new();
         public DynamicWorld() { }
-
         internal void FillNullLists()
         {
             Base ??= new();
             EnemyBases ??= new();
             Zombies ??= new();
+        }
+        internal void FillDicts()
+        {
+            BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
+            EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
+            ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
         }
 
         public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)
