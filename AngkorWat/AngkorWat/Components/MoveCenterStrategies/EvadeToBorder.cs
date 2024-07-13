@@ -12,12 +12,18 @@ namespace AngkorWat.Components.MoveCenterStrategies
         public EvadeToBorder() { }
         // constants
         public bool debugWrite = false;
+        public bool goToSafe = false;
         // end constants
         public void AddCommand(WorldState worldState)
         {
             if (worldState.DynamicWorld.Base.Count == 0) { return; }
             BaseTile head = worldState.DynamicWorld.Base.Find(tile => tile.IsHead);
             if (head == null) { return; }
+
+            if (worldState.DynamicWorld.Turn > 140)
+            {
+                goToSafe = true;
+            }
 
             var predictor = new ZombieTurnPredictor();
             var nextTurn = predictor.GetNextTurnWorld(worldState, worldState.DynamicWorld);
@@ -66,6 +72,8 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 Console.WriteLine("\n");
             }
 
+            if (!goToSafe) { 
+            }
             tilesSafeFromZombiesAndEnemy.Sort((a, b) =>
             {
                 float distanceA = (a.X - centerx) * (a.X - centerx) + (a.Y - centery) * (a.Y - centery);
@@ -83,6 +91,11 @@ namespace AngkorWat.Components.MoveCenterStrategies
             if (tilesSafeFromZombiesAndEnemy.Count > 0)
             {
                 var newHead = tilesSafeFromZombiesAndEnemy[0];
+                if (goToSafe)
+                {
+                    newHead = tilesSafeFromZombiesAndEnemy[tilesSafeFromZombiesAndEnemy.Count - 1];
+                }
+
                 int newx = newHead.X;
                 int newy = newHead.Y;
                 if (debugWrite)
