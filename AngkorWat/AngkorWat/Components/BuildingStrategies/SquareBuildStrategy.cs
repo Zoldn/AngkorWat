@@ -115,7 +115,7 @@ namespace AngkorWat.Components.BuildingStrategies
                     }
                 }
 
-                // check if our base is already here
+                // check if our base is already in some slots for this radius
                 List<Coordinate> isItBaseCoords = new List<Coordinate>();
                 if (!antiSpawnCoords.TrueForAll((c) =>
                 {
@@ -125,6 +125,7 @@ namespace AngkorWat.Components.BuildingStrategies
                     lastBaseRadius = radius;
                 }
 
+                // if there were no base tile on this and previous radius - break
                 if (radius > lastBaseRadius + 1)
                 {
                     break;
