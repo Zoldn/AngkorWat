@@ -24,10 +24,12 @@ namespace AngkorWat.Components.BuildingStrategies
         }
         public List<Coordinate> squareCommands(WorldState worldState, Coordinate center)
         {
-            List<Coordinate> result = new List<Coordinate>();
+            List<Coordinate> toBuild = new List<Coordinate>();
             bool filledToMax = false;
             int remainingGold = worldState.DynamicWorld.Player.Gold;
             int radius = 1;
+
+            bool debugWrite = false;
 
             while (!filledToMax && remainingGold > 0)
             {
@@ -51,9 +53,12 @@ namespace AngkorWat.Components.BuildingStrategies
                     squareCoordinates.Add(new Coordinate() { X = center.X + radius, Y = y });
                 }
 
-                Console.WriteLine("Square coords:");
-                Console.WriteLine(squareCoordinates.ToArray());
-                Console.WriteLine("\n");
+                if (debugWrite)
+                {
+                    Console.WriteLine("Square coords:");
+                    squareCoordinates.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                    Console.WriteLine("\n");
+                }
 
                 // check if we can add anything to a square
                 List<Coordinate> buildableCoords = new List<Coordinate>();
@@ -65,9 +70,12 @@ namespace AngkorWat.Components.BuildingStrategies
                     }
                 });
 
-                Console.WriteLine("Buildable square coords:");
-                Console.WriteLine(squareCoordinates.ToArray());
-                Console.WriteLine("\n");
+                if (debugWrite)
+                {
+                    Console.WriteLine("Buildable square coords:");
+                    buildableCoords.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                    Console.WriteLine("\n");
+                }
 
                 if (buildableCoords.Count == 0)
                 {
@@ -78,7 +86,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
                 // filling commands from  buildableCoords limiting by gold
                 int toImport = Math.Min(remainingGold, buildableCoords.Count);
-                List<Coordinate> toBuild = buildableCoords.GetRange(0, toImport);
+                toBuild.AddRange(buildableCoords.GetRange(0, toImport));
 
                 // removing spend gold
                 remainingGold = remainingGold - toImport;
@@ -87,8 +95,14 @@ namespace AngkorWat.Components.BuildingStrategies
                 ++radius;
             }
 
+            if (debugWrite)
+            {
+                Console.WriteLine("tobuild square coords:");
+                toBuild.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                Console.WriteLine("\n");
+            }
 
-            return result;
+            return toBuild;
         }
         public string whatIsHere(WorldState worldState, Coordinate coords)
         {

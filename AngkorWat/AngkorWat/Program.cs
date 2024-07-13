@@ -36,8 +36,8 @@ internal class Program
         {
             IsTest = true,
             IsServer = false,
-            PathToDynamicData = "E:/Projects/Hackaton/Defence/res-11-dynamic.json",
-            PathToStaticData = "E:/Projects/Hackaton/Defence/res-11-static.json",
+            PathToDynamicData = "C:/Users/8tirv/Downloads/res-11-dynamic.json",
+            PathToStaticData = "C:/Users/8tirv/Downloads/res-11-static.json",
         };
 
         await phase.Run();
