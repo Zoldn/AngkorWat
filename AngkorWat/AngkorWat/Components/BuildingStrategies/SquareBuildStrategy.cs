@@ -12,7 +12,6 @@ namespace AngkorWat.Components.BuildingStrategies
         public SquareBuildStrategy() { }
         // constants
         public bool todayIsSafe = true;
-        //public int safeUntilTurn = 140;
         public bool debugWrite = true;
         public int minDistanceToSpawns = 2;
         public string headPositioning = "evade";
@@ -32,32 +31,6 @@ namespace AngkorWat.Components.BuildingStrategies
 
             worldState.TurnCommand.BuildCommands.AddRange(newOrders);
 
-            // changing base center
-
-            var predictor = new ZombieTurnPredictor();
-            var nextTurn = predictor.GetNextTurnWorld(worldState, worldState.DynamicWorld);
-
-            if (headPositioning == "center")
-            {
-                int totalmass = worldState.DynamicWorld.Base.Count;
-                int totalx = 0;
-                int totaly = 0;
-                worldState.DynamicWorld.Base.ForEach(tile =>
-                {
-                    totalx += tile.X;
-                    totaly += tile.Y;
-
-                });
-                float x = (float)totalx / (float)totalmass;
-                float y = (float)totaly / (float)totalmass;
-                worldState.TurnCommand.MoveCommand = new Coordinate() { X = (int)Math.Round(x, 0), Y = (int)Math.Round(y, 0) };
-
-                if (debugWrite)
-                {
-                    Console.WriteLine($"new center coords: [{(int)Math.Round(y, 0)}, {(int)Math.Round(x, 0)}]");
-                    Console.WriteLine("\n");
-                }
-            }
 
         }
         public List<Coordinate> squareCommands(WorldState worldState, Coordinate center)
