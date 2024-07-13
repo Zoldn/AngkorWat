@@ -53,12 +53,18 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
                 if (worldState.StaticWorld.ZPots.Count > 0)
                 {
-                    if (worldState.StaticWorld.ZPots.Any(spot =>
+                    if (worldState.StaticWorld.ZPots.All(spot =>
                     {
-                        return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
-                    })) 
+                        return (spot.Type != "wall");
+                    }))
                     {
-                        return false;
+                        if (worldState.StaticWorld.ZPots.Any(spot =>
+                        {
+                            return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
+                        }))
+                        {
+                            return false;
+                        }
                     }
                 }
 
