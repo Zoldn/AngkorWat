@@ -61,11 +61,17 @@ namespace AngkorWat.Phases
 
                 PrintGeneratedCommands(data);
 
-                await Task.Delay(200);
+                if (IsServer)
+                {
+                    await Task.Delay(200);
 
-                await SendCommands(data);
+                    await SendCommands(data);
 
-                await Task.Delay((int)(data.DynamicWorld.TurnEndsInMs + 200));
+                    await Task.Delay((int)(data.DynamicWorld.TurnEndsInMs + 200));
+                } else
+                {
+                    break;
+                }
             }
         }
 
