@@ -61,7 +61,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
             {
                 return worldState.DynamicWorld.EnemyBases.All(enemyTile =>
                 {
-                    return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y) > 100;
+                    return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y) > 36;
                 });
             }).ToList();
 
