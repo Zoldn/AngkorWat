@@ -14,7 +14,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public bool todayIsSafe = true;
         public bool debugWrite = false;
         public int minDistanceToSpawns = 6;
-        public int minDistanceToEnemys = 6;
+        public int minDistanceToEnemys = 5;
         public int setMinDistanceToOneAfterTurn = 130;
         // end constants
         public void AddCommand(WorldState worldState)
@@ -117,7 +117,7 @@ namespace AngkorWat.Components.BuildingStrategies
                                 return (enemyTile.X - c.X) * (enemyTile.X - c.X) + (enemyTile.Y - c.Y) * (enemyTile.Y - c.Y);
                             });
 
-                            if (minDistToEnemy < minDistanceToEnemys * minDistanceToEnemys) {
+                            if (minDistToEnemy <= minDistanceToEnemys * minDistanceToEnemys) {
                                 return true;
                             };
                         }
@@ -209,7 +209,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
                     if ((buildableCoords.Count > remainingGold) && worldState.DynamicWorld.EnemyBases.Count > 0)
                     {
-                        buildableCoords = buildableCoords.OrderByDescending(tile =>
+                        buildableCoords = buildableCoords.OrderBy(tile =>
                         {
                             return worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
                             {
