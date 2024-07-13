@@ -13,10 +13,9 @@ namespace AngkorWat.Components.BuildingStrategies
         {
             if (worldState.DynamicWorld.Base.Count == 0) { return; }
 
+            BaseTile? head = worldState.DynamicWorld.Base.FirstOrDefault(tile => tile.IsHead);
 
-            BaseTile head = worldState.DynamicWorld.Base.Find(tile => tile.IsHead);
             if (head == null) { return; }
-
 
             int maxX = worldState.DynamicWorld.Base.Max(r => r.X);
             int maxY = worldState.DynamicWorld.Base.Max(r => r.Y);
@@ -30,7 +29,6 @@ namespace AngkorWat.Components.BuildingStrategies
                 worldState.TurnCommand.BuildCommands.Add(new Coordinate() { X = head.X, Y = minY - 1 });
                 worldState.TurnCommand.BuildCommands.Add(new Coordinate() { X = head.X, Y = maxY + 1 });
             }
-
         }
     }
 }

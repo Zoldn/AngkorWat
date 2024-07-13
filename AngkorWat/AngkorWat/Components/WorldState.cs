@@ -22,5 +22,18 @@ namespace AngkorWat.Components
         {
 
         }
+
+        internal void SetStaticData(StaticWorld output)
+        {
+            StaticWorld = output;
+
+            StaticWorld.FillNullLists();
+        }
+
+        internal void SetDynamicData(DynamicWorld dynamicData)
+        {
+            DynamicWorld = dynamicData;
+            DynamicWorld.FillNullLists();
+        }
     }
 }
