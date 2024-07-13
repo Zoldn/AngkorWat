@@ -14,7 +14,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public bool todayIsSafe = true;
         public bool debugWrite = false;
         public int minDistanceToSpawns = 6;
-        public int minDistanceToEnemys = 7;
+        public int minDistanceToEnemys = 6;
         public int setMinDistanceToOneAfterTurn = 130;
         // end constants
         public void AddCommand(WorldState worldState)

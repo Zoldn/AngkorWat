@@ -14,7 +14,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
         public bool debugWrite = false;
         public bool goToSafe = false;
         public int timeToSafe = 80;
-        public int safeDistanceToSpots = 4;
+        public int safeDistanceToSpots = 5;
         public int safeDistanceToEnemySquared = 36;
         // end constants
         public void AddCommand(WorldState worldState)
