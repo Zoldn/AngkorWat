@@ -96,15 +96,28 @@ namespace AngkorWat.Components.BuildingStrategies
                     squareCoordinates = squareCoordinates.Where(c => c.X % 2 == 0 && (c.Y % 2 == 0)).ToList();
                     if (debugWrite)
                     {
-                        Console.WriteLine("Square coords safe:");
+                        Console.WriteLine("Square coords hexed:");
                         squareCoordinates.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
                         Console.WriteLine("\n");
                     }
                 }
 
+                // remove coords which are too close to spawns
+                List<Coordinate> antiSpawnCoords = squareCoordinates;
+                if (minDistanceToSpawns > 1)
+                {
+                    antiSpawnCoords = squareCoordinates.Where(c => coordIsFarFromSpawn(worldState, c)).ToList();
+
+                    // if all coords are forbidden - ignore this rule
+                    if (antiSpawnCoords.Count == 0)
+                    {
+                        antiSpawnCoords = squareCoordinates;
+                    }
+                }
+
                 // check if our base is already here
                 List<Coordinate> isItBaseCoords = new List<Coordinate>();
-                if (!squareCoordinates.TrueForAll((c) =>
+                if (!antiSpawnCoords.TrueForAll((c) =>
                 {
                     return whatIsHere(worldState, c) != "base";
                 }))
@@ -117,14 +130,14 @@ namespace AngkorWat.Components.BuildingStrategies
                     break;
                 }
 
-                if (!squareCoordinates.TrueForAll((c) =>
+                if (!antiSpawnCoords.TrueForAll((c) =>
                 {
                     return whatIsHere(worldState, c) == "base" || !canBuildHere(worldState, c);
                 }))
                 {
                     // check if we can add anything to a square
                     List<Coordinate> buildableCoords = new List<Coordinate>();
-                    squareCoordinates.ForEach((Coordinate c) =>
+                    antiSpawnCoords.ForEach((Coordinate c) =>
                     {
                         if (whatIsHere(worldState, c) == "nothing" && canBuildHere(worldState, c))
                         {
@@ -161,6 +174,25 @@ namespace AngkorWat.Components.BuildingStrategies
             }
 
             return toBuild;
+        }
+        public bool coordIsFarFromSpawn(WorldState worldState, Coordinate coords)
+        {
+            List<Coordinate> coordsToCheck = new List<Coordinate>();
+            for (int i = -minDistanceToSpawns; i <= minDistanceToSpawns; ++i)
+            {
+                coordsToCheck.Add(new Coordinate() { X = coords.X + i, Y = coords.Y });
+                coordsToCheck.Add(new Coordinate() { X = coords.X, Y = coords.Y + i });
+            }
+
+            return coordsToCheck.TrueForAll(c =>
+            {
+                string here = whatIsHere(worldState, c);
+                return here != "default";
+            }) || !coordsToCheck.TrueForAll(c =>
+            {
+                string here = whatIsHere(worldState, c);
+                return here != "wall";
+            });
         }
         public string whatIsHere(WorldState worldState, Coordinate coords)
         {
