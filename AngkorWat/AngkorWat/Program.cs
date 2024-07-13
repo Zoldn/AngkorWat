@@ -35,7 +35,7 @@ internal class Program
         var phase = new Phase1() 
         {
             IsTest = true,
-            IsServer = false,
+            IsServer = true,
             PathToDynamicData = "C:/Users/8tirv/Downloads/res-11-dynamic.json",
             PathToStaticData = "C:/Users/8tirv/Downloads/res-11-static.json",
         };
