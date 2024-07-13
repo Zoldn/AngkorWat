@@ -47,17 +47,6 @@ namespace AngkorWat.Components.ShootingStrategies
                 ShootTools.AddShootCommandForTarget(worldState, zombie);
             }
 
-            var nonDamagingZombies = worldState.DynamicWorld.Zombies
-                .Where(z => z.PossibleDamage == 0)
-                .ToList();
-
-            nonDamagingZombies.Sort(SortingDelegate);
-
-            foreach (var zombie in nonDamagingZombies)
-            {
-                ShootTools.AddShootCommandForTarget(worldState, zombie);
-            }
-
             var potentialEnemyBases = new List<EnemyBaseTile>();
 
             foreach (var enemyBase in worldState.DynamicWorld.EnemyBases)
@@ -74,24 +63,48 @@ namespace AngkorWat.Components.ShootingStrategies
             {
                 ShootTools.AddShootCommandForTarget(worldState, enemy);
             }
-        }
 
+            var nonDamagingZombies = worldState.DynamicWorld.Zombies
+                .Where(z => z.PossibleDamage == 0)
+                .ToList();
+
+            nonDamagingZombies.Sort(SortingDelegate);
+
+            //Print(nonDamagingZombies);
+
+            foreach (var zombie in nonDamagingZombies)
+            {
+                ShootTools.AddShootCommandForTarget(worldState, zombie);
+            }
+
+            
+        }
+        public void Print(List<Zombie> zombies)
+        {
+            foreach (var zombie in zombies) 
+            {
+                Console.WriteLine($">>> {zombie.ZombieTypeEnum}, " +
+                    $"dist={ShootTools.GetDistanceFromBaseToZombie(_baseCenter, zombie)}, " +
+                    $"dmg={zombie.PossibleDamage}, " +
+                    $"pr={_priorities[zombie.ZombieTypeEnum]}");
+            }
+        }
         private int SortingDelegate(Zombie x, Zombie y)
         {
             if (x.ZombieTypeEnum == ZombieType.Jaggernaut 
                 && y.ZombieTypeEnum != ZombieType.Jaggernaut) 
             {
-                return 1;
+                return -1;
             }
 
             if (x.ZombieTypeEnum != ZombieType.Jaggernaut
                 && y.ZombieTypeEnum == ZombieType.Jaggernaut)
             {
-                return -1;
+                return 1;
             }
 
-            double distanceForX = ShootTools.GetDistanceFromBaseToZombie(_baseCenter, x);
-            double distanceForY = ShootTools.GetDistanceFromBaseToZombie(_baseCenter, y);
+            int distanceForX = (int)Math.Floor(ShootTools.GetDistanceFromBaseToZombie(_baseCenter, x) / 5.0d);
+            int distanceForY = (int)Math.Floor(ShootTools.GetDistanceFromBaseToZombie(_baseCenter, y) / 5.0d);
 
             if (distanceForX != distanceForY)
             {

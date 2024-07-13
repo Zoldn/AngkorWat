@@ -70,7 +70,7 @@ namespace AngkorWat.Components.ShootingStrategies
                     continue;
                 }
 
-                if (ShootTools.GetDistanceFromBaseToEnemy(baseTile, enemyBase) > baseTile.Range)
+                if (GetDistanceFromBaseToEnemy(baseTile, enemyBase) > baseTile.Range)
                 {
                     continue;
                 }

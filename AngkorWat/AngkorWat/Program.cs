@@ -35,11 +35,11 @@ internal class Program
         var phase = new Phase1() 
         {
             IsTest = true,
-            IsServer = true,
-            PathToDynamicData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-dynamic.json",
-            PathToStaticData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-static.json",
-            //PathToDynamicData = "E:/Projects/Hackaton/Defence/res-11-dynamic.json",
-            //PathToStaticData = "E:/Projects/Hackaton/Defence/res-11-static.json",
+            IsServer = false,
+            //PathToDynamicData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-dynamic.json",
+            //PathToStaticData = "C:/Users/8tirv/Downloads/Telegram Desktop/realm-test-day2-5-turn-175-static.json",
+            PathToDynamicData = "E:/Projects/Hackaton/Defence/realm-test-day2-14-turn-200-dynamic.json",
+            PathToStaticData = "E:/Projects/Hackaton/Defence/realm-test-day2-14-turn-200-static.json",
         };
 
         await phase.Run();
