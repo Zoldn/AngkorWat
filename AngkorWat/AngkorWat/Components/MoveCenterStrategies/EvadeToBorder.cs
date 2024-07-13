@@ -13,6 +13,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
         // constants
         public bool debugWrite = false;
         public bool goToSafe = false;
+        public int timeToSafe = 120;
         // end constants
         public void AddCommand(WorldState worldState)
         {
@@ -20,7 +21,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
             BaseTile head = worldState.DynamicWorld.Base.Find(tile => tile.IsHead);
             if (head == null) { return; }
 
-            if (worldState.DynamicWorld.Turn > 140)
+            if (worldState.DynamicWorld.Turn > timeToSafe)
             {
                 goToSafe = true;
             }
@@ -47,6 +48,18 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 {
                     return false;
                 }
+
+                if (worldState.StaticWorld.ZPots.Count > 0)
+                {
+                    if (worldState.StaticWorld.ZPots.Any(spot =>
+                    {
+                        return (spot.Type == "default") && ((spot.X - tile.X < 4) || (spot.Y - tile.Y < 4));
+                    }))
+                    {
+                        return false;
+                    }
+                }
+
                 return true;
             }).ToList();
 
