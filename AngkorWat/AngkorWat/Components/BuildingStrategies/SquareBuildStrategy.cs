@@ -28,6 +28,7 @@ namespace AngkorWat.Components.BuildingStrategies
             bool filledToMax = false;
             int remainingGold = worldState.DynamicWorld.Player.Gold;
             int radius = 1;
+            bool todayIsSafe = true;
 
             bool debugWrite = false;
 
@@ -36,21 +37,21 @@ namespace AngkorWat.Components.BuildingStrategies
                 // work with square with side = radius * 2 + 1 around coords
                 List<Coordinate> squareCoordinates = new List<Coordinate>();
                 // adding all coords from top-left going clockwise
-                for (int x = center.X - radius; x <= center.X + radius; x++)
-                {
-                    squareCoordinates.Add(new Coordinate() { X = x, Y = center.Y + radius });
-                }
-                for (int y = center.Y - radius + 1; y <= center.Y + radius; y++)
-                {
-                    squareCoordinates.Add(new Coordinate() { X = center.X + radius, Y = y });
-                }
-                for (int x = center.X + radius - 1; x >= center.X - radius; x--)
+                for (int x = center.X - radius; x < center.X + radius; x++)
                 {
                     squareCoordinates.Add(new Coordinate() { X = x, Y = center.Y - radius });
                 }
-                for (int y = center.Y + radius - 1; y > center.Y - radius; y--)
+                for (int y = center.Y - radius; y < center.Y + radius; y++)
                 {
                     squareCoordinates.Add(new Coordinate() { X = center.X + radius, Y = y });
+                }
+                for (int x = center.X + radius; x > center.X - radius; x--)
+                {
+                    squareCoordinates.Add(new Coordinate() { X = x, Y = center.Y + radius });
+                }
+                for (int y = center.Y + radius; y > center.Y - radius; y--)
+                {
+                    squareCoordinates.Add(new Coordinate() { X = center.X - radius, Y = y });
                 }
 
                 if (debugWrite)
@@ -58,6 +59,22 @@ namespace AngkorWat.Components.BuildingStrategies
                     Console.WriteLine("Square coords:");
                     squareCoordinates.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
                     Console.WriteLine("\n");
+                }
+
+
+                // if it is safe this turn - on every 2nd radius we will skip half of the nodes
+                if (todayIsSafe && radius % 2 == 1)
+                {
+                    int shift = 0;
+                    for (int skipI = 0; skipI < squareCoordinates.Count; ++skipI)
+                    {
+                        if (skipI % 2 == 0)
+                            shift += 1;
+                        else
+                            squareCoordinates[skipI - shift] = squareCoordinates[skipI];
+                    }
+
+                    squareCoordinates.RemoveRange(squareCoordinates.Count - shift, shift);
                 }
 
                 // check if our base is already here
