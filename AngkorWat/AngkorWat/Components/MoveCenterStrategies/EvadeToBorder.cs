@@ -56,7 +56,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
             {
                 float distanceA = (a.X - centerx) * (a.X - centerx) + (a.Y - centery) * (a.Y - centery);
                 float distanceB = (b.X - centerx) * (b.X - centerx) + (b.Y - centery) * (b.Y - centery);
-                return (int)(distanceA - distanceB);
+                return (int)(distanceB - distanceA);
             });
 
             if (tilesSafeFromZombiesAndEnemy.Count > 0)
