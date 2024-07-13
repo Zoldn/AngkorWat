@@ -209,7 +209,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
                     if ((buildableCoords.Count > remainingGold) && worldState.DynamicWorld.EnemyBases.Count > 0)
                     {
-                        buildableCoords = buildableCoords.OrderBy(tile =>
+                        buildableCoords = buildableCoords.OrderByDescending(tile =>
                         {
                             return worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
                             {
