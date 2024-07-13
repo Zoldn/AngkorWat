@@ -60,36 +60,45 @@ namespace AngkorWat.Components.BuildingStrategies
                     Console.WriteLine("\n");
                 }
 
-                // check if we can add anything to a square
-                List<Coordinate> buildableCoords = new List<Coordinate>();
-                squareCoordinates.ForEach((Coordinate c) =>
+                // check if our base is already here
+                List<Coordinate> isItBaseCoords = new List<Coordinate>();
+                if (!squareCoordinates.TrueForAll((c) =>
                 {
-                    if (whatIsHere(worldState, c) == "nothing" && canBuildHere(worldState, c))
+                    return whatIsHere(worldState, c) == "base";
+                }))
+                {
+                    // check if we can add anything to a square
+                    List<Coordinate> buildableCoords = new List<Coordinate>();
+                    squareCoordinates.ForEach((Coordinate c) =>
                     {
-                        buildableCoords.Add(c);
+                        if (whatIsHere(worldState, c) == "nothing" && canBuildHere(worldState, c))
+                        {
+                            buildableCoords.Add(c);
+                        }
+                    });
+
+                    if (debugWrite)
+                    {
+                        Console.WriteLine("Buildable square coords:");
+                        buildableCoords.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
+                        Console.WriteLine("\n");
                     }
-                });
 
-                if (debugWrite)
-                {
-                    Console.WriteLine("Buildable square coords:");
-                    buildableCoords.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
-                    Console.WriteLine("\n");
+                    if (buildableCoords.Count == 0)
+                    {
+                        filledToMax = true;
+                        break;
+                    }
+
+
+                    // filling commands from buildableCoords limiting by gold
+                    int toImport = Math.Min(remainingGold, buildableCoords.Count);
+                    toBuild.AddRange(buildableCoords.GetRange(0, toImport));
+
+                    // removing spend gold
+                    remainingGold = remainingGold - toImport;
                 }
 
-                if (buildableCoords.Count == 0)
-                {
-                    filledToMax = true;
-                    break;
-                }
-
-
-                // filling commands from  buildableCoords limiting by gold
-                int toImport = Math.Min(remainingGold, buildableCoords.Count);
-                toBuild.AddRange(buildableCoords.GetRange(0, toImport));
-
-                // removing spend gold
-                remainingGold = remainingGold - toImport;
 
                 // make i + 1
                 ++radius;
