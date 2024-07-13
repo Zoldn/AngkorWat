@@ -13,7 +13,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
         // constants
         public bool debugWrite = false;
         public bool goToSafe = false;
-        public int timeToSafe = 120;
+        public int timeToSafe = 80;
         // end constants
         public void AddCommand(WorldState worldState)
         {
@@ -53,8 +53,8 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 {
                     if (worldState.StaticWorld.ZPots.Any(spot =>
                     {
-                        return (spot.Type == "default") && ((spot.X - tile.X < 4) || (spot.Y - tile.Y < 4));
-                    }))
+                        return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < 4) || (Math.Abs(spot.Y - tile.Y) < 4));
+                    })) 
                     {
                         return false;
                     }
