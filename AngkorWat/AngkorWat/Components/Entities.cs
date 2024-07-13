@@ -106,7 +106,12 @@ namespace AngkorWat.Components
             Attack = c.Attack;
             Health = c.Health;
             Id = c.Id;
-            LastAttack = new Coordinate() { X = c.LastAttack.X, Y = c.LastAttack.Y };
+
+            if (c.LastAttack is not null)
+            {
+                LastAttack = new Coordinate() { X = c.LastAttack.X, Y = c.LastAttack.Y };
+            }
+            
             Range = c.Range;
             X = c.X;
             Y = c.Y;
@@ -139,7 +144,12 @@ namespace AngkorWat.Components
             e.Health = Health;
             e.Id = Id;
             e.IsHead = IsHead;
-            e.LastAttack = new Coordinate(e.LastAttack);
+
+            if (e.LastAttack is not null)
+            {
+                e.LastAttack = new Coordinate(e.LastAttack);
+            }
+            
             e.X = X;
             e.Y = Y;
         }
@@ -252,10 +262,10 @@ namespace AngkorWat.Components
         {
             BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
             EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
-            ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
+            //ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
         }
 
-        public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)
+        public bool TryGetBaseCenter([MaybeNullWhen(false)][NotNullWhen(true)] out BaseTile? baseCenter)
         {
             baseCenter = Base.FirstOrDefault(b => b.IsHead);
 

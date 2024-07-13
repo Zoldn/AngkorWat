@@ -114,17 +114,24 @@ namespace AngkorWat.Components.ShootingStrategies
             }
         }
 
-        public double GetDistanceFromBaseToZombie(BaseTile baseTile, Zombie zombie)
+        public static double GetDistanceFromBaseToZombie(BaseTile baseTile, Zombie zombie)
         {
             return Math.Sqrt((baseTile.X - zombie.X) * (baseTile.X - zombie.X) +
                 (baseTile.Y - zombie.Y) * (baseTile.Y - zombie.Y)
                 );
         }
 
-        public double GetDistanceFromBaseToEnemy(BaseTile baseTile, EnemyBaseTile enemy)
+        public static double GetDistanceFromBaseToEnemy(BaseTile baseTile, EnemyBaseTile enemy)
         {
             return Math.Sqrt((baseTile.X - enemy.X) * (baseTile.X - enemy.X) +
                 (baseTile.Y - enemy.Y) * (baseTile.Y - enemy.Y)
+                );
+        }
+
+        public static double GetDistanceFromBaseToCoordinate(BaseTile baseTile, int x, int y)
+        {
+            return Math.Sqrt((baseTile.X - x) * (baseTile.X - x) +
+                (baseTile.Y - y) * (baseTile.Y - y)
                 );
         }
 
