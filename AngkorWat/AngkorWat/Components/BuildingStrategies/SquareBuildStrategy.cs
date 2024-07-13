@@ -28,11 +28,17 @@ namespace AngkorWat.Components.BuildingStrategies
             Coordinate center = new Coordinate() { X = head.X, Y = head.Y };
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
+
+            if (worldState.DynamicWorld.Player.Gold > 30 && worldState.DynamicWorld.Turn > 130)
+            {
+                minDistanceToSpawns = 4;
+            }
             
             while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 10) && (newOrders.Count < 4)) {
                 minDistanceToSpawns--;
                 newOrders = squareCommands(worldState, center);
             }
+
 
             worldState.TurnCommand.BuildCommands.AddRange(newOrders);
         }
