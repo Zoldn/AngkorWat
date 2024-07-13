@@ -54,10 +54,9 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
             tilesSafeFromZombiesAndEnemy.Sort((a, b) =>
             {
-                float distanceA = (a.X - centerx) + (a.Y - centery);
-
-                float distanceB = (b.X - centerx) + (b.Y - centery);
-                return (int)Math.Round(distanceA - distanceB);
+                float distanceA = (a.X - centerx) * (a.X - centerx) + (a.Y - centery) * (a.Y - centery);
+                float distanceB = (b.X - centerx) * (b.X - centerx) + (b.Y - centery) * (b.Y - centery);
+                return (int)(distanceA - distanceB);
             });
 
             if (tilesSafeFromZombiesAndEnemy.Count > 0)
