@@ -35,7 +35,7 @@ namespace AngkorWat.Phases
         public async Task Run()
         {
             IBuildStrategy buildStrategy = new SquareBuildStrategy() ;
-            IShootStrategy shootStrategy = new BasicShootStrategy();
+            IShootStrategy shootStrategy = new VVShootStrategy();
             IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
 
             var predictor = new ZombieTurnPredictor();

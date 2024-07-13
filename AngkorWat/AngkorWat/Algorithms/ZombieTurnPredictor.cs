@@ -40,6 +40,7 @@ namespace AngkorWat.Algorithms
 
             foreach (var zombie in current.Zombies)
             {
+                zombie.PossibleDamage = 0;
                 RunZombie(zombie, worldState, current, next);
             }
 
@@ -145,6 +146,8 @@ namespace AngkorWat.Algorithms
         private void DamageBase(DynamicWorld next, BaseTile baseTile, Zombie zombie)
         {
             baseTile.Health -= zombie.Attack;
+
+            zombie.PossibleDamage += zombie.Attack;
 
             if (baseTile.Health < 0)
             {
@@ -270,7 +273,7 @@ namespace AngkorWat.Algorithms
             }
 
             var shift = _knightShifts
-                .OrderBy(s => BasicShootStrategy.GetDistanceFromBaseToCoordinate(baseCenter, 
+                .OrderBy(s => ShootTools.GetDistanceFromBaseToCoordinate(baseCenter, 
                     zombie.X + s.X, zombie.Y + s.Y))
                 .FirstOrDefault();
 

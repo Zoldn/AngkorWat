@@ -193,6 +193,8 @@ namespace AngkorWat.Components
         public int Y { get; set; }
         public ZombieType ZombieTypeEnum { get; set; }
         public DirectionType DirectionEnum { get; set; }
+        public int PossibleDamage { get; set; }
+
         public Zombie() { }
 
         public Zombie(Zombie zombie)
@@ -208,6 +210,7 @@ namespace AngkorWat.Components
             Y = zombie.Y;
             ZombieTypeEnum = zombie.ZombieTypeEnum;
             DirectionEnum = zombie.DirectionEnum;
+            PossibleDamage = zombie.PossibleDamage;
         }
 
         internal void ParseTypes()

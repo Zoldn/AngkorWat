@@ -15,7 +15,7 @@ namespace AngkorWat.Components.ShootingStrategies
 
             foreach (var zombie in worldState.DynamicWorld.Zombies)
             {
-                if (!IsZombieInFireRange(worldState, zombie))
+                if (!ShootTools.IsZombieInFireRange(worldState, zombie))
                 {
                     continue;
                 }
@@ -25,48 +25,14 @@ namespace AngkorWat.Components.ShootingStrategies
 
             foreach (var zombie in potentialZombies)
             {
-                BaseTile? shooter = null;
-
-                foreach (var baseTile in worldState.DynamicWorld.Base)
-                {
-                    if (!baseTile.IsReadyToShoot)
-                    {
-                        continue;
-                    }
-
-                    if (GetDistanceFromBaseToZombie(baseTile, zombie) > baseTile.Range)
-                    {
-                        continue;
-                    }
-
-                    shooter = baseTile;
-                    baseTile.IsReadyToShoot = false;
-                    break;
-                }
-
-                if (shooter is null)
-                {
-                    continue;
-                }
-
-                worldState.TurnCommand.ShootCommands.Add(
-                    new ShootCommand() 
-                    {
-                        BlockId = shooter.Id,
-                        Target = new Coordinate()
-                        {
-                            X = zombie.X,
-                            Y = zombie.Y,
-                        }
-                    }
-                    );
+                ShootTools.AddShootCommandForTarget(worldState, zombie);
             }
 
             var potentialEnemyBases = new List<EnemyBaseTile>();
 
             foreach (var enemyBase in worldState.DynamicWorld.EnemyBases)
             {
-                if (!IsEnemyBaseInFireRange(worldState, enemyBase))
+                if (!ShootTools.IsEnemyBaseInFireRange(worldState, enemyBase))
                 {
                     continue;
                 }
@@ -85,7 +51,7 @@ namespace AngkorWat.Components.ShootingStrategies
                         continue;
                     }
 
-                    if (GetDistanceFromBaseToEnemy(baseTile, enemy) > baseTile.Range)
+                    if (ShootTools.GetDistanceFromBaseToEnemy(baseTile, enemy) > baseTile.Range)
                     {
                         continue;
                     }
@@ -112,57 +78,6 @@ namespace AngkorWat.Components.ShootingStrategies
                     }
                     );
             }
-        }
-
-        public static double GetDistanceFromBaseToZombie(BaseTile baseTile, Zombie zombie)
-        {
-            return Math.Sqrt((baseTile.X - zombie.X) * (baseTile.X - zombie.X) +
-                (baseTile.Y - zombie.Y) * (baseTile.Y - zombie.Y)
-                );
-        }
-
-        public static double GetDistanceFromBaseToEnemy(BaseTile baseTile, EnemyBaseTile enemy)
-        {
-            return Math.Sqrt((baseTile.X - enemy.X) * (baseTile.X - enemy.X) +
-                (baseTile.Y - enemy.Y) * (baseTile.Y - enemy.Y)
-                );
-        }
-
-        public static double GetDistanceFromBaseToCoordinate(BaseTile baseTile, int x, int y)
-        {
-            return Math.Sqrt((baseTile.X - x) * (baseTile.X - x) +
-                (baseTile.Y - y) * (baseTile.Y - y)
-                );
-        }
-
-        private bool IsZombieInFireRange(WorldState worldState, Zombie zombie)
-        {
-            foreach (var baseTile in worldState.DynamicWorld.Base)
-            {
-                if (GetDistanceFromBaseToZombie(baseTile, zombie) > baseTile.Range)
-                {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool IsEnemyBaseInFireRange(WorldState worldState, EnemyBaseTile enemy)
-        {
-            foreach (var baseTile in worldState.DynamicWorld.Base)
-            {
-                if (GetDistanceFromBaseToEnemy(baseTile, enemy) > baseTile.Range)
-                {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
         }
     }
 }
