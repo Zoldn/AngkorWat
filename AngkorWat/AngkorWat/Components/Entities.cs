@@ -1,5 +1,6 @@
 ﻿using AngkorWat.IO;
 using Newtonsoft.Json;
+using OperationsResearch.Pdlp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,7 +19,17 @@ namespace AngkorWat.Components
         public int Y { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; } = string.Empty;  
+        public ZPotType PotType { get; set; }
         public ZombieSpawn() { }
+        public void ParseType()
+        {
+            if (!EnumParserHelper.TryParseZPotType(Type, out var type))
+            {
+                throw new Exception();
+            }
+
+            PotType = type.Value;
+        }
     }
     public class StaticWorld
     {
@@ -134,8 +145,26 @@ namespace AngkorWat.Components
         public int X { get; set; }
         [JsonProperty("y")]
         public int Y { get; set; }
-
+        public ZombieType ZombieTypeEnum { get; set; }
+        public DirectionType DirectionEnum { get; set; }
         public Zombie() { }
+
+        internal void ParseTypes()
+        {
+            if (!EnumParserHelper.TryParseZombieType(Type, out var ztype))
+            {
+                throw new Exception();
+            }
+
+            ZombieTypeEnum = ztype.Value;
+
+            if (!EnumParserHelper.TryParseZombieDirection(Direction, out var dir))
+            {
+                throw new Exception();
+            }
+
+            DirectionEnum = dir.Value;
+        }
     }
 
     public class DynamicWorld

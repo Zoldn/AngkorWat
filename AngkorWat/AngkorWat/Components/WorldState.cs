@@ -28,12 +28,22 @@ namespace AngkorWat.Components
             StaticWorld = output;
 
             StaticWorld.FillNullLists();
+
+            foreach (var zpot in StaticWorld.ZPots)
+            {
+                zpot.ParseType();
+            }
         }
 
         internal void SetDynamicData(DynamicWorld dynamicData)
         {
             DynamicWorld = dynamicData;
             DynamicWorld.FillNullLists();
+
+            foreach (var zombie in DynamicWorld.Zombies)
+            {
+                zombie.ParseTypes();
+            }
         }
     }
 }

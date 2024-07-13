@@ -231,9 +231,9 @@ namespace AngkorWat.Phases
                 return;
             }
 
-            data.DynamicWorld.IsUpdated = true;
-
             data.SetDynamicData(ret.Output);
+
+            data.DynamicWorld.IsUpdated = true;
         }
     }
 }
