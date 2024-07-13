@@ -45,7 +45,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
                 if (debugWrite)
                 {
-                    Console.WriteLine($"new center coords: [{{(int)Math.Round(y, 0)}}, {{(int)Math.Round(x, 0)}}]");
+                    Console.WriteLine($"new center coords: [{(int)Math.Round(y, 0)}, {(int)Math.Round(x, 0)}]");
                     Console.WriteLine("\n");
                 }
             }
