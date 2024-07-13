@@ -61,6 +61,57 @@ namespace AngkorWat.Components.ShootingStrategies
                     }
                     );
             }
+
+            var potentialEnemyBases = new List<EnemyBaseTile>();
+
+            foreach (var enemyBase in worldState.DynamicWorld.EnemyBases)
+            {
+                if (!IsEnemyBaseInFireRange(worldState, enemyBase))
+                {
+                    continue;
+                }
+
+                potentialEnemyBases.Add(enemyBase);
+            }
+
+            foreach (var enemy in potentialEnemyBases)
+            {
+                BaseTile? shooter = null;
+
+                foreach (var baseTile in worldState.DynamicWorld.Base)
+                {
+                    if (!baseTile.IsReadyToShoot)
+                    {
+                        continue;
+                    }
+
+                    if (GetDistanceFromBaseToEnemy(baseTile, enemy) > baseTile.Range)
+                    {
+                        continue;
+                    }
+
+                    shooter = baseTile;
+                    baseTile.IsReadyToShoot = false;
+                    break;
+                }
+
+                if (shooter is null)
+                {
+                    continue;
+                }
+
+                worldState.TurnCommand.ShootCommands.Add(
+                    new ShootCommand()
+                    {
+                        BlockId = shooter.Id,
+                        Target = new Coordinate()
+                        {
+                            X = enemy.X,
+                            Y = enemy.Y,
+                        }
+                    }
+                    );
+            }
         }
 
         public double GetDistanceFromBaseToZombie(BaseTile baseTile, Zombie zombie)
@@ -70,11 +121,33 @@ namespace AngkorWat.Components.ShootingStrategies
                 );
         }
 
+        public double GetDistanceFromBaseToEnemy(BaseTile baseTile, EnemyBaseTile enemy)
+        {
+            return Math.Sqrt((baseTile.X - enemy.X) * (baseTile.X - enemy.X) +
+                (baseTile.Y - enemy.Y) * (baseTile.Y - enemy.Y)
+                );
+        }
+
         private bool IsZombieInFireRange(WorldState worldState, Zombie zombie)
         {
             foreach (var baseTile in worldState.DynamicWorld.Base)
             {
                 if (GetDistanceFromBaseToZombie(baseTile, zombie) > baseTile.Range)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsEnemyBaseInFireRange(WorldState worldState, EnemyBaseTile enemy)
+        {
+            foreach (var baseTile in worldState.DynamicWorld.Base)
+            {
+                if (GetDistanceFromBaseToEnemy(baseTile, enemy) > baseTile.Range)
                 {
                     continue;
                 }

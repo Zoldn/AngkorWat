@@ -180,6 +180,21 @@ namespace AngkorWat.Components
         public DirectionType DirectionEnum { get; set; }
         public Zombie() { }
 
+        public Zombie(Zombie zombie)
+        {
+            Attack = zombie.Attack;
+            Health = zombie.Health;
+            Direction = zombie.Direction;
+            Id = zombie.Id;
+            Speed = zombie.Speed;
+            Type = zombie.Type;
+            WaitTurns = zombie.WaitTurns;
+            X = zombie.X;
+            Y = zombie.Y;
+            ZombieTypeEnum = zombie.ZombieTypeEnum;
+            DirectionEnum = zombie.DirectionEnum;
+        }
+
         internal void ParseTypes()
         {
             if (!EnumParserHelper.TryParseZombieType(Type, out var ztype))
@@ -218,13 +233,19 @@ namespace AngkorWat.Components
         /// Удалось ли получить последнюю актуальную информацию по раунду
         /// </summary>
         public bool IsUpdated { get; set; }
+        public Dictionary<(int, int), BaseTile> BaseTileDict { get; set; } = new();
+        public Dictionary<(int, int), EnemyBaseTile> EnemyBasesDict { get; set; } = new();
         public DynamicWorld() { }
-
         internal void FillNullLists()
         {
             Base ??= new();
             EnemyBases ??= new();
             Zombies ??= new();
+        }
+        internal void FillDicts()
+        {
+            BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
+            EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
         }
 
         public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)

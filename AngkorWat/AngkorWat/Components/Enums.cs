@@ -33,17 +33,18 @@ namespace AngkorWat.Components
 
     public static class DirectionHelper
     {
-        private static Dictionary<DirectionType, (int, int)> DirectionVectors = new(4)
+        private static Dictionary<DirectionType, (int, int)> _directionVectors = new(4)
         {
             { DirectionType.Up, (0, 1) },
             { DirectionType.Left, (-1, 0) },
             { DirectionType.Down, (0, -1) },
             { DirectionType.Right, (1, 0) },
         };
-        //public static (int, int) GetShiftForDirection(DirectionType direction)
-        //{
 
-        //}
+        public static (int X, int Y) GetShiftForDirection(DirectionType direction)
+        {
+            return _directionVectors[direction];
+        }
     }
 
     public static class EnumParserHelper

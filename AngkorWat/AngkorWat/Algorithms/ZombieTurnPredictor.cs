@@ -22,6 +22,8 @@ namespace AngkorWat.Algorithms
                 .Select(e => new EnemyBaseTile(e))
                 .ToList();
 
+            next.FillDicts();
+
             foreach (var zombie in current.Zombies)
             {
                 RunZombie(zombie, current, next);
@@ -31,7 +33,15 @@ namespace AngkorWat.Algorithms
         }
         public void NormalHandler(Zombie zombie, DynamicWorld current, DynamicWorld next) 
         {
+            for (var step = 0; step < zombie.Speed; step++) 
+            {
+                var speedVector = DirectionHelper.GetShiftForDirection(zombie.DirectionEnum);
 
+                int futureX = zombie.X + speedVector.X * step;
+                int futureY = zombie.Y + speedVector.Y * step;
+
+                ///current.
+            }
         }
 
         public void FastHandler(Zombie zombie, DynamicWorld current, DynamicWorld next) 
@@ -61,6 +71,11 @@ namespace AngkorWat.Algorithms
 
         public void RunZombie(Zombie zombie, DynamicWorld current, DynamicWorld next)
         {
+            if (IsZombieWaiting(zombie, current, next))
+            {
+                return;
+            }
+
             switch (zombie.ZombieTypeEnum)
             {
                 case ZombieType.Normal:
@@ -84,6 +99,30 @@ namespace AngkorWat.Algorithms
                 default:
                     break;
             }
+        }
+
+        private bool IsZombieWaiting(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+            if (zombie.WaitTurns > 1)
+            {
+                var futureZombie = new Zombie(zombie);
+                futureZombie.WaitTurns -= 1;
+
+                next.Zombies.Add(futureZombie);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void KeepZombieAlive(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+            var futureZombie = new Zombie(zombie)
+            {
+                WaitTurns = 1
+            };
+
+            next.Zombies.Add(futureZombie);
         }
     }
 }

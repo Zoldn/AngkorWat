@@ -39,6 +39,7 @@ namespace AngkorWat.Components
         {
             DynamicWorld = dynamicData;
             DynamicWorld.FillNullLists();
+            DynamicWorld.FillDicts();
 
             foreach (var zombie in DynamicWorld.Zombies)
             {
