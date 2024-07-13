@@ -140,18 +140,18 @@ namespace AngkorWat.Components
 
         public EnemyBaseTile(EnemyBaseTile e)
         {
-            e.Attack = Attack;
-            e.Health = Health;
-            e.Id = Id;
-            e.IsHead = IsHead;
+            Attack = e.Attack;
+            Health = e.Health;
+            Id = e.Id;
+            IsHead = e.IsHead;
 
             if (e.LastAttack is not null)
             {
-                e.LastAttack = new Coordinate(e.LastAttack);
+                LastAttack = new Coordinate(e.LastAttack);
             }
             
-            e.X = X;
-            e.Y = Y;
+            X = e.X;
+            Y = e.Y;
         }
     }
 

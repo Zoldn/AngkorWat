@@ -13,7 +13,7 @@ namespace AngkorWat.Components.BuildingStrategies
         // constants
         public bool todayIsSafe = true;
         public bool debugWrite = false;
-        public int minDistanceToSpawns = 2;
+        public int minDistanceToSpawns = 4;
         public string headPositioning = "evade";
         // end constants
         public void AddCommand(WorldState worldState)
