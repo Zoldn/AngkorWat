@@ -11,7 +11,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
     {
         public EvadeToBorder() { }
         // constants
-        public bool debugWrite = true;
+        public bool debugWrite = false;
         // end constants
         public void AddCommand(WorldState worldState)
         {

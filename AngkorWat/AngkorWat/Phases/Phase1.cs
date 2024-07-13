@@ -34,7 +34,7 @@ namespace AngkorWat.Phases
 
         public async Task Run()
         {
-            IBuildStrategy buildStrategy = new SquareBuildStrategy() ;
+            IBuildStrategy buildStrategy = new SquareBuildStrategy();
             IShootStrategy shootStrategy = new VVShootStrategy();
             IMoveCenterStrategy moveStrategy = new EvadeToBorder();
 

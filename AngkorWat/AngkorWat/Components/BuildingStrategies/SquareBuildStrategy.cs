@@ -12,7 +12,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public SquareBuildStrategy() { }
         // constants
         public bool todayIsSafe = true;
-        public bool debugWrite = true;
+        public bool debugWrite = false;
         public int minDistanceToSpawns = 2;
         public string headPositioning = "evade";
         // end constants
