@@ -63,7 +63,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
                 // if it is safe this turn - on every 2nd radius we will skip half of the nodes
-                if (todayIsSafe && radius % 2 == 1)
+                if (todayIsSafe && (radius % 2 == 1))
                 {
                     int shift = 0;
                     for (int skipI = 0; skipI < squareCoordinates.Count; ++skipI)
@@ -81,7 +81,7 @@ namespace AngkorWat.Components.BuildingStrategies
                 List<Coordinate> isItBaseCoords = new List<Coordinate>();
                 if (!squareCoordinates.TrueForAll((c) =>
                 {
-                    return whatIsHere(worldState, c) == "base";
+                    return whatIsHere(worldState, c) == "base" || !canBuildHere(worldState, c);
                 }))
                 {
                     // check if we can add anything to a square
