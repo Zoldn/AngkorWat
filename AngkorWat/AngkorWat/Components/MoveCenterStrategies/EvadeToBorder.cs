@@ -53,14 +53,23 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
                 if (worldState.StaticWorld.ZPots.Count > 0)
                 {
-                    if (worldState.StaticWorld.ZPots.All(spot =>
+                    var closeZpots = worldState.StaticWorld.ZPots.Where(spot =>
+                    {
+                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
+                    }).ToList();
+                    var closeWalls = worldState.StaticWorld.ZPots.Where(spot =>
+                    {
+                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots - 1) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots - 1));
+                    }).ToList();
+
+                    if (closeWalls.All(spot =>
                     {
                         return (spot.Type != "wall");
                     }))
                     {
-                        if (worldState.StaticWorld.ZPots.Any(spot =>
+                        if (closeZpots.Any(spot =>
                         {
-                            return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
+                            return (spot.Type == "default");
                         }))
                         {
                             return false;
@@ -104,7 +113,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
             if (debugWrite)
             {
-                Console.WriteLine("Square coords:");
+                Console.WriteLine("Sorted coords:");
                 tilesSafeFromZombiesAndEnemy.ForEach(c => Console.Write($"[{c.Y}, {c.X}]  "));
                 Console.WriteLine("\n");
             }
