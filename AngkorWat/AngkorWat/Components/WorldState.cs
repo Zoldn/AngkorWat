@@ -22,5 +22,21 @@ namespace AngkorWat.Components
         {
 
         }
+
+        static WorldState stateNextTurnRevursive (int turns, WorldState fromState)
+        {
+            if (turns == 0) return fromState;
+
+            WorldState ret = new() { StaticWorld = fromState.StaticWorld, TurnCommand = fromState.TurnCommand };
+            DynamicWorld newDynamicWorld = new DynamicWorld() { }
+
+
+
+            return ret;
+        }
+        public WorldState stateNextTurn (int turns = 1)
+        {
+            return stateNextTurnRevursive(turns, this);
+        }
     }
 }
