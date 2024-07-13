@@ -13,7 +13,7 @@ namespace AngkorWat.Components.BuildingStrategies
         // constants
         public bool todayIsSafe = true;
         public bool debugWrite = false;
-        public int minDistanceToSpawns = 2;
+        public int minDistanceToSpawns = 4;
         public string headPositioning = "evade";
         // end constants
         public void AddCommand(WorldState worldState)
@@ -105,16 +105,23 @@ namespace AngkorWat.Components.BuildingStrategies
 
                 // remove coords which are too close to spawns
                 List<Coordinate> antiSpawnCoords = squareCoordinates;
-                if (minDistanceToSpawns > 1)
+                if ((minDistanceToSpawns > 1) && (radius > 4))
                 {
-                    antiSpawnCoords = squareCoordinates.Where(c => coordIsFarFromSpawn(worldState, c)).ToList();
-
-                    // if almost all coords are forbidden - ignore this rule
-                    if (antiSpawnCoords.Count <= 2)
+                    for (int i = minDistanceToSpawns; i > 1; --i)
                     {
-                        antiSpawnCoords = squareCoordinates;
+                        antiSpawnCoords = squareCoordinates.Where(c => coordIsFarFromSpawn(worldState, c, i)).ToList();
+                        if (antiSpawnCoords.Count > 4)
+                        {
+                            break;
+                        }
                     }
                 }
+
+                        // if almost all coords are forbidden - ignore this rule
+                        if (antiSpawnCoords.Count < 4)
+                        {
+                            antiSpawnCoords = squareCoordinates;
+                        }
 
                 // check if our base is already in some slots for this radius
                 List<Coordinate> isItBaseCoords = new List<Coordinate>();
@@ -177,10 +184,10 @@ namespace AngkorWat.Components.BuildingStrategies
 
             return toBuild;
         }
-        public bool coordIsFarFromSpawn(WorldState worldState, Coordinate coords)
+        public bool coordIsFarFromSpawn(WorldState worldState, Coordinate coords, int minDistance)
         {
             List<Coordinate> coordsToCheck = new List<Coordinate>();
-            for (int i = -minDistanceToSpawns; i <= minDistanceToSpawns; ++i)
+            for (int i = -minDistance; i <= minDistance; ++i)
             {
                 coordsToCheck.Add(new Coordinate() { X = coords.X + i, Y = coords.Y });
                 coordsToCheck.Add(new Coordinate() { X = coords.X, Y = coords.Y + i });

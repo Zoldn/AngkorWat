@@ -46,7 +46,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
             List<BaseTile> tilesSafeFromZombiesAndEnemy = tilesSafeFromZombies.Where(tile =>
             {
-                return worldState.DynamicWorld.EnemyBases.TrueForAll(enemyTile =>
+                return worldState.DynamicWorld.EnemyBases.All(enemyTile =>
                 {
                     return Math.Abs(enemyTile.X - tile.X) > 5 && Math.Abs(enemyTile.Y - tile.Y) > 5;
                 });
@@ -54,10 +54,9 @@ namespace AngkorWat.Components.MoveCenterStrategies
 
             tilesSafeFromZombiesAndEnemy.Sort((a, b) =>
             {
-                float distanceA = (a.X - centerx) + (a.Y - centery);
-
-                float distanceB = (b.X - centerx) + (b.Y - centery);
-                return (int)Math.Round(distanceA - distanceB);
+                float distanceA = (a.X - centerx) * (a.X - centerx) + (a.Y - centery) * (a.Y - centery);
+                float distanceB = (b.X - centerx) * (b.X - centerx) + (b.Y - centery) * (b.Y - centery);
+                return (int)(distanceA - distanceB);
             });
 
             if (tilesSafeFromZombiesAndEnemy.Count > 0)
@@ -70,6 +69,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
                     Console.WriteLine($"new head coords: [{newy}, {newx}]");
                     Console.WriteLine("\n");
                 }
+                worldState.TurnCommand.MoveCommand = new Coordinate() { X = newHead.X, Y = newHead.Y };
             } else
             {
                 if (debugWrite)
