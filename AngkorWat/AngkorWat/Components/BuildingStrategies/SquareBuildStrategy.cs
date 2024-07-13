@@ -14,6 +14,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public bool todayIsSafe = true;
         public bool debugWrite = false;
         public int minDistanceToSpawns = 6;
+        public int setMinDistanceToOneAfterTurn = 130;
         // end constants
         public void AddCommand(WorldState worldState)
         {
@@ -25,7 +26,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
             Coordinate center = getMassCenter(worldState);
-            if (worldState.DynamicWorld.Player.Gold > 30 && worldState.DynamicWorld.Turn > 130 && minDistanceToSpawns > 2)
+            if (worldState.DynamicWorld.Player.Gold > 30 && worldState.DynamicWorld.Turn > setMinDistanceToOneAfterTurn && minDistanceToSpawns > 2)
             {
                 minDistanceToSpawns = 1;
             }

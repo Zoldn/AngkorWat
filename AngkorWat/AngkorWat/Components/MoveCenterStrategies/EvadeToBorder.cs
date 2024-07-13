@@ -14,6 +14,8 @@ namespace AngkorWat.Components.MoveCenterStrategies
         public bool debugWrite = false;
         public bool goToSafe = false;
         public int timeToSafe = 80;
+        public int safeDistanceToSpots = 4;
+        public int safeDistanceToEnemySquared = 36;
         // end constants
         public void AddCommand(WorldState worldState)
         {
@@ -53,7 +55,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 {
                     if (worldState.StaticWorld.ZPots.Any(spot =>
                     {
-                        return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < 4) || (Math.Abs(spot.Y - tile.Y) < 4));
+                        return (spot.Type == "default") && ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
                     })) 
                     {
                         return false;
@@ -74,7 +76,7 @@ namespace AngkorWat.Components.MoveCenterStrategies
             {
                 return worldState.DynamicWorld.EnemyBases.All(enemyTile =>
                 {
-                    return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y) > 36;
+                    return (enemyTile.X - tile.X) * (enemyTile.X - tile.X) + (enemyTile.Y - tile.Y) * (enemyTile.Y - tile.Y) > safeDistanceToEnemySquared;
                 });
             }).ToList();
 
