@@ -37,11 +37,16 @@ namespace AngkorWat.Components
         public string RealName { get; set; } = string.Empty;
         [JsonProperty("zpots")]
         public List<ZombieSpawn> ZPots { get; set; } = new();
+        public Dictionary<(int, int), ZombieSpawn> ZPotsDict = new();
         public StaticWorld() { }
 
         internal void FillNullLists()
         {
             ZPots ??= new();
+        }
+        internal void FillDict()
+        {
+            ZPotsDict = ZPots.ToDictionary(b => (b.X, b.Y)); 
         }
     }
 
@@ -235,6 +240,7 @@ namespace AngkorWat.Components
         public bool IsUpdated { get; set; }
         public Dictionary<(int, int), BaseTile> BaseTileDict { get; set; } = new();
         public Dictionary<(int, int), EnemyBaseTile> EnemyBasesDict { get; set; } = new();
+        public Dictionary<(int, int), Zombie> ZombiesDict { get; set; } = new();
         public DynamicWorld() { }
         internal void FillNullLists()
         {
@@ -246,6 +252,7 @@ namespace AngkorWat.Components
         {
             BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
             EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
+            ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
         }
 
         public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)

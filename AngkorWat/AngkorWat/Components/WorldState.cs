@@ -28,6 +28,7 @@ namespace AngkorWat.Components
             StaticWorld = output;
 
             StaticWorld.FillNullLists();
+            StaticWorld.FillDict();
 
             foreach (var zpot in StaticWorld.ZPots)
             {

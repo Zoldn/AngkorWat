@@ -26,21 +26,30 @@ namespace AngkorWat.Algorithms
 
             foreach (var zombie in current.Zombies)
             {
-                RunZombie(zombie, current, next);
+                RunZombie(zombie, worldState, current, next);
             }
 
             return next;
         }
-        public void NormalHandler(Zombie zombie, DynamicWorld current, DynamicWorld next) 
+        public void NormalHandler(Zombie zombie, WorldState world, DynamicWorld current, DynamicWorld next) 
         {
+            var speedVector = DirectionHelper.GetShiftForDirection(zombie.DirectionEnum);
+
             for (var step = 0; step < zombie.Speed; step++) 
             {
-                var speedVector = DirectionHelper.GetShiftForDirection(zombie.DirectionEnum);
-
                 int futureX = zombie.X + speedVector.X * step;
                 int futureY = zombie.Y + speedVector.Y * step;
 
-                ///current.
+                if (world.StaticWorld.ZPotsDict.TryGetValue((futureX, futureY), out var wall))
+                {
+                    /// Врезались в стену, не копируемся
+                    return;
+                }
+
+                if (next.EnemyBasesDict.TryGetValue((futureX, futureY), out var enemyBase))
+                {
+                    return;
+                }
             }
         }
 
@@ -69,7 +78,7 @@ namespace AngkorWat.Algorithms
 
         }
 
-        public void RunZombie(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        public void RunZombie(Zombie zombie, WorldState world, DynamicWorld current, DynamicWorld next)
         {
             if (IsZombieWaiting(zombie, current, next))
             {
@@ -79,7 +88,7 @@ namespace AngkorWat.Algorithms
             switch (zombie.ZombieTypeEnum)
             {
                 case ZombieType.Normal:
-                    NormalHandler(zombie, current, next);
+                    NormalHandler(zombie, world, current, next);
                     break;
                 case ZombieType.Fast:
                     FastHandler(zombie, current, next);

@@ -28,7 +28,7 @@ namespace AngkorWat.Components.BuildingStrategies
             bool filledToMax = false;
             int remainingGold = worldState.DynamicWorld.Player.Gold;
             int radius = 1;
-            bool todayIsSafe = true;
+            bool todayIsSafe = false;
 
             bool debugWrite = false;
 
