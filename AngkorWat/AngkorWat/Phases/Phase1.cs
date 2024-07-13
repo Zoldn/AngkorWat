@@ -1,4 +1,5 @@
-﻿using AngkorWat.Components;
+﻿using AngkorWat.Algorithms;
+using AngkorWat.Components;
 using AngkorWat.Components.BuildingStrategies;
 using AngkorWat.Components.MoveCenterStrategies;
 using AngkorWat.Components.ShootingStrategies;
@@ -37,6 +38,8 @@ namespace AngkorWat.Phases
             IShootStrategy shootStrategy = new BasicShootStrategy();
             IMoveCenterStrategy moveStrategy = new DoNothingMoveStrategy();
 
+            var predictor = new ZombieTurnPredictor();
+
             var data = new WorldState();
 
             await LoadStaticData(data); 
@@ -58,6 +61,8 @@ namespace AngkorWat.Phases
                 shootStrategy.AddCommand(data);
                 buildStrategy.AddCommand(data);
                 moveStrategy.AddCommand(data);
+
+                //var next = predictor.GetNextTurnWorld(data, data.DynamicWorld);
 
                 PrintGeneratedCommands(data);
 
