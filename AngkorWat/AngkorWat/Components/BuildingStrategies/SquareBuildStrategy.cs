@@ -33,7 +33,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
-            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 12) && (newOrders.Count < 4))
+            while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 16) && (newOrders.Count < 4))
             {
                 minDistanceToSpawns--;
                 newOrders = squareCommands(worldState, center);
@@ -114,10 +114,9 @@ namespace AngkorWat.Components.BuildingStrategies
                             if (worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
                             {
                                 return (enemyTile.X - c.X) * (enemyTile.X - c.X) + (enemyTile.Y - c.Y) * (enemyTile.Y - c.Y);
-                            }) < 36) {
+                            }) < 50) {
                                 return true;
                             };
-
                         }
 
                         if (c.X % 4 == 0 && c.Y % 4 == 1)
@@ -149,7 +148,7 @@ namespace AngkorWat.Components.BuildingStrategies
 
                 // remove coords which are too close to spawns
                 List<Coordinate> antiSpawnCoords = squareCoordinates;
-                if ((minDistanceToSpawns > 1) && (radius > 4))
+                if ((minDistanceToSpawns > 1) && (radius > 2))
                 {
                     for (int i = minDistanceToSpawns; i > 1; --i)
                     {
