@@ -55,11 +55,11 @@ namespace AngkorWat.Components.MoveCenterStrategies
                 {
                     var closeZpots = worldState.StaticWorld.ZPots.Where(spot =>
                     {
-                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
+                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots) && (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots));
                     }).ToList();
                     var closeWalls = worldState.StaticWorld.ZPots.Where(spot =>
                     {
-                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots - 1) || (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots - 1));
+                        return ((Math.Abs(spot.X - tile.X) < safeDistanceToSpots - 1) && (Math.Abs(spot.Y - tile.Y) < safeDistanceToSpots - 1));
                     }).ToList();
 
                     if (closeWalls.All(spot =>

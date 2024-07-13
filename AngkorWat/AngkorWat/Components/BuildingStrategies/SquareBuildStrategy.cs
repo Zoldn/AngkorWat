@@ -14,6 +14,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public bool todayIsSafe = true;
         public bool debugWrite = false;
         public int minDistanceToSpawns = 6;
+        public int minDistanceToEnemys = 7;
         public int setMinDistanceToOneAfterTurn = 130;
         // end constants
         public void AddCommand(WorldState worldState)
@@ -111,10 +112,12 @@ namespace AngkorWat.Components.BuildingStrategies
                     {
                         if (worldState.DynamicWorld.EnemyBases.Count > 0)
                         {
-                            if (worldState.DynamicWorld.EnemyBases.Max(enemyTile =>
+                            var minDistToEnemy = worldState.DynamicWorld.EnemyBases.Min(enemyTile =>
                             {
                                 return (enemyTile.X - c.X) * (enemyTile.X - c.X) + (enemyTile.Y - c.Y) * (enemyTile.Y - c.Y);
-                            }) < 50) {
+                            });
+
+                            if (minDistToEnemy < minDistanceToEnemys * minDistanceToEnemys) {
                                 return true;
                             };
                         }
