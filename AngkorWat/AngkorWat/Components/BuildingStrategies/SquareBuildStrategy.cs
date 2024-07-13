@@ -25,15 +25,14 @@ namespace AngkorWat.Components.BuildingStrategies
             if (head == null) { return; }
 
 
-            Coordinate center = new Coordinate() { X = head.X, Y = head.Y };
+            Coordinate center = getMassCenter(worldState);
+            if (worldState.DynamicWorld.Player.Gold > 30 && worldState.DynamicWorld.Turn > 130 && minDistanceToSpawns > 2)
+            {
+                minDistanceToSpawns = 1;
+            }
+
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
-
-            if (worldState.DynamicWorld.Player.Gold > 30 && worldState.DynamicWorld.Turn > 130)
-            {
-                minDistanceToSpawns = 4;
-            }
-            
             while ((minDistanceToSpawns > 1) && (worldState.DynamicWorld.Player.Gold > 10) && (newOrders.Count < 4)) {
                 minDistanceToSpawns--;
                 newOrders = squareCommands(worldState, center);
@@ -41,6 +40,29 @@ namespace AngkorWat.Components.BuildingStrategies
 
 
             worldState.TurnCommand.BuildCommands.AddRange(newOrders);
+        }
+        public Coordinate getMassCenter(WorldState worldState)
+        {
+
+            int totalmass = worldState.DynamicWorld.Base.Count;
+            int totalx = 0;
+            int totaly = 0;
+            worldState.DynamicWorld.Base.ForEach(tile =>
+            {
+                totalx += tile.X;
+                totaly += tile.Y;
+
+            });
+            float centerx = (float)totalx / (float)totalmass;
+            float centery = (float)totaly / (float)totalmass;
+
+            var massCenter = new Coordinate()
+            {
+                X = (int)Math.Round(centerx, 0),
+                Y = (int)Math.Round(centery, 0)
+            };
+
+            return massCenter;
         }
         public List<Coordinate> squareCommands(WorldState worldState, Coordinate center)
         {
