@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AngkorWat.Algorithms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace AngkorWat.Components.BuildingStrategies
         public SquareBuildStrategy() { }
         // constants
         public bool todayIsSafe = true;
+        //public int safeUntilTurn = 140;
         public bool debugWrite = true;
         public int minDistanceToSpawns = 4;
         public string headPositioning = "center";
@@ -19,14 +21,21 @@ namespace AngkorWat.Components.BuildingStrategies
         {
             if (worldState.DynamicWorld.Base.Count == 0) { return; }
 
+
             BaseTile head = worldState.DynamicWorld.Base.Find(tile => tile.IsHead);
             if (head == null) { return; }
+
 
             Coordinate center = new Coordinate() { X = head.X, Y = head.Y };
 
             List<Coordinate> newOrders = squareCommands(worldState, center);
 
             worldState.TurnCommand.BuildCommands.AddRange(newOrders);
+
+            // changing base center
+
+            var predictor = new ZombieTurnPredictor();
+            var nextTurn = predictor.GetNextTurnWorld(worldState, worldState.DynamicWorld);
 
             if (headPositioning == "center")
             {
@@ -93,7 +102,26 @@ namespace AngkorWat.Components.BuildingStrategies
                 // if it is safe this turn - on every 2nd radius we will skip half of the nodes
                 if (todayIsSafe)
                 {
-                    squareCoordinates = squareCoordinates.Where(c => c.X % 2 == 0 && (c.Y % 2 == 0)).ToList();
+                    squareCoordinates = squareCoordinates.Where(c => { 
+                        if (c.X % 4 == 0 && c.Y % 4 == 1)
+                        {
+                            return false;
+                        }
+                        if (c.X % 4 == 1 && c.Y % 4 == 3)
+                        {
+                            return false;
+                        }
+                        if (c.X % 4 == 2 && c.Y % 4 == 0)
+                        {
+                            return false;
+                        }
+                        if (c.X % 4 == 3 && c.Y % 4 == 2)
+                        {
+                            return false;
+                        }
+                        return true;
+                    }).ToList();
+
                     if (debugWrite)
                     {
                         Console.WriteLine("Square coords hexed:");
@@ -108,8 +136,8 @@ namespace AngkorWat.Components.BuildingStrategies
                 {
                     antiSpawnCoords = squareCoordinates.Where(c => coordIsFarFromSpawn(worldState, c)).ToList();
 
-                    // if all coords are forbidden - ignore this rule
-                    if (antiSpawnCoords.Count == 0)
+                    // if almost all coords are forbidden - ignore this rule
+                    if (antiSpawnCoords.Count <= 2)
                     {
                         antiSpawnCoords = squareCoordinates;
                     }

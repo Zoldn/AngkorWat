@@ -261,7 +261,7 @@ namespace AngkorWat.Components
         internal void FillDicts()
         {
             BaseTileDict = Base.ToDictionary(b => (b.X, b.Y));
-            EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
+            //EnemyBasesDict = EnemyBases.ToDictionary(b => (b.X, b.Y));
             //ZombiesDict = Zombies.ToDictionary(b => (b.X, b.Y));
         }
 
