@@ -60,6 +60,13 @@ namespace AngkorWat.Components
 
     public class Coordinate
     {
+        public Coordinate() { }
+        public Coordinate(Coordinate c)
+        {
+            X = c.X; 
+            Y = c.Y;
+        }
+
         [JsonProperty("x")]
         public int X { get; set; }
         [JsonProperty("y")]
@@ -88,6 +95,19 @@ namespace AngkorWat.Components
 
         public bool IsReadyToShoot { get; set; }
         public BaseTile() { }
+
+        public BaseTile(BaseTile c)
+        {
+            Attack = c.Attack;
+            Health = c.Health;
+            Id = c.Id;
+            LastAttack = new Coordinate() { X = c.LastAttack.X, Y = c.LastAttack.Y };
+            Range = c.Range;
+            X = c.X;
+            Y = c.Y;
+            IsHead = c.IsHead;
+            IsReadyToShoot = c.IsReadyToShoot;
+        }
     }
 
     public class EnemyBaseTile
@@ -107,6 +127,17 @@ namespace AngkorWat.Components
         [JsonProperty("y")]
         public int Y { get; set; }
         public EnemyBaseTile() { }
+
+        public EnemyBaseTile(EnemyBaseTile e)
+        {
+            e.Attack = Attack;
+            e.Health = Health;
+            e.Id = Id;
+            e.IsHead = IsHead;
+            e.LastAttack = new Coordinate(e.LastAttack);
+            e.X = X;
+            e.Y = Y;
+        }
     }
 
     public class Player

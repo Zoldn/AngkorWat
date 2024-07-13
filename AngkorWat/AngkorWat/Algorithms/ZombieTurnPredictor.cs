@@ -9,25 +9,81 @@ namespace AngkorWat.Algorithms
 {
     internal class ZombieTurnPredictor
     {
-        private Dictionary<ZombieType, Action<DynamicWorld, DynamicWorld>> ZombieHandlers = new() 
-        {
-            //{ ZombieType.Normal, NormalHandler },
-        };
         public ZombieTurnPredictor() { }
         public DynamicWorld GetNextTurnWorld(WorldState worldState, DynamicWorld current) 
         {
             var next = new DynamicWorld();
 
+            next.Base = current.Base
+                .Select(c => new BaseTile(c))
+                .ToList();
+
+            next.EnemyBases = current.EnemyBases
+                .Select(e => new EnemyBaseTile(e))
+                .ToList();
+
             foreach (var zombie in current.Zombies)
             {
-
+                RunZombie(zombie, current, next);
             }
 
             return next;
         }
-        public void NormalHandler(DynamicWorld current, DynamicWorld next) 
+        public void NormalHandler(Zombie zombie, DynamicWorld current, DynamicWorld next) 
+        {
+
+        }
+
+        public void FastHandler(Zombie zombie, DynamicWorld current, DynamicWorld next) 
         {
             
+        }
+
+        public void BomberHandler(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+
+        }
+
+        public void LineHandler(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+
+        }
+
+        public void JaggernautHandler(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+
+        }
+
+        public void ChaosKnightHandler(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+
+        }
+
+        public void RunZombie(Zombie zombie, DynamicWorld current, DynamicWorld next)
+        {
+            switch (zombie.ZombieTypeEnum)
+            {
+                case ZombieType.Normal:
+                    NormalHandler(zombie, current, next);
+                    break;
+                case ZombieType.Fast:
+                    FastHandler(zombie, current, next);
+                    break;
+                case ZombieType.Bomber:
+                    BomberHandler(zombie, current, next);
+                    break;
+                case ZombieType.Liner:
+                    LineHandler(zombie, current, next);
+                    break;
+                case ZombieType.Jaggernaut:
+                    JaggernautHandler(zombie, current, next);
+                    break;
+                case ZombieType.ChaosKnight:
+                    ChaosKnightHandler(zombie, current, next);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
