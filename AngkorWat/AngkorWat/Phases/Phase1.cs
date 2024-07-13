@@ -19,6 +19,12 @@ namespace AngkorWat.Phases
         private readonly static string _prodServer = "https://games.datsteam.dev/";
 
         public bool IsTest { get; init; } = true; 
+        /// <summary>
+        /// Если true, то данные запрашиваются из сервера, если false, то из локальных файлов
+        /// </summary>
+        public bool IsServer { get; init; } = true;
+        public string PathToStaticData { get; init; } = @"E:\Projects\Hackaton\Defence\static.json";
+        public string PathToDynamicData { get; init; } = @"E:\Projects\Hackaton\Defence\dynamic.json";
 
         public Phase1() 
         {
@@ -34,11 +40,16 @@ namespace AngkorWat.Phases
             var data = new WorldState();
 
             await LoadStaticData(data); 
-            await Task.Delay(100);
+            await Task.Delay(200);
 
             while (true)
             {
                 await LoadDynamicData(data);
+
+                if (DoStop(data))
+                {
+                    break;
+                }
 
                 PrintCurrentState(data);
 
@@ -54,8 +65,24 @@ namespace AngkorWat.Phases
 
                 await SendCommands(data);
 
-                await Task.Delay(1800);
+                await Task.Delay((int)(data.DynamicWorld.TurnEndsInMs + 200));
             }
+        }
+
+        private bool DoStop(WorldState data)
+        {
+            if (!data.DynamicWorld.IsUpdated)
+            {
+                return false;
+            }
+
+            if (!data.DynamicWorld.TryGetBaseCenter(out _)) 
+            {
+                Console.WriteLine("Can't find main base in last dynamic world. YOU DIED. Sending stops");
+                return true;
+            }
+
+            return false;
         }
 
         private void PrintCurrentState(WorldState data)
@@ -108,7 +135,37 @@ namespace AngkorWat.Phases
                 return;
             }
         }
+
         internal async Task LoadStaticData(WorldState data)
+        {
+            if (IsServer) 
+            {
+                await LoadStaticDataFromServer(data);
+            }
+            else
+            {
+                LoadStaticDataFromFile(data);
+            }
+        }
+
+        internal void LoadStaticDataFromFile(WorldState data)
+        {
+            try
+            {
+                var json = File.ReadAllText(PathToStaticData);
+
+                var staticData = JsonConvert.DeserializeObject<StaticWorld>(json) ??
+                    throw new NullReferenceException("Failed to parse static data");
+
+                data.SetStaticData(staticData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        internal async Task LoadStaticDataFromServer(WorldState data)
         {
             var ret = await HttpHelper.Get<StaticWorld, ErrorRespond>(GetServer() + "play/zombidef/world");
 
@@ -124,13 +181,42 @@ namespace AngkorWat.Phases
                 return;
             }
 
-            data.StaticWorld = ret.Output;
-
-            data.StaticWorld.FillNullLists();
+            data.SetStaticData(ret.Output);            
         }
 
         internal async Task LoadDynamicData(WorldState data)
         {
+            if (IsServer)
+            {
+                await LoadDynamicDataFromServer(data);
+            }
+            else
+            {
+                LoadDynamicDataFromFile(data);
+            }
+        }
+
+        private void LoadDynamicDataFromFile(WorldState data)
+        {
+            try
+            {
+                var json = File.ReadAllText(PathToDynamicData);
+
+                var staticData = JsonConvert.DeserializeObject<DynamicWorld>(json) ??
+                    throw new NullReferenceException("Failed to parse dynamic data");
+
+                data.SetDynamicData(staticData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        internal async Task LoadDynamicDataFromServer(WorldState data)
+        {
+            data.DynamicWorld.IsUpdated = false;
+
             var ret = await HttpHelper.Get<DynamicWorld, ErrorRespond>(GetServer() + "play/zombidef/units");
 
             if (!ret.IsOk || ret.Output is null)
@@ -145,9 +231,9 @@ namespace AngkorWat.Phases
                 return;
             }
 
-            data.DynamicWorld = ret.Output;
+            data.DynamicWorld.IsUpdated = true;
 
-            data.DynamicWorld.FillNullLists();
+            data.SetDynamicData(ret.Output);
         }
     }
 }

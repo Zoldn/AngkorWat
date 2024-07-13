@@ -35,6 +35,9 @@ internal class Program
         var phase = new Phase1() 
         {
             IsTest = true,
+            IsServer = false,
+            PathToDynamicData = "E:/Projects/Hackaton/Defence/res-11-dynamic.json",
+            PathToStaticData = "E:/Projects/Hackaton/Defence/res-11-static.json",
         };
 
         await phase.Run();

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,10 @@ namespace AngkorWat.Components
         [JsonProperty("error")]
         public string ErrorText { get; set; } = string.Empty;
         public ErrorRespond() { }
+        public override string ToString()
+        {
+            return $"{ErrorCode}: {ErrorText}";
+        }
     }
 
     public class Coordinate
@@ -149,6 +154,10 @@ namespace AngkorWat.Components
         public long TurnEndsInMs { get; set; }
         [JsonProperty("zombies")]
         public List<Zombie> Zombies { get; set; } = new();
+        /// <summary>
+        /// Удалось ли получить последнюю актуальную информацию по раунду
+        /// </summary>
+        public bool IsUpdated { get; set; }
         public DynamicWorld() { }
 
         internal void FillNullLists()
@@ -156,6 +165,13 @@ namespace AngkorWat.Components
             Base ??= new();
             EnemyBases ??= new();
             Zombies ??= new();
+        }
+
+        public bool TryGetBaseCenter([MaybeNullWhen(false)] out BaseTile? baseCenter)
+        {
+            baseCenter = Base.FirstOrDefault(b => b.IsHead);
+
+            return baseCenter is not null;
         }
     }
 

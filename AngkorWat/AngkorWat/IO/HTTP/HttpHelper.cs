@@ -203,6 +203,7 @@ namespace AngkorWat.IO.HTTP
                 try
                 {
                     ret.Error = JsonConvert.DeserializeObject<TError>(result);
+                    Console.WriteLine(ret.Error.ToString());
                 }
                 catch (Exception ex)
                 {
